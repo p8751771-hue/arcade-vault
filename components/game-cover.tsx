@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type CSSProperties } from "react";
 import type { GameId } from "@/lib/games";
 
 // Port de `cover()` de references/games.js: solo el dibujo de portadas,
@@ -124,9 +124,10 @@ interface GameCoverProps {
   id: GameId;
   title: string;
   className?: string;
+  style?: CSSProperties;
 }
 
-export function GameCover({ id, title, className = "" }: GameCoverProps) {
+export function GameCover({ id, title, className = "", style }: GameCoverProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -139,6 +140,7 @@ export function GameCover({ id, title, className = "" }: GameCoverProps) {
   return (
     <div
       className={`aspect-[96/56] w-full overflow-hidden bg-[var(--color-cover)] ${className}`}
+      style={style}
     >
       <canvas
         ref={canvasRef}

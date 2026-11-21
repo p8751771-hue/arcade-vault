@@ -56,3 +56,10 @@ const dateFormat = new Intl.DateTimeFormat("es-ES", {
 export function formatDate(iso: string): string {
   return dateFormat.format(new Date(iso));
 }
+
+/** Medallas del top 3 (ranking y salón): oro, plata, bronce. */
+export const MEDALS = [
+  { color: "#ffd24a", rgb: "255,210,74" },
+  { color: "#dfe9f5", rgb: "223,233,245" },
+  { color: "#ff9a4d", rgb: "255,154,77" },
+] as const;
