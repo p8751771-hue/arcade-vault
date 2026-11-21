@@ -71,13 +71,12 @@ Non-default settings in `next.config.ts` that affect how code is written:
 - **`cacheComponents: true`**: data fetching is dynamic by default. Opt into caching with the `use cache` directive (plus `cacheLife` / `cacheTag`). Routes prerender a static shell while dynamic content streams in, so uncached dynamic access (e.g. `cookies()`, `fetch`, `searchParams`) outside `<Suspense>` can fail the build. This requires the Node.js runtime, so do **not** export the `runtime` route segment config.
 - **`partialPrefetching: true`**: by default `<Link>` prefetches only the route's App Shell. Use `<Link prefetch={true}>` to prefetch a link's URL-specific cached content.
 - **`experimental.agentFeedback: true`**: lets `next dev` maintain agent instructions (the `AGENTS.md` block).
-- **Tailwind CSS v4 via Turbopack**: wired through `turbopack.rules` using `@tailwindcss/turbopack` for `*.css`; there is no `postcss.config`. `app/globals.css` imports Tailwind with `@import "tailwindcss"` and exposes theme tokens (`--background`, `--foreground`, fonts) via `@theme inline`. Dark mode follows `prefers-color-scheme`.
+- **Tailwind CSS v4 via Turbopack**: wired through `turbopack.rules` using `@tailwindcss/turbopack` for `*.css`; there is no `postcss.config`. `app/globals.css` imports Tailwind with `@import "tailwindcss"` and exposes the theme (colors such as `bg-void` / `text-neon-cyan`, `font-pixel`, glow shadows, animations like `animate-row-in`) via `@theme inline`. It also defines the reusable classes `.btn-neon`, `.chip-neon`, `.panel-neon`, `.card-neon`, `.input-neon`, `.header-neon`, `.pixelated` and the CRT background. The app is always dark (`color-scheme: dark`); there is no light mode and `prefers-reduced-motion` is handled globally there.
 
 Conventions:
 
 - Single responsive breakpoint at 760 px, done with Tailwind arbitrary variants (`min-[760px]:`), never `window.innerWidth`.
 - Per-game neon colors are passed as CSS variables (`--neon`, `--neon-rgb` as space-separated channels) so `.card-neon` / `.chip-neon` pick them up.
-- Do not rely on `notFound()` for an HTTP 404 on unknown `[id]`: with `cacheComponents` the shell is sent first, so the status stays 200 (noindex UI). A real 404 needs a `proxy.ts` check.
-
+- `proxy.ts` (root) returns the real HTTP 404 for unknown game ids on `/juegos/:id` and `/juegos/:id/jugar` by rewriting to `/_not-found`. It is needed because with `cacheComponents` the shell is sent first, so `notFound()` inside a page only yields a 200 with the 404 UI. Keep it fast (it only compares the id with `GAMES`); the pages still call `notFound()` as a second guard. Add new game routes to its `matcher`.
 - `app/layout.tsx` types its props with the global `LayoutProps<"/">` helper (generated route types, no import needed).
-- Fonts: Geist / Geist Mono via `next/font/google`, exposed as `--font-geist-sans` / `--font-geist-mono`.
+- Fonts: Press Start 2P (titles, buttons, scores) and Courier Prime (body text) via `next/font/google`, exposed as `--font-press-start` / `--font-courier-prime` and used as `font-pixel` / `font-sans`.

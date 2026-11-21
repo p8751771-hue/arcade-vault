@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { GameCover } from "@/components/game-cover";
 import { GAMES } from "@/lib/games";
 import { MEDALS, formatDate, formatScore, getLeaderboard } from "@/lib/scores";
@@ -8,9 +9,24 @@ export function generateStaticParams() {
   return GAMES.map((game) => ({ id: game.id }));
 }
 
-export default async function GameDetailPage({
-  params,
-}: PageProps<"/juegos/[id]">) {
+// `params` se lee dentro de <Suspense>: así la navegación al detalle no se bloquea
+// (validación "instant" de cacheComponents). El 404 real lo da `proxy.ts`.
+export default function GameDetailPage({ params }: PageProps<"/juegos/[id]">) {
+  return (
+    <Suspense
+      fallback={
+        <main
+          aria-busy="true"
+          className="relative z-[1] mx-auto min-h-[60vh] w-full max-w-[1180px] px-5 pt-9 pb-20"
+        />
+      }
+    >
+      <GameDetail params={params} />
+    </Suspense>
+  );
+}
+
+async function GameDetail({ params }: { params: PageProps<"/juegos/[id]">["params"] }) {
   const { id } = await params;
   const game = GAMES.find((g) => g.id === id);
   if (!game) notFound();
