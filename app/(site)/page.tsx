@@ -1,4 +1,4 @@
-import { GameCard } from "@/components/game-card";
+import { GameLibrary } from "@/components/game-library";
 import { GAMES } from "@/lib/games";
 import { formatScore, getLeaderboard } from "@/lib/scores";
 
@@ -18,15 +18,12 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-[repeat(auto-fill,minmax(min(100%,280px),1fr))] gap-7">
-        {GAMES.map((game) => (
-          <GameCard
-            key={game.id}
-            game={game}
-            best={formatScore(getLeaderboard(game.id)[0].score)}
-          />
-        ))}
-      </div>
+      <GameLibrary
+        entries={GAMES.map((game) => ({
+          game,
+          best: formatScore(getLeaderboard(game.id)[0].score),
+        }))}
+      />
     </main>
   );
 }
