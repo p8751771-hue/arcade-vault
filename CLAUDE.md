@@ -36,6 +36,12 @@ Implement what the approved spec says. Changes go into the spec first, and out-o
 
 This is Next.js 16.4 / React 19.3, which is newer than most training data. `AGENTS.md` requires reading the version-matched docs in `node_modules/next/dist/docs/` (mirrors nextjs.org/docs; App Router lives under `01-app/`) before writing Next.js code, and heeding deprecation notices. `next dev` re-adds the `AGENTS.md` block automatically.
 
+## Skills
+
+Usa siempre `/frontend-design` para diseñar la interfaz de usuario en este proyecto.
+
+It comes from https://github.com/anthropics/skills, installed with `npx skills add https://github.com/anthropics/skills --skill frontend-design`. Like the spec skills, the files live in `.agents/skills/frontend-design/`, `.claude/skills/frontend-design` is a symlink to them, and `skills-lock.json` pins commit `e4bb5d9`.
+
 ## Architecture
 
 App Router project: everything lives under `app/`, and the `@/*` path alias maps to the repo root.
