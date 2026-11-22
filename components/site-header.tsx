@@ -45,7 +45,7 @@ export function SiteHeader() {
           <Link
             href="/"
             onClick={closeMenu}
-            className="font-pixel text-sm whitespace-nowrap text-neon-cyan no-underline [text-shadow:0_0_8px_#00f5ff,0_0_20px_rgb(0_245_255/0.6)] hover:text-neon-cyan"
+            className="font-pixel text-sm leading-[normal] whitespace-nowrap text-neon-cyan no-underline [text-shadow:0_0_8px_#00f5ff,0_0_20px_rgb(0_245_255/0.6)] hover:text-neon-cyan"
           >
             ARCADE{" "}
             <span className="text-neon-pink [text-shadow:0_0_8px_#ff006e,0_0_20px_rgb(255_0_110/0.6)]">
@@ -93,7 +93,7 @@ export function SiteHeader() {
             ) : (
               <Link
                 href="/acceso"
-                className="btn-neon neon-pink px-3.5 py-[11px] no-underline hover:text-void"
+                className="btn-neon neon-pink px-3.5 py-[11px] leading-[normal] no-underline hover:text-void"
               >
                 INICIAR SESIÓN
               </Link>

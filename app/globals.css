@@ -118,9 +118,9 @@
    -------------------------------------------------------------------------- */
 :root {
   color-scheme: dark; /* la app es siempre oscura, como en la referencia */
-  /* Intensidad de los efectos CRT (props de la referencia: 0.35 / grid on) */
+  /* Intensidad de los efectos CRT (referencia: scanlines .35, rejilla .55) */
   --scanline-opacity: 0.35;
-  --grid-opacity: 1;
+  --grid-opacity: 0.55;
 }
 
 html {
@@ -133,6 +133,7 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 16px;
+  line-height: normal; /* la referencia no fija un interlineado base (el preflight pone 1.5) */
   overflow-x: hidden;
 }
 
@@ -142,11 +143,14 @@ body {
   box-sizing: border-box;
 }
 
-a {
-  color: var(--color-neon-cyan);
-}
-a:hover {
-  color: var(--color-neon-yellow);
+/* En @layer base: es solo el color por defecto; las utilidades (text-ink, …) deben poder ganarle */
+@layer base {
+  a {
+    color: var(--color-neon-cyan);
+  }
+  a:hover {
+    color: var(--color-neon-yellow);
+  }
 }
 
 ::selection {

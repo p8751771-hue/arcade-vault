@@ -40,7 +40,7 @@ export function GameLibrary({ entries }: { entries: LibraryEntry[] }) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar juego por nombre o categoría..."
             aria-label="Buscar juego por nombre o categoría"
-            className="min-w-0 flex-1 appearance-none border-0 bg-transparent py-4 text-lg text-ink-bright outline-none placeholder:text-ink-muted"
+            className="min-w-0 flex-1 appearance-none border-0 bg-transparent py-4 text-lg leading-[normal] text-ink-bright outline-none placeholder:text-ink-muted"
           />
         </label>
 

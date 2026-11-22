@@ -75,7 +75,7 @@ export function GameCard({ game, best }: GameCardProps) {
         {/* Elemento visual: un <button> dentro de un <a> no es HTML válido */}
         <span
           aria-hidden="true"
-          className="block border-2 border-[var(--neon)] p-[13px] text-center font-pixel text-xs text-[var(--neon)] shadow-[0_0_10px_rgb(var(--neon-rgb)/0.45)]"
+          className="block border-2 border-[var(--neon)] p-[13px] text-center font-pixel text-xs leading-[normal] text-[var(--neon)] shadow-[0_0_10px_rgb(var(--neon-rgb)/0.45)]"
         >
           JUGAR
         </span>
