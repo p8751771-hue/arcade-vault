@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Evidencias generadas por el MCP de Playwright
+.mcp-evidencias/
