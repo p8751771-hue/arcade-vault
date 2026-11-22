@@ -1,6 +1,6 @@
 # SPEC 01 — MVP visual de Arcade Vault (todas las pantallas)
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** Ninguno (primer spec)
 > **Fecha:** 2026-11-21
 > **Objetivo:** Construir la parte visual completa del MVP de Arcade Vault (Biblioteca, Detalle de juego, Salón de la Fama, Acceso y Pantalla de jugar) como rutas de Next.js con datos simulados y sin implementar ningún juego.
