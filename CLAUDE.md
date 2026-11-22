@@ -4,7 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project
 
-Arcade Vault is a platform for playing games online and competing for the highest score. The app itself is still the `create-next-app` starter (`app/page.tsx`); features are meant to be built through the spec-driven workflow below. Talk to the user in Spanish.
+Arcade Vault is a platform for playing games online and competing for the highest score. The visual MVP is built (spec `01-mvp-pantallas-visuales`): five screens with mocked data and no playable games. Backend, real auth, real score saving and the games themselves are future specs; build them through the spec-driven workflow below. Talk to the user in Spanish.
+
+Routes:
+
+| Route | File | Notes |
+| --- | --- | --- |
+| `/` | `app/(site)/page.tsx` | Library: hero, search, category chips, game grid |
+| `/juegos/[id]` | `app/(site)/juegos/[id]/page.tsx` | Detail + top 10; `generateStaticParams` for the 6 ids, `notFound()` otherwise |
+| `/salon-de-la-fama` | `app/(site)/salon-de-la-fama/page.tsx` | Per-game tabs and top 10 |
+| `/acceso` | `app/(site)/acceso/page.tsx` | Login / register tabs, social and guest buttons |
+| `/juegos/[id]/jugar` | `app/juegos/[id]/jugar/page.tsx` | Arcade cabinet placeholder; outside `(site)` so it has no header |
+
+The visual source of truth is `references/Arcade Vault.dc.html` (plus `games.js` for the pixel-art covers). If code and reference disagree visually, the reference wins.
 
 ## Commands
 
@@ -44,16 +56,27 @@ It comes from https://github.com/anthropics/skills, installed with `npx skills a
 
 ## Architecture
 
-App Router project: everything lives under `app/`, and the `@/*` path alias maps to the repo root.
+App Router project. Routes live under `app/`, shared UI in `components/` and data/logic in `lib/`; the `@/*` path alias maps to the repo root.
+
+- `app/(site)/` is a route group whose `layout.tsx` renders `SiteHeader` (wrapped in `<Suspense>` because `usePathname()` suspends on params outside `generateStaticParams`). `/juegos/[id]/jugar` lives outside it on purpose.
+- `lib/games.ts`: `Game` type, `GAMES` (6 games, reference order and texts) and `CATEGORY_FILTERS`.
+- `lib/scores.ts`: deterministic seed leaderboard (`getLeaderboard`), `MEDALS`, and `formatScore` / `formatDate` (`de-DE` / `es-ES` in `timeZone: "UTC"` so server and client match). Uses the fixed `SEED_REFERENCE_DATE`, never `Date.now()`.
+- `lib/api.ts`: network-free stubs (`login`, `register`, `submitScore`); the single place to swap in a backend.
+- `components/session-provider.tsx`: mocked session (`useSession`) persisted in `localStorage["av_user"]`; works without `localStorage` (memory fallback). Names are uppercased and capped at 14 chars.
+- Screens' client components: `site-header`, `game-library` (search + chips), `game-card` (a single `<Link>` with tilt that checks `prefers-reduced-motion`), `game-cover` (canvas port of `cover()`, 96×56), `hall-of-fame`, `auth-form`, `play-screen` (`PlayPhase` / `SaveState`; the "SIMULAR FIN DE PARTIDA" button only exists when `NODE_ENV !== "production"`).
+- Saving a score is only simulated and never alters the leaderboard. There is no game logic anywhere (no `startGame`, no game loop, no game key handlers; the P pause key is the only key handler).
 
 Non-default settings in `next.config.ts` that affect how code is written:
 
 - **`cacheComponents: true`**: data fetching is dynamic by default. Opt into caching with the `use cache` directive (plus `cacheLife` / `cacheTag`). Routes prerender a static shell while dynamic content streams in, so uncached dynamic access (e.g. `cookies()`, `fetch`, `searchParams`) outside `<Suspense>` can fail the build. This requires the Node.js runtime, so do **not** export the `runtime` route segment config.
 - **`partialPrefetching: true`**: by default `<Link>` prefetches only the route's App Shell. Use `<Link prefetch={true}>` to prefetch a link's URL-specific cached content.
 - **`experimental.agentFeedback: true`**: lets `next dev` maintain agent instructions (the `AGENTS.md` block).
-- **Tailwind CSS v4 via Turbopack**: wired through `turbopack.rules` using `@tailwindcss/turbopack` for `*.css`; there is no `postcss.config`. `app/globals.css` imports Tailwind with `@import "tailwindcss"` and exposes theme tokens (`--background`, `--foreground`, fonts) via `@theme inline`. Dark mode follows `prefers-color-scheme`.
+- **Tailwind CSS v4 via Turbopack**: wired through `turbopack.rules` using `@tailwindcss/turbopack` for `*.css`; there is no `postcss.config`. `app/globals.css` imports Tailwind with `@import "tailwindcss"` and exposes the theme (colors such as `bg-void` / `text-neon-cyan`, `font-pixel`, glow shadows, animations like `animate-row-in`) via `@theme inline`. It also defines the reusable classes `.btn-neon`, `.chip-neon`, `.panel-neon`, `.card-neon`, `.input-neon`, `.header-neon`, `.pixelated` and the CRT background. The app is always dark (`color-scheme: dark`); there is no light mode and `prefers-reduced-motion` is handled globally there.
 
 Conventions:
 
+- Single responsive breakpoint at 760 px, done with Tailwind arbitrary variants (`min-[760px]:`), never `window.innerWidth`.
+- Per-game neon colors are passed as CSS variables (`--neon`, `--neon-rgb` as space-separated channels) so `.card-neon` / `.chip-neon` pick them up.
+- `proxy.ts` (root) returns the real HTTP 404 for unknown game ids on `/juegos/:id` and `/juegos/:id/jugar` by rewriting to `/_not-found`. It is needed because with `cacheComponents` the shell is sent first, so `notFound()` inside a page only yields a 200 with the 404 UI. Keep it fast (it only compares the id with `GAMES`); the pages still call `notFound()` as a second guard. Add new game routes to its `matcher`.
 - `app/layout.tsx` types its props with the global `LayoutProps<"/">` helper (generated route types, no import needed).
-- Fonts: Geist / Geist Mono via `next/font/google`, exposed as `--font-geist-sans` / `--font-geist-mono`.
+- Fonts: Press Start 2P (titles, buttons, scores) and Courier Prime (body text) via `next/font/google`, exposed as `--font-press-start` / `--font-courier-prime` and used as `font-pixel` / `font-sans`.

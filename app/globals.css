@@ -42,6 +42,13 @@
   --color-foreground: var(--color-ink);
 
   /* Tipografía */
+  /* La referencia no fija interlineado salvo donde lo indica (leading-*): las utilidades
+     text-xs … text-xl de Tailwind no deben imponer el suyo. */
+  --text-xs--line-height: normal;
+  --text-sm--line-height: normal;
+  --text-base--line-height: normal;
+  --text-lg--line-height: normal;
+  --text-xl--line-height: normal;
   --font-pixel: var(--font-press-start), monospace;
   --font-sans: var(--font-courier-prime), monospace;
   --font-mono: var(--font-courier-prime), monospace;
@@ -118,9 +125,9 @@
    -------------------------------------------------------------------------- */
 :root {
   color-scheme: dark; /* la app es siempre oscura, como en la referencia */
-  /* Intensidad de los efectos CRT (props de la referencia: 0.35 / grid on) */
+  /* Intensidad de los efectos CRT (referencia: scanlines .35, rejilla .55) */
   --scanline-opacity: 0.35;
-  --grid-opacity: 1;
+  --grid-opacity: 0.55;
 }
 
 html {
@@ -133,6 +140,7 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   font-size: 16px;
+  line-height: normal; /* la referencia no fija un interlineado base (el preflight pone 1.5) */
   overflow-x: hidden;
 }
 
@@ -142,11 +150,14 @@ body {
   box-sizing: border-box;
 }
 
-a {
-  color: var(--color-neon-cyan);
-}
-a:hover {
-  color: var(--color-neon-yellow);
+/* En @layer base: es solo el color por defecto; las utilidades (text-ink, …) deben poder ganarle */
+@layer base {
+  a {
+    color: var(--color-neon-cyan);
+  }
+  a:hover {
+    color: var(--color-neon-yellow);
+  }
 }
 
 ::selection {
@@ -242,7 +253,6 @@ body::after {
   .btn-neon {
     font-family: var(--font-pixel);
     font-size: 10px;
-    line-height: 1.5;
     color: var(--neon, var(--color-neon-cyan));
     background: transparent;
     border: 2px solid var(--neon, var(--color-neon-cyan));
@@ -264,7 +274,6 @@ body::after {
   .btn-neon-solid {
     font-family: var(--font-pixel);
     font-size: 12px;
-    line-height: 1.5;
     color: var(--color-void);
     background: var(--neon, var(--color-neon-cyan));
     border: 2px solid var(--neon, var(--color-neon-cyan));
@@ -339,6 +348,7 @@ body::after {
     color: var(--color-ink-bright);
     font-family: var(--font-sans);
     font-size: 18px;
+    font-weight: 400; /* un <input> no hereda el peso de su <label> (que es negrita) */
     padding: 13px 14px;
     outline: none;
     transition: all 0.15s;
