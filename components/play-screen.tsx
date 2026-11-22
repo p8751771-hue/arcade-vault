@@ -270,7 +270,7 @@ export function PlayScreen({ game }: { game: Game }) {
               key={label}
               type="button"
               style={{ flex }}
-              className="min-h-14 cursor-pointer touch-none border-2 border-neon-cyan bg-panel font-pixel text-[13px] text-neon-cyan active:bg-neon-cyan active:text-void"
+              className="min-h-14 cursor-pointer touch-none border-2 border-neon-cyan bg-panel px-1.5 py-px font-pixel text-[13px] text-neon-cyan active:bg-neon-cyan active:text-void"
             >
               {label}
             </button>
@@ -348,13 +348,13 @@ export function PlayScreen({ game }: { game: Game }) {
               <button
                 type="button"
                 onClick={restart}
-                className="btn-neon neon-cyan flex-[1_1_150px]"
+                className="btn-neon neon-cyan flex-[1_1_150px] leading-[1.5]"
               >
                 JUGAR DE NUEVO
               </button>
               <Link
                 href="/"
-                className="btn-neon neon-pink flex-[1_1_150px] text-center no-underline hover:text-void"
+                className="btn-neon neon-pink flex-[1_1_150px] text-center leading-[1.5] no-underline hover:text-void"
               >
                 VOLVER AL VAULT
               </Link>
