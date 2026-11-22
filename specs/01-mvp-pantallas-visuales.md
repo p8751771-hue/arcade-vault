@@ -157,70 +157,70 @@ Antes del paso 1, leer la guía relevante de `node_modules/next/dist/docs/01-app
 
 **Generales**
 
-- [ ] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
-- [ ] Ninguna pantalla muestra errores ni warnings de hidratación en la consola del navegador.
-- [ ] Las cinco rutas existen: `/`, `/juegos/arkanoid`, `/salon-de-la-fama`, `/acceso`, `/juegos/arkanoid/jugar`.
-- [ ] `/juegos/xyz` y `/juegos/xyz/jugar` devuelven código HTTP 404 (comprobado con `curl`, no solo con la UI de 404).
-- [ ] No existe lógica de ningún juego: ninguna función `startGame`, ningún bucle `requestAnimationFrame` de juego ni manejador de teclas de juego.
-- [ ] Con `prefers-reduced-motion: reduce` no hay rejilla animada, parpadeos ni tilt en las tarjetas.
-- [ ] Sin `localStorage` disponible la app sigue funcionando (el usuario simulado simplemente no persiste).
+- [x] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
+- [x] Ninguna pantalla muestra errores ni warnings de hidratación en la consola del navegador.
+- [x] Las cinco rutas existen: `/`, `/juegos/arkanoid`, `/salon-de-la-fama`, `/acceso`, `/juegos/arkanoid/jugar`.
+- [x] `/juegos/xyz` y `/juegos/xyz/jugar` devuelven código HTTP 404 (comprobado con `curl`, no solo con la UI de 404).
+- [x] No existe lógica de ningún juego: ninguna función `startGame`, ningún bucle `requestAnimationFrame` de juego ni manejador de teclas de juego.
+- [x] Con `prefers-reduced-motion: reduce` no hay rejilla animada, parpadeos ni tilt en las tarjetas.
+- [x] Sin `localStorage` disponible la app sigue funcionando (el usuario simulado simplemente no persiste).
 
 **Header y menú**
 
-- [ ] En ≥ 760 px se ve la navegación horizontal; en < 760 px se ve el botón hamburguesa.
-- [ ] El menú móvil se abre con el botón, se cierra al pulsar el overlay y al navegar.
-- [ ] "Biblioteca" aparece activa en `/` y en `/juegos/[id]`; "Salón de la Fama" en `/salon-de-la-fama`.
-- [ ] Sin sesión se ve "INICIAR SESIÓN" y lleva a `/acceso`; con sesión se ve la inicial, el nombre y "Salir".
-- [ ] "Salir" borra `av_user` y el header vuelve a mostrar "INICIAR SESIÓN" sin cambiar de ruta.
-- [ ] El header no aparece en `/juegos/[id]/jugar`.
+- [x] En ≥ 760 px se ve la navegación horizontal; en < 760 px se ve el botón hamburguesa.
+- [x] El menú móvil se abre con el botón, se cierra al pulsar el overlay y al navegar.
+- [x] "Biblioteca" aparece activa en `/` y en `/juegos/[id]`; "Salón de la Fama" en `/salon-de-la-fama`.
+- [x] Sin sesión se ve "INICIAR SESIÓN" y lleva a `/acceso`; con sesión se ve la inicial, el nombre y "Salir".
+- [x] "Salir" borra `av_user` y el header vuelve a mostrar "INICIAR SESIÓN" sin cambiar de ruta.
+- [x] El header no aparece en `/juegos/[id]/jugar`.
 
 **Biblioteca**
 
 - [x] A 1280×900 y a 390×844 las posiciones y tamaños de header, hero, buscador, chips y tarjetas coinciden con `references/Arcade Vault.dc.html` (medido con Playwright).
 - [x] En detalle, Salón de la Fama, acceso y jugar, a 1280×900 y a 390×844, el alto del documento y la posición, tamaño y estilo de cada texto y campo coinciden con la referencia, salvo el área de juego (placeholder) y las fechas del ranking (medido con Playwright).
-- [ ] Se muestran 6 tarjetas, cada una con portada, categoría, título, descripción, mejor puntuación (la del puesto 1 del ranking) y botón JUGAR.
-- [ ] La mejor puntuación de Arkanoid se ve como `12.000`.
-- [ ] Pulsar los chips filtra por categoría; `TODOS` muestra los 6.
-- [ ] Buscar "puzle" o "PUZLE" no distingue mayúsculas ni acentos y deja solo Tetris.
-- [ ] Una búsqueda sin resultados muestra "NO SE ENCONTRARON JUEGOS" y el texto "Prueba con otro nombre o categoría.".
-- [ ] Pulsar cualquier parte de una tarjeta lleva a `/juegos/[id]` de ese juego.
+- [x] Se muestran 6 tarjetas, cada una con portada, categoría, título, descripción, mejor puntuación (la del puesto 1 del ranking) y botón JUGAR.
+- [x] La mejor puntuación de Arkanoid se ve como `12.000`.
+- [x] Pulsar los chips filtra por categoría; `TODOS` muestra los 6.
+- [x] Buscar "puzle" o "PUZLE" no distingue mayúsculas ni acentos y deja solo Tetris.
+- [x] Una búsqueda sin resultados muestra "NO SE ENCONTRARON JUEGOS" y el texto "Prueba con otro nombre o categoría.".
+- [x] Pulsar cualquier parte de una tarjeta lleva a `/juegos/[id]` de ese juego.
 
 **Detalle**
 
-- [ ] Se ven portada, categoría, título, descripción larga y controles con el texto de la referencia.
-- [ ] "JUGAR AHORA" lleva a `/juegos/[id]/jugar`; "VOLVER AL VAULT" lleva a `/`.
-- [ ] El panel muestra exactamente 10 filas; las 3 primeras usan los colores de medalla.
-- [ ] En ≥ 760 px el panel va en una columna lateral; en < 760 px va debajo del contenido.
+- [x] Se ven portada, categoría, título, descripción larga y controles con el texto de la referencia.
+- [x] "JUGAR AHORA" lleva a `/juegos/[id]/jugar`; "VOLVER AL VAULT" lleva a `/`.
+- [x] El panel muestra exactamente 10 filas; las 3 primeras usan los colores de medalla.
+- [x] En ≥ 760 px el panel va en una columna lateral; en < 760 px va debajo del contenido.
 
 **Salón de la Fama**
 
-- [ ] Hay 6 pestañas, una por juego; la activa está rellena con el color del juego.
-- [ ] Cambiar de pestaña cambia las 10 filas y reinicia la animación de entrada.
-- [ ] En < 760 px la columna FECHA no se muestra.
-- [ ] Sin sesión no hay banner "TU MEJOR MARCA"; con sesión aparece con el texto "AÚN SIN MARCA EN ESTE JUEGO".
+- [x] Hay 6 pestañas, una por juego; la activa está rellena con el color del juego.
+- [x] Cambiar de pestaña cambia las 10 filas y reinicia la animación de entrada.
+- [x] En < 760 px la columna FECHA no se muestra.
+- [x] Sin sesión no hay banner "TU MEJOR MARCA"; con sesión aparece con el texto "AÚN SIN MARCA EN ESTE JUEGO".
 
 **Acceso**
 
-- [ ] Enviar con usuario vacío o contraseña de menos de 4 caracteres muestra "Introduce tu usuario y una contraseña de al menos 4 caracteres.".
-- [ ] En "Crear cuenta" aparece el campo de correo; un correo inválido muestra "Introduce un correo electrónico válido.".
-- [ ] Cambiar de pestaña limpia el mensaje de error.
-- [ ] Un envío válido guarda `av_user` con el usuario en mayúsculas y recortado a 14 caracteres, y redirige a `/`.
-- [ ] El botón Google inicia sesión como `JUGADOR_GOOGLE` y el de GitHub como `JUGADOR_GITHUB`.
-- [ ] "JUGAR COMO INVITADO" redirige a `/` sin crear sesión.
+- [x] Enviar con usuario vacío o contraseña de menos de 4 caracteres muestra "Introduce tu usuario y una contraseña de al menos 4 caracteres.".
+- [x] En "Crear cuenta" aparece el campo de correo; un correo inválido muestra "Introduce un correo electrónico válido.".
+- [x] Cambiar de pestaña limpia el mensaje de error.
+- [x] Un envío válido guarda `av_user` con el usuario en mayúsculas y recortado a 14 caracteres, y redirige a `/`.
+- [x] El botón Google inicia sesión como `JUGADOR_GOOGLE` y el de GitHub como `JUGADOR_GITHUB`.
+- [x] "JUGAR COMO INVITADO" redirige a `/` sin crear sesión.
 
 **Pantalla de jugar**
 
-- [ ] Al entrar se ve "CARGANDO..." unos 1,1 s y después el placeholder de juego.
-- [ ] El HUD muestra PUNTUACIÓN `0`, VIDAS `3`, NIVEL `1` y JUGADOR (nombre de sesión o `INVITADO`).
-- [ ] El botón PAUSA y la tecla P muestran y ocultan el overlay "PAUSA"; el botón alterna entre PAUSA y REANUDAR.
-- [ ] La tecla P no hace nada durante la carga ni con el modal de fin de partida abierto.
-- [ ] SALIR lleva a `/juegos/[id]`.
-- [ ] La botonera táctil se ve solo en < 760 px y se oculta con el modal abierto.
-- [ ] En desarrollo, "SIMULAR FIN DE PARTIDA" abre el modal con la puntuación final `baseScore / 2` formateada; en `npm run build` + `npm run start` ese botón no existe.
-- [ ] "GUARDAR PUNTUACIÓN" muestra "GUARDANDO..." y luego "PUNTUACIÓN GUARDADA" tecleado con cursor; después el botón no se puede volver a pulsar.
-- [ ] La nota del modal dice "Modo invitado: se guardará solo en este dispositivo." sin sesión y "Se enviará a tu cuenta (conexión con el servidor)." con sesión.
-- [ ] Guardar no modifica el ranking del detalle ni del salón.
-- [ ] "JUGAR DE NUEVO" reinicia la carga; "VOLVER AL VAULT" lleva a `/`.
+- [x] Al entrar se ve "CARGANDO..." unos 1,1 s y después el placeholder de juego.
+- [x] El HUD muestra PUNTUACIÓN `0`, VIDAS `3`, NIVEL `1` y JUGADOR (nombre de sesión o `INVITADO`).
+- [x] El botón PAUSA y la tecla P muestran y ocultan el overlay "PAUSA"; el botón alterna entre PAUSA y REANUDAR.
+- [x] La tecla P no hace nada durante la carga ni con el modal de fin de partida abierto.
+- [x] SALIR lleva a `/juegos/[id]`.
+- [x] La botonera táctil se ve solo en < 760 px y se oculta con el modal abierto.
+- [x] En desarrollo, "SIMULAR FIN DE PARTIDA" abre el modal con la puntuación final `baseScore / 2` formateada; en `npm run build` + `npm run start` ese botón no existe.
+- [x] "GUARDAR PUNTUACIÓN" muestra "GUARDANDO..." y luego "PUNTUACIÓN GUARDADA" tecleado con cursor; después el botón no se puede volver a pulsar.
+- [x] La nota del modal dice "Modo invitado: se guardará solo en este dispositivo." sin sesión y "Se enviará a tu cuenta (conexión con el servidor)." con sesión.
+- [x] Guardar no modifica el ranking del detalle ni del salón.
+- [x] "JUGAR DE NUEVO" reinicia la carga; "VOLVER AL VAULT" lleva a `/`.
 
 ---
 
