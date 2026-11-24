@@ -1,6 +1,6 @@
 # SPEC 02 — Landing "Inicio" de Arcade Vault
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 01
 > **Fecha:** 2026-11-24
 > **Objetivo:** Construir la landing "Inicio" del diseño `references/home-about/` en `/`, mover la Biblioteca a `/biblioteca` y adoptar el header, menú móvil, pie y fondo de ese diseño en todo el sitio, sin implementar la página "Acerca de".
@@ -159,64 +159,66 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de ro
 
 **Generales**
 
-- [ ] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
-- [ ] Ninguna ruta muestra errores ni warnings de hidratación en la consola del navegador.
-- [ ] `/` y `/biblioteca` responden 200; `/juegos/xyz` y `/juegos/xyz/jugar` siguen respondiendo 404 (`curl`).
-- [ ] No existe ninguna ruta, archivo ni enlace de la página "Acerca de".
-- [ ] No hay lógica de ningún juego nueva (ningún `startGame`, bucle de juego ni manejador de teclas de juego).
-- [ ] Con `prefers-reduced-motion: reduce` no hay siluetas flotantes, parpadeos, rebote de "DESLIZA", revelado por scroll ni entrada escalonada de filas.
-- [ ] Con JavaScript desactivado todas las secciones de `/` son visibles (el revelado no deja contenido oculto).
-- [ ] Sin `localStorage` disponible la landing sigue funcionando (los CTA se muestran como sin sesión).
+- [x] `npm run lint`, `npx tsc --noEmit` y `npm run build` terminan sin errores.
+- [x] Ninguna ruta muestra errores ni warnings de hidratación en la consola del navegador.
+- [x] `/` y `/biblioteca` responden 200; `/juegos/xyz` y `/juegos/xyz/jugar` siguen respondiendo 404 (`curl`).
+- [x] No existe ninguna ruta, archivo ni enlace de la página "Acerca de".
+- [x] No hay lógica de ningún juego nueva (ningún `startGame`, bucle de juego ni manejador de teclas de juego).
+- [x] Con `prefers-reduced-motion: reduce` no hay siluetas flotantes, parpadeos, rebote de "DESLIZA", revelado por scroll ni entrada escalonada de filas.
+- [x] Con JavaScript desactivado todas las secciones de `/` son visibles (el revelado no deja contenido oculto).
+- [x] Sin `localStorage` disponible la landing sigue funcionando (los CTA se muestran como sin sesión).
 
 **Rutas y navegación**
 
-- [ ] `/biblioteca` muestra hero, buscador, chips y grid con el mismo contenido y medidas que tenía `/` en el spec 01. Antes de la ampliación: alto del documento 1550 px en escritorio y 3386 px en móvil; después, ese alto más la diferencia de header y el pie (paso 16).
-- [ ] "Inicio" aparece activo solo en `/`; "Biblioteca" en `/biblioteca` y `/juegos/[id]`; "Salón de la Fama" en `/salon-de-la-fama`.
-- [ ] El header muestra los tres enlaces en > 840 px y en el menú móvil, y no muestra "Acerca de" en ninguno de los dos.
-- [ ] El logo lleva a `/`.
-- [ ] "VOLVER AL VAULT" en el detalle y en jugar lleva a `/biblioteca`.
-- [ ] Un envío válido del formulario de acceso, los botones Google / GitHub y "JUGAR COMO INVITADO" redirigen a `/biblioteca`.
+- [x] `/biblioteca` muestra hero, buscador, chips y grid con el mismo contenido y medidas que tenía `/` en el spec 01. Antes de la ampliación: alto del documento 1550 px en escritorio y 3386 px en móvil; después, ese alto más la diferencia de header y el pie (paso 16).
+- [x] "Inicio" aparece activo solo en `/`; "Biblioteca" en `/biblioteca` y `/juegos/[id]`; "Salón de la Fama" en `/salon-de-la-fama`.
+- [x] El header muestra los tres enlaces en > 840 px y en el menú móvil, y no muestra "Acerca de" en ninguno de los dos.
+- [x] El logo lleva a `/`.
+- [x] "VOLVER AL VAULT" en el detalle y en jugar lleva a `/biblioteca`.
+- [x] Un envío válido del formulario de acceso, los botones Google / GitHub y "JUGAR COMO INVITADO" redirigen a `/biblioteca`.
 
 **Landing — contenido**
 
-- [ ] El hero muestra "▸ INSERTA UNA MONEDA_", las tres líneas del título (`EL ARCADE`, `CLÁSICO ESTÁ`, `DE VUELTA`), el subtítulo de dos líneas y "DESLIZA ▼".
-- [ ] El hero muestra ocho siluetas decorativas y ninguna es accesible por lector de pantalla (`aria-hidden`).
-- [ ] "▶ EXPLORAR JUEGOS" lleva a `/biblioteca`.
-- [ ] Hay cuatro tarjetas de ventajas con los títulos y descripciones de la referencia.
-- [ ] La sección `// 02` muestra exactamente 6 mini-tarjetas, con portada, título y categoría de cada juego de `GAMES`, y cada una lleva a `/juegos/[id]` de su juego.
-- [ ] "VER TODOS LOS JUEGOS →" lleva a `/biblioteca`.
-- [ ] La franja de estadísticas muestra `12+` / `JUEGOS`, `MILES` / `DE PARTIDAS` y `GLOBAL` / `RANKING` con sus subtítulos.
-- [ ] "ÚLTIMAS PUNTUACIONES" muestra 7 filas; cada título de juego es el de un juego de `GAMES`; la puntuación de NEONFOX se ve `+184.220` y la de ARKADYA `+7820`.
-- [ ] "TOP JUGADORES · HOY" muestra 5 filas; las tres primeras usan oro, plata y bronce; la barra de la fila 1 mide el 100 % y la de la fila 5 el 36 %.
-- [ ] "VER SALÓN →" lleva a `/salon-de-la-fama`.
-- [ ] La tarjeta de precios muestra `$0 / SIEMPRE`, la etiqueta "SIN TRUCOS · SIN LETRA PEQUEÑA", seis ventajas con marca ✔, el sello "FREE PLAY" y la nota "No pedimos tarjeta. Nunca lo haremos.".
-- [ ] Hay tres preguntas frecuentes con sus respuestas literales de la referencia.
-- [ ] El cierre muestra "¿LISTO PARA JUGAR?", "INSERTAR MONEDA →" (→ `/biblioteca`) y "Gratis. Sin registro obligatorio. Empieza en segundos.".
+- [x] El hero muestra "▸ INSERTA UNA MONEDA_", las tres líneas del título (`EL ARCADE`, `CLÁSICO ESTÁ`, `DE VUELTA`), el subtítulo de dos líneas y "DESLIZA ▼".
+- [x] El hero muestra ocho siluetas decorativas y ninguna es accesible por lector de pantalla (`aria-hidden`).
+- [x] "▶ EXPLORAR JUEGOS" lleva a `/biblioteca`.
+- [x] Hay cuatro tarjetas de ventajas con los títulos y descripciones de la referencia.
+- [x] La sección `// 02` muestra exactamente 6 mini-tarjetas, con portada, título y categoría de cada juego de `GAMES`, y cada una lleva a `/juegos/[id]` de su juego.
+- [x] "VER TODOS LOS JUEGOS →" lleva a `/biblioteca`.
+- [x] La franja de estadísticas muestra `12+` / `JUEGOS`, `MILES` / `DE PARTIDAS` y `GLOBAL` / `RANKING` con sus subtítulos.
+- [x] "ÚLTIMAS PUNTUACIONES" muestra 7 filas; cada título de juego es el de un juego de `GAMES`; la puntuación de NEONFOX se ve `+184.220` y la de ARKADYA `+7820`.
+- [x] "TOP JUGADORES · HOY" muestra 5 filas; las tres primeras usan oro, plata y bronce; la barra de la fila 1 mide el 100 % y la de la fila 5 el 36 %.
+- [x] "VER SALÓN →" lleva a `/salon-de-la-fama`.
+- [x] La tarjeta de precios muestra `$0 / SIEMPRE`, la etiqueta "SIN TRUCOS · SIN LETRA PEQUEÑA", seis ventajas con marca ✔, el sello "FREE PLAY" y la nota "No pedimos tarjeta. Nunca lo haremos.".
+- [x] Hay tres preguntas frecuentes con sus respuestas literales de la referencia.
+- [x] El cierre muestra "¿LISTO PARA JUGAR?", "INSERTAR MONEDA →" (→ `/biblioteca`) y "Gratis. Sin registro obligatorio. Empieza en segundos.".
 
 **Landing — sesión**
 
-- [ ] Sin sesión: "✦ CREAR CUENTA" y "EMPEZAR GRATIS →" llevan a `/acceso`.
-- [ ] Con sesión: el hero muestra "VER MI RANKING" (→ `/salon-de-la-fama`) y el plan "IR A JUGAR →" (→ `/biblioteca`).
-- [ ] Tras "Salir" en el header, los CTA vuelven a los textos sin sesión sin cambiar de ruta.
+- [x] Sin sesión: "✦ CREAR CUENTA" y "EMPEZAR GRATIS →" llevan a `/acceso`.
+- [x] Con sesión: el hero muestra "VER MI RANKING" (→ `/salon-de-la-fama`) y el plan "IR A JUGAR →" (→ `/biblioteca`).
+- [x] Tras "Salir" en el header, los CTA vuelven a los textos sin sesión sin cambiar de ruta.
 
 **Landing — responsive y visual**
 
-- [ ] A 1280×900 y a 390×844 las posiciones y tamaños de cada bloque de la landing coinciden con la referencia (medido con Playwright), salvo lo listado en el paso 11.
-- [ ] Las ventajas pasan de 4 a 2 columnas a ≤ 980 px y a 1 columna a ≤ 520 px; las mini-tarjetas de 6 a 3 columnas a ≤ 1100 px y a 2 a ≤ 600 px.
-- [ ] Las estadísticas pasan a una columna a ≤ 720 px, con línea horizontal en vez de vertical entre bloques.
-- [ ] Sin scroll horizontal en 390×844.
-- [ ] Las demás pantallas (`/biblioteca`, detalle, salón, acceso, jugar) mantienen el alto de documento medido en el spec 01 a 1280×900 y a 390×844 (antes de la ampliación; después, ver paso 16).
+- [x] A 1280×900 y a 390×844 las posiciones y tamaños de cada bloque de la landing coinciden con la referencia (medido con Playwright), salvo lo listado en el paso 11.
+- [x] Las ventajas pasan de 4 a 2 columnas a ≤ 980 px y a 1 columna a ≤ 520 px; las mini-tarjetas de 6 a 3 columnas a ≤ 1100 px y a 2 a ≤ 600 px.
+- [x] Las estadísticas pasan a una columna a ≤ 720 px, con línea horizontal en vez de vertical entre bloques.
+- [x] Sin scroll horizontal en 390×844.
+- [x] Las demás pantallas (`/biblioteca`, detalle, salón, acceso, jugar) mantienen el alto de documento medido en el spec 01 a 1280×900 y a 390×844 (antes de la ampliación; después, ver paso 16).
 
 **Ampliación — header, menú, pie y fondo**
 
-- [ ] Logo (icono + texto), enlaces, subrayado activo, "CRÉDITOS · 03" y botón "Iniciar Sesión" tienen los estilos calculados del prototipo y, cuando caben en una línea, su mismo tamaño (prototipo a 1600 px) (medido con Playwright).
-- [ ] Con sesión, el botón muestra "{NOMBRE} ▾" y al pulsarlo borra `av_user` sin cambiar de ruta.
-- [ ] A ≤ 840 px se ocultan enlaces y contador y aparece "≡"; a 841 px se ven enlaces y contador.
-- [ ] A 390×844, el menú abierto coincide con el prototipo: título "MENÚ" cian, cuatro enlaces pixel con separador discontinuo, "CRÉDITOS · 03" al pie. Se cierra al pulsar el fondo y al navegar.
-- [ ] El pie "© 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0" aparece en todas las pantallas con header y no en `/juegos/[id]/jugar`.
-- [ ] Contenido y pie de la landing miden lo mismo que en el prototipo a 1280×900 (3775 + 58 px) y a 390×844 (6116 + pie); el alto total solo difiere en la diferencia de alto del header (sin "Acerca de" no se parte en dos líneas).
-- [ ] El fondo global usa las capas de la referencia (degradados, rejilla cian, scanlines suaves, ruido) y el texto base es `#e6e9ff`; con `prefers-reduced-motion` la rejilla no se mueve.
-- [ ] Ninguna pantalla tiene scroll horizontal a 390×844 ni a 1280×900.
+- [x] Logo (icono + texto), enlaces, subrayado activo, "CRÉDITOS · 03" y botón "Iniciar Sesión" tienen los estilos calculados del prototipo y, cuando caben en una línea, su mismo tamaño (prototipo a 1600 px) (medido con Playwright).
+- [x] Con sesión, el botón muestra "{NOMBRE} ▾" y al pulsarlo borra `av_user` sin cambiar de ruta.
+- [x] A ≤ 840 px se ocultan enlaces y contador y aparece "≡"; a 841 px se ven enlaces y contador.
+- [x] A 390×844, el menú abierto coincide con el prototipo: título "MENÚ" cian, cuatro enlaces pixel con separador discontinuo, "CRÉDITOS · 03" al pie. Se cierra al pulsar el fondo y al navegar.
+- [x] El pie "© 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0" aparece en todas las pantallas con header y no en `/juegos/[id]/jugar`.
+- [x] Contenido y pie de la landing miden lo mismo que en el prototipo a 1280×900 (3775 + 58 px) y a 390×844 (6116 + pie); el alto total solo difiere en la diferencia de alto del header (sin "Acerca de" no se parte en dos líneas).
+- [x] El fondo global usa las capas de la referencia (degradados, rejilla cian, scanlines suaves, ruido) y el texto base es `#e6e9ff`; con `prefers-reduced-motion` la rejilla no se mueve.
+- [ ] Ninguna pantalla tiene scroll horizontal a 390×844 ni a 1280×900. **Excepción conocida:** `/biblioteca` a 390×844 permite a veces un desplazamiento de 5–7 px. Ya ocurría antes de este spec (pantalla del spec 01) y su causa no está localizada; las demás pantallas y la landing no desbordan. Queda para un spec posterior.
+
+**Cómo se verificó (2026-11-24):** con el MCP de Playwright contra el prototipo empaquetado (copiado temporalmente a `public/`) y con `curl` sobre `next start`. Evidencias en `.mcp-evidencias/2026-11-24_06-05-42/`, `2026-11-24_06-16-59/`, `2026-11-24_06-34-40/` y `2026-11-24_06-57-26/`, cada una con su `README.md`. El criterio "sin `localStorage`" se verificó por código: `components/session-provider.tsx` no cambia desde el spec 01, envuelve cada acceso en `try/catch` con respaldo en memoria, y la landing solo lo consume por `useSession()`.
 
 ---
 
