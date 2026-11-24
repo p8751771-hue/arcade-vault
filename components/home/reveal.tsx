@@ -7,13 +7,17 @@ import { useEffect, useRef, type ReactNode } from "react";
 // fuera de pantalla. Con prefers-reduced-motion, sin IntersectionObserver o sin
 // JavaScript no se oculta nada.
 export function Reveal({
+  as: Tag = "section",
   className,
   children,
+  ...rest
 }: {
+  as?: "section" | "div";
   className?: string;
   children: ReactNode;
+  "aria-hidden"?: boolean;
 }) {
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -42,8 +46,13 @@ export function Reveal({
   }, []);
 
   return (
-    <section ref={ref} data-reveal="idle" className={className}>
+    <Tag
+      ref={ref}
+      data-reveal="idle"
+      className={className}
+      {...rest}
+    >
       {children}
-    </section>
+    </Tag>
   );
 }
