@@ -413,16 +413,6 @@ html::after {
       inset 0 0 8px rgb(0 245 255 / 0.2);
   }
 
-  /* Barra de navegación fija */
-  .header-neon {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: rgb(10 10 15 / 0.9);
-    backdrop-filter: blur(6px);
-    border-bottom: 2px solid rgb(0 245 255 / 0.4);
-    box-shadow: 0 4px 24px rgb(0 245 255 / 0.12);
-  }
 
   /* Botón de la landing (references/home-about: esquinas cortadas, marco interior).
      El color sale de .neon-cyan / .neon-pink / … (--neon, --neon-rgb). */
