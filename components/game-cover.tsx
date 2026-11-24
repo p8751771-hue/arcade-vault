@@ -124,10 +124,18 @@ interface GameCoverProps {
   id: GameId;
   title: string;
   className?: string;
+  /** Clases extra del <canvas> (p. ej. `object-cover` en un contenedor cuadrado). */
+  canvasClassName?: string;
   style?: CSSProperties;
 }
 
-export function GameCover({ id, title, className = "", style }: GameCoverProps) {
+export function GameCover({
+  id,
+  title,
+  className = "",
+  canvasClassName = "",
+  style,
+}: GameCoverProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -148,7 +156,7 @@ export function GameCover({ id, title, className = "", style }: GameCoverProps) 
         height={H}
         role="img"
         aria-label={title}
-        className="pixelated block h-full w-full"
+        className={`pixelated block h-full w-full ${canvasClassName}`}
       />
     </div>
   );

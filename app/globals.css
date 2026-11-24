@@ -37,6 +37,20 @@
   --color-line: #3a3d52;
   --color-line-input: #2d6f78;
 
+  /* Landing (`/`): valores de references/home-about/styles.css que difieren de
+     los tokens de arriba. Prefijo propio para poder unificarlos en un spec de tema. */
+  --color-home-bg2: #0f0f18;
+  --color-home-bg3: #15151f;
+  --color-home-ink: #e6e9ff;
+  --color-home-dim: #8a8fb5;
+  --color-home-faint: #4a4f70;
+  --color-home-green: #00ff88;
+  --color-home-gold: #ffcf3a;
+  --color-home-silver: #c7d0e0;
+  --color-home-bronze: #d97a3a;
+  --color-home-line: rgb(0 245 255 / 0.18);
+  --color-home-line-2: rgb(255 255 255 / 0.06);
+
   /* Alias semánticos */
   --color-background: var(--color-void);
   --color-foreground: var(--color-ink);
@@ -76,7 +90,35 @@
   --animate-px-spin: px-spin 0.8s steps(8) infinite;
   --animate-wipe: wipe 0.9s linear infinite;
   --animate-modal-in: modal-in 0.3s both;
-  --animate-grid-move: grid-move 2.4s linear infinite;
+  --animate-grid-move: grid-move 8s linear infinite;
+  /* Landing */
+  --animate-fade-up: fade-up 240ms ease-out;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-bounce-soft: bounce-soft 1.6s ease-in-out infinite;
+  --animate-btn-pulse: btn-pulse 1.6s ease-in-out infinite;
+  --animate-tick-in: tick-in 360ms ease-out both;
+
+  @keyframes tick-in {
+    from { opacity: 0; transform: translateX(-8px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: none; }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-14px) rotate(2deg); }
+  }
+  @keyframes bounce-soft {
+    50% { transform: translateY(6px); }
+  }
+  @keyframes btn-pulse {
+    0%, 100% { box-shadow: 0 0 0 transparent, inset 0 0 0 transparent; }
+    50% {
+      box-shadow: 0 0 20px var(--neon, #00f5ff), inset 0 0 12px rgb(var(--neon-rgb, 0 245 255) / 0.45);
+    }
+  }
 
   @keyframes flicker {
     0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
@@ -125,8 +167,8 @@
    -------------------------------------------------------------------------- */
 :root {
   color-scheme: dark; /* la app es siempre oscura, como en la referencia */
-  /* Intensidad de los efectos CRT (referencia: scanlines .35, rejilla .55) */
-  --scanline-opacity: 0.35;
+  /* Intensidad del fondo (references/home-about: scanlines .6, rejilla .55) */
+  --scanline-opacity: 0.6;
   --grid-opacity: 0.55;
 }
 
@@ -137,7 +179,7 @@ html {
 body {
   margin: 0;
   background: transparent; /* deja ver el fondo animado de html::before / body::before */
-  color: var(--color-ink);
+  color: var(--color-home-ink); /* texto base de references/home-about (#e6e9ff) */
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: normal; /* la referencia no fija un interlineado base (el preflight pone 1.5) */
@@ -172,58 +214,69 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   3. Fondo CRT: resplandor magenta, rejilla en perspectiva y scanlines
+   3. Fondo (references/home-about/styles.css: .av-bg, .av-bg::before,
+      .av-bg::after y .av-noise). Capas fijas detrás del contenido, en este
+      orden de pintado: degradados → rejilla → scanlines → ruido.
    -------------------------------------------------------------------------- */
-/* Resplandor magenta inferior */
+/* .av-bg: resplandor magenta arriba y cian abajo */
 html::before {
   content: "";
   position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 70%;
+  inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse at 50% 30%, rgb(255 0 110 / 0.2), transparent 62%);
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgb(255 0 110 / 0.08), transparent 60%),
+    radial-gradient(120% 80% at 50% 100%, rgb(0 245 255 / 0.1), transparent 60%),
+    var(--color-void);
 }
 
-/* Rejilla en perspectiva que avanza hacia el espectador */
+/* .av-bg::before: rejilla cian en perspectiva */
 body::before {
   content: "";
   position: fixed;
-  left: -60%;
-  right: -60%;
-  bottom: -8%;
-  height: 62%;
+  left: -10%;
+  right: -10%;
+  bottom: -10%;
+  height: 70%;
   z-index: -1;
   pointer-events: none;
   opacity: var(--grid-opacity);
-  transform-origin: 50% 100%;
-  transform: perspective(420px) rotateX(58deg);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 55%);
-  mask-image: linear-gradient(to bottom, transparent 0%, #000 55%);
-  background-image:
-    linear-gradient(rgb(0 245 255 / 0.55) 2px, transparent 2px),
-    linear-gradient(90deg, rgb(255 0 110 / 0.5) 2px, transparent 2px);
-  background-size: 60px 60px;
+  background:
+    linear-gradient(to right, rgb(0 245 255 / 0.22) 1px, transparent 1px) 0 0 / 60px 60px,
+    linear-gradient(to bottom, rgb(0 245 255 / 0.22) 1px, transparent 1px) 0 0 / 60px 60px;
+  transform: perspective(600px) rotateX(60deg);
+  transform-origin: center bottom;
+  -webkit-mask-image: linear-gradient(to top, black 0%, transparent 90%);
+  mask-image: linear-gradient(to top, black 0%, transparent 90%);
   animation: var(--animate-grid-move);
 }
 
-/* Scanlines sobre toda la interfaz */
+/* .av-bg::after: scanlines suaves (detrás del contenido) */
 body::after {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: -1;
   pointer-events: none;
   opacity: var(--scanline-opacity);
-  background: repeating-linear-gradient(
+  background-image: repeating-linear-gradient(
     to bottom,
-    rgb(0 0 0 / 0) 0,
-    rgb(0 0 0 / 0) 2px,
-    rgb(0 0 0 / 0.55) 3px,
-    rgb(0 0 0 / 0) 4px
+    rgb(255 255 255 / 0.03) 0 1px,
+    transparent 1px 3px
   );
+  mix-blend-mode: overlay;
+}
+
+/* .av-noise: grano */
+html::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1   0 0 0 0 1   0 0 0 0 1   0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
 /* --------------------------------------------------------------------------
@@ -360,15 +413,73 @@ body::after {
       inset 0 0 8px rgb(0 245 255 / 0.2);
   }
 
-  /* Barra de navegación fija */
-  .header-neon {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    background: rgb(10 10 15 / 0.9);
-    backdrop-filter: blur(6px);
-    border-bottom: 2px solid rgb(0 245 255 / 0.4);
-    box-shadow: 0 4px 24px rgb(0 245 255 / 0.12);
+
+  /* Botón de la landing (references/home-about: esquinas cortadas, marco interior).
+     El color sale de .neon-cyan / .neon-pink / … (--neon, --neon-rgb). */
+  .btn-home {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 20px;
+    font-family: var(--font-pixel);
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-decoration: none;
+    color: var(--color-home-ink);
+    background: transparent;
+    border: 1px solid var(--neon, var(--color-neon-cyan));
+    cursor: pointer;
+    transition: transform 80ms ease, box-shadow 160ms ease, color 160ms;
+    clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  }
+  .btn-home::before {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    border: 1px solid rgb(0 245 255 / 0.25);
+    pointer-events: none;
+    clip-path: inherit;
+  }
+  .btn-home:hover {
+    color: var(--neon, var(--color-neon-cyan));
+    box-shadow:
+      0 0 14px rgb(var(--neon-rgb, 0 245 255) / 0.55),
+      inset 0 0 8px rgb(var(--neon-rgb, 0 245 255) / 0.35);
+  }
+  .btn-home:active {
+    transform: translateY(1px) scale(0.98);
+  }
+  .btn-home-lg {
+    padding: 16px 28px;
+    font-size: 12px;
+  }
+  .btn-home-xl {
+    padding: 20px 36px;
+    font-size: 14px;
+    letter-spacing: 0.2em;
+  }
+  .btn-home-pulse {
+    animation: var(--animate-btn-pulse);
+  }
+
+  /* Revelado al hacer scroll (landing). Solo se oculta cuando el componente
+     `Reveal` marca la sección como "armed" desde el cliente: sin JavaScript o con
+     prefers-reduced-motion nada queda oculto. Los ítems escalonan solo la opacidad
+     con --reveal-delay. */
+  [data-reveal] {
+    transition: opacity 600ms ease, transform 600ms ease;
+  }
+  [data-reveal="armed"] {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  [data-reveal-item] {
+    transition: opacity 600ms ease var(--reveal-delay, 0ms);
+  }
+  [data-reveal="armed"] [data-reveal-item] {
+    opacity: 0;
   }
 
   /* Imágenes pixel-art (portadas) sin suavizado */

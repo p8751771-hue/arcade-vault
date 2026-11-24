@@ -353,7 +353,7 @@ export function PlayScreen({ game }: { game: Game }) {
                 JUGAR DE NUEVO
               </button>
               <Link
-                href="/"
+                href="/biblioteca"
                 className="btn-neon neon-pink flex-[1_1_150px] text-center leading-[1.5] no-underline hover:text-void"
               >
                 VOLVER AL VAULT
