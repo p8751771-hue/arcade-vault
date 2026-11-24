@@ -24,14 +24,6 @@ function isActive(href: string, pathname: string) {
   return pathname.startsWith(href);
 }
 
-function UserInitial({ name }: { name: string }) {
-  return (
-    <div className="flex h-9 w-9 items-center justify-center border-2 border-neon-cyan font-pixel text-xs text-neon-cyan">
-      {name[0]}
-    </div>
-  );
-}
-
 export function SiteHeader() {
   const pathname = usePathname();
   const { user, signOut } = useSession();
@@ -46,7 +38,10 @@ export function SiteHeader() {
   return (
     <>
       {/* .av-nav: hereda 14px / 1.5 / 0.01em del body de la referencia */}
-      <header className="sticky top-0 z-50 flex items-center gap-6 border-b border-home-line bg-[linear-gradient(180deg,rgb(10_10_15/0.92),rgb(10_10_15/0.78))] px-8 py-3.5 text-[14px] leading-[1.5] tracking-[0.01em] text-home-ink backdrop-blur-[8px]">
+      {/* Corte de la referencia: max-width 840px ⇒ móvil. `max-[841px]:` ≡ ≤ 840 px (Tailwind v4 usa <).
+          Desviación acordada (spec 02, paso 14): en móvil el hueco es 12 px y no 24, porque con
+          24 px la barra mide 395 px a 390 y la hamburguesa queda recortada (igual que en el prototipo). */}
+      <header className="sticky top-0 z-50 flex items-center gap-6 border-b border-home-line bg-[linear-gradient(180deg,rgb(10_10_15/0.92),rgb(10_10_15/0.78))] px-8 py-3.5 text-[14px] leading-[1.5] tracking-[0.01em] text-home-ink backdrop-blur-[8px] max-[841px]:gap-3 max-[841px]:px-4 max-[841px]:py-3">
         <Link
           href="/"
           onClick={closeMenu}
@@ -66,7 +61,7 @@ export function SiteHeader() {
         </Link>
 
         {/* .links */}
-        <nav aria-label="Principal" className="ml-8 hidden gap-1 min-[760px]:flex">
+        <nav aria-label="Principal" className="ml-8 flex gap-1 max-[841px]:hidden">
           {NAV.map(({ href, label }) => {
             const active = isActive(href, pathname);
             return (
@@ -89,7 +84,7 @@ export function SiteHeader() {
         <div className="flex-1" />
 
         {/* .coin-counter (decorativo) */}
-        <div className="hidden items-center gap-2 font-pixel text-[9px] text-neon-yellow min-[760px]:flex">
+        <div className="flex items-center gap-2 font-pixel text-[9px] text-neon-yellow max-[841px]:hidden">
           <span
             aria-hidden="true"
             className="h-3.5 w-3.5 rounded-full bg-[radial-gradient(circle_at_35%_35%,#fff8b0,#f5ff00_60%,#b0b800)] shadow-[0_0_8px_#f5ff00]"
@@ -97,97 +92,77 @@ export function SiteHeader() {
           <span>CRÉDITOS · 03</span>
         </div>
 
-        {/* .btn.auth-btn (con sesión: .btn.ghost "{NOMBRE} ▾" que cierra la sesión) */}
-        <div className="hidden min-[760px]:flex">
-          {user ? (
-            <button
-              type="button"
-              onClick={handleSignOut}
-              title="Cerrar sesión"
-              className="btn-home ml-4 border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none"
-            >
-              {user.name} ▾
-            </button>
-          ) : (
-            <Link href="/acceso" className="btn-home neon-cyan ml-4">
-              Iniciar Sesión
-            </Link>
-          )}
-        </div>
+        {/* .btn.auth-btn, visible también en móvil (con sesión: .btn.ghost "{NOMBRE} ▾" que cierra la sesión) */}
+        {user ? (
+          <button
+            type="button"
+            onClick={handleSignOut}
+            title="Cerrar sesión"
+            className="btn-home ml-4 border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none"
+          >
+            {user.name} ▾
+          </button>
+        ) : (
+          <Link href="/acceso" onClick={closeMenu} className="btn-home neon-cyan ml-4">
+            Iniciar Sesión
+          </Link>
+        )}
 
-        {/* Móvil (< 760 px): se rehace en el paso 14 */}
+        {/* .btn.ghost.hamburger (≤ 840 px) */}
         <button
           type="button"
-          aria-label="Abrir menú"
+          aria-label="Menú"
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
           onClick={() => setMenuOpen(true)}
-          className="flex h-12 w-12 cursor-pointer flex-col items-center justify-center gap-1.5 border-2 border-neon-cyan bg-transparent shadow-glow-cyan active:scale-[0.92] min-[760px]:hidden"
+          className="btn-home border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none min-[841px]:hidden"
         >
-          <span className="h-[3px] w-[22px] bg-neon-cyan" />
-          <span className="h-[3px] w-[22px] bg-neon-cyan" />
-          <span className="h-[3px] w-[22px] bg-neon-cyan" />
+          ≡
         </button>
       </header>
 
-      {menuOpen && (
-        <div
-          onClick={closeMenu}
-          aria-hidden="true"
-          className="fixed inset-0 z-[80] bg-black/65 min-[760px]:hidden"
-        />
-      )}
+      {/* .av-mobile-backdrop */}
+      <div
+        onClick={closeMenu}
+        aria-hidden="true"
+        className={`fixed inset-0 z-[55] bg-black/60 transition-opacity duration-[180ms] min-[841px]:hidden ${
+          menuOpen ? "pointer-events-auto opacity-100" : "pointer-events-none opacity-0"
+        }`}
+      />
 
+      {/* .av-mobile-panel: hereda 14px / 1.5 / 0.01em como en la referencia */}
       <aside
         id="mobile-menu"
         aria-label="Menú"
         inert={!menuOpen}
-        className={`fixed top-0 right-0 bottom-0 z-[90] flex w-[min(82%,320px)] flex-col gap-3.5 border-l-2 border-neon-cyan bg-panel px-[22px] py-6 shadow-[-10px_0_40px_rgb(0_245_255/0.25)] transition-transform duration-[250ms] ease-in-out min-[760px]:hidden ${
-          menuOpen ? "translate-x-0" : "translate-x-[105%]"
+        className={`fixed top-0 right-0 bottom-0 z-[60] flex w-[min(320px,86vw)] flex-col gap-2 border-l border-home-line bg-home-bg2 px-5 py-6 text-[14px] leading-[1.5] tracking-[0.01em] text-home-ink transition-transform duration-[220ms] ease-[ease] min-[841px]:hidden ${
+          menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="mb-2.5 font-pixel text-[11px] text-neon-yellow">MENÚ</div>
-        {NAV.map(({ href, label }) => {
-          const active = isActive(href, pathname);
-          return (
-            <Link
-              key={href}
-              href={href}
-              onClick={closeMenu}
-              aria-current={active ? "page" : undefined}
-              className={`border-l-4 px-3.5 py-3.5 text-xl font-bold no-underline ${
-                active ? "border-neon-cyan text-neon-cyan" : "border-transparent text-ink"
-              }`}
-            >
-              {label}
-            </Link>
-          );
-        })}
-
-        <div className="mt-auto flex flex-col gap-3">
-          {user ? (
-            <>
-              <div className="flex items-center gap-2.5">
-                <UserInitial name={user.name} />
-                <span className="text-lg font-bold">{user.name}</span>
-              </div>
-              <button
-                type="button"
-                onClick={handleSignOut}
-                className="cursor-pointer border-2 border-line bg-transparent p-3 font-pixel text-[10px] text-ink-muted"
+        <div className="mb-4 font-pixel text-[11px] leading-[1.25] tracking-[0.04em] text-neon-cyan uppercase [text-shadow:0_0_6px_rgb(0_245_255/0.65),0_0_16px_rgb(0_245_255/0.45)]">
+          MENÚ
+        </div>
+        {[...NAV, { href: "/acceso", label: user ? "Cuenta" : "Iniciar Sesión" }].map(
+          ({ href, label }) => {
+            const active = href === "/acceso" ? pathname === "/acceso" : isActive(href, pathname);
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={closeMenu}
+                aria-current={active ? "page" : undefined}
+                className={`border-b border-dashed border-home-line-2 px-3 py-3.5 font-pixel text-[11px] no-underline ${
+                  active ? "text-neon-cyan hover:text-neon-cyan" : "text-home-dim hover:text-home-dim"
+                }`}
               >
-                CERRAR SESIÓN
-              </button>
-            </>
-          ) : (
-            <Link
-              href="/acceso"
-              onClick={closeMenu}
-              className="btn-neon-solid neon-pink p-3.5 text-center text-[11px] no-underline hover:text-void"
-            >
-              INICIAR SESIÓN
-            </Link>
-          )}
+                {label}
+              </Link>
+            );
+          },
+        )}
+        <div className="flex-1" />
+        <div className="font-pixel text-[9px] leading-[1.25] tracking-[0.16em] text-home-faint uppercase">
+          CRÉDITOS · 03
         </div>
       </aside>
     </>

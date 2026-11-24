@@ -234,6 +234,8 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de ro
 - **Sí (ampliación, decidido en el paso 13):** CSS de `.av-nav` literal. En el prototipo, a 1280 px el logo y el botón se parten en dos líneas (header de 85 px) solo porque "Acerca de" ocupa 117 px; a 1600 px van en una línea (70 px). Sin ese enlace, el header literal cabe en una línea a 1280.
 - **No (ampliación):** forzar el logo en dos líneas para imitar el prototipo a 1280. Dejaría de coincidir a anchos grandes.
 - **No (ampliación):** un "Acerca de" deshabilitado que ocupe su espacio. Contradice no mostrarlo hasta que exista su página.
+- **Sí (ampliación, decidido en el paso 14):** en móvil (≤ 840 px) el hueco entre elementos de la barra es 12 px en vez de 24. Con el valor de la referencia la barra mide 395 px a 390 y la hamburguesa queda recortada 5 px, igual que en el prototipo; el usuario prefirió que quepa. Es la única desviación del CSS de `.av-nav`.
+- **No (ampliación):** dejar el recorte idéntico al prototipo, ni ocultar "Iniciar Sesión" de la barra en móvil.
 - **Sí (ampliación):** el corte del header pasa de 760 a 840 px, el de la referencia. El resto de pantallas del spec 01 sigue con 760 px para su contenido.
 - **Sí (ampliación):** con sesión, el botón "{NOMBRE} ▾" cierra la sesión como en la referencia. Sustituye a inicial + nombre + "Salir" del spec 01.
 - **Sí (ampliación):** fondo y texto base de la referencia en todo el sitio; los colores propios de cada pantalla del spec 01 no cambian. El usuario señaló el fondo y los colores del header; recolorear tarjetas, ranking y cabina sería rehacer el spec 01.
