@@ -6,12 +6,17 @@ import { useState } from "react";
 import { useSession } from "@/components/session-provider";
 
 const NAV = [
-  { href: "/", label: "Biblioteca" },
+  { href: "/", label: "Inicio" },
+  { href: "/biblioteca", label: "Biblioteca" },
   { href: "/salon-de-la-fama", label: "Salón de la Fama" },
 ] as const;
 
 function isActive(href: string, pathname: string) {
-  if (href === "/") return pathname === "/" || pathname.startsWith("/juegos");
+  if (href === "/") return pathname === "/";
+  // El detalle de un juego cuelga de la Biblioteca.
+  if (href === "/biblioteca") {
+    return pathname.startsWith("/biblioteca") || pathname.startsWith("/juegos");
+  }
   return pathname.startsWith(href);
 }
 

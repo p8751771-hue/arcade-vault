@@ -34,7 +34,7 @@ export function AuthForm() {
 
   const finish = (name: string) => {
     signIn(name);
-    router.push("/");
+    router.push("/biblioteca");
   };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -156,7 +156,7 @@ export function AuthForm() {
 
       <button
         type="button"
-        onClick={() => router.push("/")}
+        onClick={() => router.push("/biblioteca")}
         className="cursor-pointer border-2 border-dashed border-neon-pink bg-transparent p-3.5 font-pixel text-[10px] text-neon-pink transition-all duration-[120ms] hover:bg-neon-pink/15 hover:shadow-[0_0_18px_rgb(255_0_110/0.5)] active:scale-95"
       >
         JUGAR COMO INVITADO

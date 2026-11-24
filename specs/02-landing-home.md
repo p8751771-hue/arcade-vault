@@ -3,7 +3,7 @@
 > **Estado:** Aprobado
 > **Depende de:** SPEC 01
 > **Fecha:** 2026-11-24
-> **Objetivo:** Construir la landing "Inicio" del diseño `references/home-about/` en `/` (hero, ventajas, juegos, estadísticas, actividad, precios y cierre) y mover la Biblioteca a `/biblioteca`, sin implementar la página "Acerca de".
+> **Objetivo:** Construir la landing "Inicio" del diseño `references/home-about/` en `/`, mover la Biblioteca a `/biblioteca` y adoptar el header, menú móvil, pie y fondo de ese diseño en todo el sitio, sin implementar la página "Acerca de".
 
 ---
 
@@ -14,6 +14,8 @@ El diseño nuevo de `references/home-about/` (`home.jsx`, `nav.jsx`, `styles.css
 La base visual ya existe y **no se rehace**: `app/globals.css` (tokens, `.btn-neon`, `.panel-neon`, fondo CRT, `prefers-reduced-motion` global), `components/game-cover.tsx`, `components/session-provider.tsx` y `lib/games.ts` / `lib/scores.ts`.
 
 La fuente de verdad visual de la landing es `references/home-about/` (`home.jsx` para estructura y textos, `styles.css` líneas 930–1069 y 1621–1727 para estilos). Si algo de este spec contradice la referencia en lo visual, gana la referencia, con las excepciones listadas en "Decisiones".
+
+**Ampliación (2026-11-24, pasos 12–16).** Con los pasos 1–11 implementados, la comparación con Playwright contra el prototipo mostró que el contenido de la landing coincide, pero el header, el logo, el botón de sesión, el menú móvil, el pie y el fondo siguen el diseño del spec 01 y no el de `home-about`. El usuario pidió alinearlos y eligió ampliar este spec en lugar de abrir otro. Esto **reemplaza** la decisión anterior "header solo con Inicio añadido". La fuente de verdad de estas piezas es `references/home-about/nav.jsx` y `styles.css` líneas 1–206 (`.av-bg`, `.av-noise`, `.av-nav`, `.av-mobile-*`, `.btn`), más el `<footer>` del prototipo empaquetado. Medidas de partida en `.mcp-evidencias/2026-11-24_06-16-59/`.
 
 ---
 
@@ -31,6 +33,10 @@ La fuente de verdad visual de la landing es `references/home-about/` (`home.jsx`
   7. **Cierre:** "¿LISTO PARA JUGAR?", botón "INSERTAR MONEDA →" y la nota "Gratis. Sin registro obligatorio. Empieza en segundos.".
 - Mover la Biblioteca actual (hero, buscador, chips, grid) de `/` a `/biblioteca`, sin cambiar su contenido.
 - Header: añadir el enlace "Inicio" (escritorio y menú móvil) y reajustar qué enlace está activo en cada ruta. El logo sigue llevando a `/`.
+- **(Ampliación)** Header de `home-about` en todas las pantallas con header: logo con icono cuadrado (magenta/cian) y texto "ARCADE / VAULT" en dos líneas, enlaces Inicio / Biblioteca / Salón de la Fama en Press Start 9 px con subrayado cian en el activo, contador decorativo "CRÉDITOS · 03" con moneda, botón "Iniciar Sesión" (borde cian, esquinas cortadas) o, con sesión, "{NOMBRE} ▾" que cierra la sesión. Corte de la referencia: a ≤ 840 px se ocultan enlaces y contador y aparece la hamburguesa "≡".
+- **(Ampliación)** Menú móvil de `home-about`: panel lateral de `min(320px, 86vw)` con fondo `#0f0f18`, título "MENÚ" cian, enlaces pixel de 11 px con separador discontinuo (Inicio, Biblioteca, Salón de la Fama, "Iniciar Sesión" o "Cuenta"), "CRÉDITOS · 03" al pie, y fondo oscuro que cierra el menú.
+- **(Ampliación)** Pie de página global en las pantallas con header: "© 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0".
+- **(Ampliación)** Fondo y color base de `home-about` en todo el sitio: degradados magenta/cian sobre `#0a0a0f`, rejilla cian en perspectiva (`.av-bg::before`), scanlines suaves (`.av-bg::after`), ruido (`.av-noise`) y texto base `#e6e9ff`. Sustituye al fondo CRT del spec 01 (rejilla cian+magenta, resplandor magenta y scanlines al 35 %).
 - Actualizar los enlaces que apuntaban a la Biblioteca: "VOLVER AL VAULT" (detalle y jugar) y las redirecciones tras acceso e invitado pasan a `/biblioteca`.
 - Efecto de aparición al hacer scroll (`reveal`) en las secciones, que respeta `prefers-reduced-motion` y deja el contenido visible sin JavaScript.
 - CTA que dependen de la sesión (mocked): con usuario iniciado, "CREAR CUENTA" pasa a "VER MI RANKING" y "EMPEZAR GRATIS →" a "IR A JUGAR →".
@@ -40,12 +46,12 @@ La fuente de verdad visual de la landing es `references/home-about/` (`home.jsx`
 
 **Fuera de alcance (para specs futuros):**
 
-- **La página "Acerca de"** (`about.jsx`, `.about-*`, `.contact-*`, `.highlight-row`) y el enlace "Acerca de" del header. El usuario pidió "solo home, about no por ahora".
-- Cualquier otro cambio del header de la referencia nueva: contador "CRÉDITOS · 03", estilo de enlaces y botón de sesión. El header conserva el aspecto del spec 01.
+- **La página "Acerca de"** (`about.jsx`, `.about-*`, `.contact-*`, `.highlight-row`) y el enlace "Acerca de" del header y del menú. El usuario pidió "solo home, about no por ahora"; el enlace se añadirá con su spec.
+- Colores propios de cada pantalla del spec 01 (tarjetas, paneles, chips, ranking, cabina): solo cambian el fondo global y el color de texto base.
+- Tipografía base: se mantiene Courier Prime a 16 px (la referencia usa JetBrains Mono a 14 px). Cambiarla rehace la maquetación de todas las pantallas.
 - El gamepad (`.gp-*`), las variantes de tema (`Theme variants`) y los controles de edición (`tweaks`) de `styles.css`.
 - Datos reales: actividad en vivo, "top de hoy" y estadísticas son datos fijos de ejemplo, sin red ni backend. Ninguno se actualiza en tiempo real.
 - Catálogo de 12 juegos: las estadísticas dicen `12+ JUEGOS` como la referencia, pero el catálogo sigue teniendo 6.
-- Cargar JetBrains Mono (tipografía de la referencia nueva): se mantiene Courier Prime.
 - Metadatos SEO, i18n, tests automatizados y despliegue (igual que en el spec 01).
 
 ---
@@ -139,6 +145,14 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de ro
 10. **Documentación del proyecto.** Actualizar `CLAUDE.md`: tabla de rutas (`/` landing, `/biblioteca`), sección Architecture (`components/home/`, `lib/home.ts`, convención de cortes responsive de la landing) y la frase "Library: hero, search, category chips, game grid". Verificación: `CLAUDE.md` coincide con la estructura real de archivos.
 11. **Ajuste visual contra la referencia.** Comparar `/` con la landing del prototipo `references/home-about/arcade-vault-standalone.html` con Playwright, a 1280×900 y a 390×844, midiendo rects y estilos calculados de cada bloque (hero, títulos de sección, tarjetas, mini-tarjetas, estadísticas, filas de actividad, plan, preguntas, cierre) y el alto del documento. Corregir diferencias. Comprobar también que `/biblioteca`, detalle, salón, acceso y jugar **no retroceden** respecto al spec 01 (alto del documento y header). Verificación: las medidas coinciden salvo lo listado como fuera de alcance (tipografía mono, contador de créditos, enlace "Acerca de") y los artefactos de medición (estado `hover`, animaciones en curso).
 
+**Ampliación: header, menú, pie y fondo de `home-about`.** Cada paso se compara con el prototipo con Playwright (copia temporal en `public/`, borrada al terminar) y deja el sitio funcionando.
+
+12. **Fondo y color base.** En `app/globals.css`, sustituir el fondo CRT del spec 01 (`html::before`, `body::before`, `body::after`) por el de la referencia: capa fija con los dos degradados radiales sobre `#0a0a0f`, rejilla cian `rgb(0 245 255 / 0.22)` de 60 px en `perspective(600px) rotateX(60deg)` con máscara y animación de 8 s, scanlines `rgb(255 255 255 / 0.03)` con `mix-blend-mode: overlay` y capa de ruido SVG al 0,35. Texto base `#e6e9ff`. Verificación: con Playwright, los estilos calculados de las capas coinciden con `.av-bg`, `.av-bg::before`, `.av-bg::after` y `.av-noise`, y la animación se detiene con `prefers-reduced-motion`.
+13. **Header de escritorio.** Reescribir `components/site-header.tsx` siguiendo `nav.jsx` y `.av-nav`: header pegajoso con degradado y borde inferior `rgb(0 245 255 / 0.18)`, padding 14/32, logo (icono de 28 px + texto en dos líneas de 12 px), enlaces con subrayado activo de 2 px, separador flexible, contador "CRÉDITOS · 03" y botón de sesión con el estilo `.btn` (reutilizando `.btn-home`). Con sesión el botón muestra "{NOMBRE} ▾" con el estilo `.btn.ghost` y cierra la sesión. Ajustar el `fallback` de `<Suspense>` de `app/(site)/layout.tsx` al nuevo alto. Verificación: a 1280×900, posición, tamaño y colores de logo, enlaces, contador y botón coinciden con la referencia; el enlace activo es correcto en cada ruta.
+14. **Hamburguesa y menú móvil.** A ≤ 840 px ocultar enlaces y contador, mostrar el botón "≡" (`.btn.ghost`) y el panel de `.av-mobile-panel` con su fondo oscuro. Enlaces del panel: Inicio, Biblioteca, Salón de la Fama y "Iniciar Sesión" (sin sesión) o "Cuenta" (con sesión) → `/acceso`. "CRÉDITOS · 03" al pie del panel. Se cierra al pulsar el fondo y al navegar. Verificación: a 390×844, cerrado y abierto, coincide con la referencia en posición, tamaño y colores.
+15. **Pie de página.** Añadir el `<footer>` del prototipo al final de `app/(site)/layout.tsx` (no aparece en `/juegos/[id]/jugar`). Verificación: a 1280×900 y 390×844 mide lo mismo que el de la referencia (58 px a 1280) y la landing completa (header + contenido + pie) tiene el mismo alto que el prototipo.
+16. **Documentación y regresión.** Actualizar `CLAUDE.md` (header, corte de 840 px, pie, fondo). Medir con Playwright el alto del documento de `/biblioteca`, detalle, salón, acceso y jugar a 1280×900 y 390×844 y anotar los nuevos valores en la verificación del paso (cambian por el header y el pie; el contenido de cada pantalla no debe moverse respecto a su header). Verificación: `npm run lint`, `npx tsc --noEmit` y `npm run build` pasan y ninguna pantalla tiene scroll horizontal.
+
 ---
 
 ## Criterios de aceptación
@@ -156,9 +170,9 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de ro
 
 **Rutas y navegación**
 
-- [ ] `/biblioteca` muestra hero, buscador, chips y grid con el mismo contenido y medidas que tenía `/` en el spec 01 (alto del documento 1550 px en escritorio y 3386 px en móvil).
+- [ ] `/biblioteca` muestra hero, buscador, chips y grid con el mismo contenido y medidas que tenía `/` en el spec 01. Antes de la ampliación: alto del documento 1550 px en escritorio y 3386 px en móvil; después, ese alto más la diferencia de header y el pie (paso 16).
 - [ ] "Inicio" aparece activo solo en `/`; "Biblioteca" en `/biblioteca` y `/juegos/[id]`; "Salón de la Fama" en `/salon-de-la-fama`.
-- [ ] El header muestra los tres enlaces en ≥ 760 px y en el menú móvil, y no muestra "Acerca de" ni "CRÉDITOS · 03".
+- [ ] El header muestra los tres enlaces en > 840 px y en el menú móvil, y no muestra "Acerca de" en ninguno de los dos.
 - [ ] El logo lleva a `/`.
 - [ ] "VOLVER AL VAULT" en el detalle y en jugar lleva a `/biblioteca`.
 - [ ] Un envío válido del formulario de acceso, los botones Google / GitHub y "JUGAR COMO INVITADO" redirigen a `/biblioteca`.
@@ -191,7 +205,18 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de ro
 - [ ] Las ventajas pasan de 4 a 2 columnas a ≤ 980 px y a 1 columna a ≤ 520 px; las mini-tarjetas de 6 a 3 columnas a ≤ 1100 px y a 2 a ≤ 600 px.
 - [ ] Las estadísticas pasan a una columna a ≤ 720 px, con línea horizontal en vez de vertical entre bloques.
 - [ ] Sin scroll horizontal en 390×844.
-- [ ] Las demás pantallas (`/biblioteca`, detalle, salón, acceso, jugar) mantienen el alto de documento medido en el spec 01 a 1280×900 y a 390×844.
+- [ ] Las demás pantallas (`/biblioteca`, detalle, salón, acceso, jugar) mantienen el alto de documento medido en el spec 01 a 1280×900 y a 390×844 (antes de la ampliación; después, ver paso 16).
+
+**Ampliación — header, menú, pie y fondo**
+
+- [ ] A 1280×900, logo (icono + dos líneas), enlaces, subrayado activo, "CRÉDITOS · 03" y botón "Iniciar Sesión" coinciden en posición, tamaño y color con el prototipo (medido con Playwright).
+- [ ] Con sesión, el botón muestra "{NOMBRE} ▾" y al pulsarlo borra `av_user` sin cambiar de ruta.
+- [ ] A ≤ 840 px se ocultan enlaces y contador y aparece "≡"; a 841 px se ven enlaces y contador.
+- [ ] A 390×844, el menú abierto coincide con el prototipo: título "MENÚ" cian, cuatro enlaces pixel con separador discontinuo, "CRÉDITOS · 03" al pie. Se cierra al pulsar el fondo y al navegar.
+- [ ] El pie "© 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0" aparece en todas las pantallas con header y no en `/juegos/[id]/jugar`.
+- [ ] La landing completa (header + contenido + pie) mide lo mismo que el prototipo a 1280×900 (3917 px) y a 390×844 (6271 px), salvo la diferencia de una línea de título de mini-tarjeta que causan los nombres del catálogo.
+- [ ] El fondo global usa las capas de la referencia (degradados, rejilla cian, scanlines suaves, ruido) y el texto base es `#e6e9ff`; con `prefers-reduced-motion` la rejilla no se mueve.
+- [ ] Ninguna pantalla tiene scroll horizontal a 390×844 ni a 1280×900.
 
 ---
 
@@ -202,8 +227,14 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de ro
 - **No:** landing y Biblioteca en una sola ruta. Rompe la separación de la referencia y las medidas del spec 01.
 - **Sí:** el spec 01 no se reescribe; este spec declara qué cambia (ruta de la Biblioteca y destino de las redirecciones). Mantiene el historial y evita editar un spec ya `Implementado`.
 - **Sí:** el logo sigue yendo a `/`, y "VOLVER AL VAULT" y las redirecciones tras acceso van a `/biblioteca`. "Vault" significa la colección de juegos, y tras iniciar sesión se espera estar donde se juega, no en la página de presentación.
-- **Sí:** header solo con "Inicio" añadido. Sin "Acerca de" (about fuera de alcance, enlazaría a una ruta inexistente) y sin "CRÉDITOS · 03" (decorativo, cambiaría las cinco pantallas ya medidas). El usuario lo eligió.
-- **No:** adoptar el header completo de `nav.jsx`. Reabriría el ajuste visual del spec 01 en todas las pantallas.
+- ~~**Sí:** header solo con "Inicio" añadido.~~ **Reemplazada en la ampliación.** Era la elección inicial del usuario; tras ver la comparación con el prototipo pidió el header de `home-about`.
+- **Sí (ampliación):** header, menú móvil, pie y fondo de `nav.jsx` / `styles.css` en todas las pantallas con header. El usuario lo pidió al revisar la comparación con Playwright y eligió hacerlo en este spec.
+- **No (ampliación):** abrir un spec 03 de tema. El usuario prefirió no cerrar la landing con un header distinto del diseño.
+- **Sí (ampliación):** sin enlace "Acerca de" en header ni menú hasta que exista su página. Enlazaría a una ruta 404.
+- **Sí (ampliación):** el corte del header pasa de 760 a 840 px, el de la referencia. El resto de pantallas del spec 01 sigue con 760 px para su contenido.
+- **Sí (ampliación):** con sesión, el botón "{NOMBRE} ▾" cierra la sesión como en la referencia. Sustituye a inicial + nombre + "Salir" del spec 01.
+- **Sí (ampliación):** fondo y texto base de la referencia en todo el sitio; los colores propios de cada pantalla del spec 01 no cambian. El usuario señaló el fondo y los colores del header; recolorear tarjetas, ranking y cabina sería rehacer el spec 01.
+- **Sí (ampliación):** se mantiene Courier Prime 16 px como fuente base. JetBrains Mono a 14 px cambiaría el tamaño de todo el texto de las cinco pantallas.
 - **Sí:** mini-tarjetas con los 6 `GAMES` reales y su `GameCover` en canvas. El usuario lo eligió; así los enlaces funcionan y hay un único catálogo.
 - **No:** copiar las portadas CSS (`.cover-bricks`, `.cover-tetro`, …) ni los 6 juegos ficticios de la referencia. Son un catálogo distinto, sin rutas.
 - **Sí:** actividad en vivo y top de hoy como datos fijos tipados en `lib/home.ts`, con los jugadores y puntuaciones de la referencia y los juegos adaptados al catálogo real (tabla del modelo de datos). El usuario lo eligió.
@@ -215,7 +246,7 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de ro
 - **No:** reemplazar los tokens del spec 01 por los de `styles.css`. La referencia nueva y la del spec 01 difieren en sus valores de color y mono; unificarlos es un cambio de tema, no de landing.
 - **Sí:** la landing usa Courier Prime (la fuente de cuerpo del proyecto). La referencia nueva declara JetBrains Mono con Courier Prime de reserva, pero el proyecto nunca la ha cargado.
 - **No:** añadir JetBrains Mono a `next/font`. Cambiaría la tipografía de todas las pantallas o dejaría dos tipografías mono en el mismo sitio; si se quiere, va en su propio spec.
-- **Sí:** los cortes responsive de la landing son los de la referencia (980/900/720/600/520/1100 px), no el único corte de 760 px del spec 01. Con un solo corte las rejillas de 4 y 6 columnas no se adaptan igual que el diseño. El header y la Biblioteca siguen en 760 px.
+- **Sí:** los cortes responsive de la landing son los de la referencia (980/900/720/600/520/1100 px), no el único corte de 760 px del spec 01. Con un solo corte las rejillas de 4 y 6 columnas no se adaptan igual que el diseño. La Biblioteca sigue en 760 px; el header pasa a 840 px en la ampliación.
 - **Sí:** ajuste visual con medidas reales (paso 11), igual que los pasos 13 y 14 del spec 01.
 - **Sí:** un solo spec para la landing completa. Son siete bloques de un mismo documento que comparten datos, tema y revelado; el riesgo de tamaño se mitiga con pasos independientes que se pueden commitear por separado. La página "Acerca de" sí va aparte.
 - **Sí:** "Ranaria" se asigna a `arkanoid`. El catálogo no tiene juego de rana ni de cruce de carretera, y mostrar un título inexistente rompería el enlace con el catálogo.
@@ -232,7 +263,11 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de ro
 | `IntersectionObserver` o lectura de sesión en render rompen el prerender con `cacheComponents: true` | El observador y `useSession()` solo viven en componentes de cliente (`reveal.tsx`, `hero-ctas.tsx`, `plan-cta.tsx`); la página `/` sigue siendo un componente de servidor con datos estáticos. Se verifica con `npm run build` en cada paso. |
 | Los CTA muestran un instante el texto sin sesión antes de leer `av_user` | Mismo comportamiento aceptado en el spec 01 (el provider empieza en `user: null`). |
 | La portada canvas de 96×56 recortada a 1:1 pierde los lados y se ve distinta del diseño | Es una diferencia conocida, porque la referencia usa arte CSS cuadrado. Se revisa en el paso 6 y se ajusta el recorte en el paso 11. Si se ve mal, se proponen portadas cuadradas en otro spec. |
-| El hero de la referencia usa `min-height: calc(100vh - 60px)` y nuestro header mide 64 px | El paso 11 mide el alto real del hero y fija el cálculo con el alto del header actual. |
+| El hero de la referencia usa `min-height: calc(100vh - 60px)` y nuestro header mide 64 px | Resuelto en el paso 11: se usa el valor literal `100vh - 60px`, que es el que coincide con el prototipo. |
+| (Ampliación) El header nuevo (85 px frente a 66) y el pie (58 px) cambian el alto de todas las pantallas del spec 01 | Esperado. El paso 16 anota los nuevos altos y comprueba que el contenido de cada pantalla no se mueve respecto a su header. |
+| (Ampliación) `usePathname()` en el header nuevo suspende en rutas con params fuera de `generateStaticParams` | Se mantiene el `<Suspense>` de `app/(site)/layout.tsx`, con el `fallback` ajustado al nuevo alto para evitar saltos. |
+| (Ampliación) El nuevo fondo cambia el aspecto de detalle, salón, acceso y jugar, ya validados en el spec 01 | Solo cambian el fondo y el texto base; el paso 16 revisa cada pantalla con capturas a 1280×900 y 390×844. |
+| (Ampliación) El panel móvil fuera de pantalla amplía `scrollWidth` | Se mantiene `overflow-x: hidden` en `body`; el criterio de scroll horizontal se mide en las dos resoluciones. |
 | Los tokens de la landing duplican colores casi iguales a los existentes | Se aceptan por fidelidad con la referencia; se nombran con prefijo propio para poder unificarlos en un futuro spec de tema. |
 | Textos de marketing que no son verdad en el producto (`12+ JUEGOS`, "Nuevos juegos cada mes", "Sin anuncios") | Se copian literales de la referencia como contenido de diseño. Revisarlos antes de publicar la web queda fuera de este spec. |
 
@@ -240,11 +275,11 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de ro
 
 ## Qué **no** está en este spec
 
-- La página "Acerca de" y su enlace en el header.
-- Contador "CRÉDITOS · 03", gamepad, variantes de tema y controles de edición de la referencia nueva.
-- Datos reales para actividad, top de hoy y estadísticas; nada en tiempo real.
+- La página "Acerca de" y su enlace en el header y el menú.
+- Gamepad, variantes de tema y controles de edición de la referencia nueva.
+- Datos reales para actividad, top de hoy y estadísticas; nada en tiempo real (tampoco los créditos del header).
 - Ampliar el catálogo a 12 juegos o crear juegos nuevos.
-- Cambiar la tipografía o los tokens de las pantallas existentes.
+- Cambiar la tipografía base o los colores propios de las pantallas del spec 01 (solo cambian fondo y texto base).
 - Metadatos SEO, i18n, tests automatizados y despliegue.
 
 Cada uno, si se aborda, va en su propio spec.

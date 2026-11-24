@@ -72,7 +72,7 @@ async function GameDetail({ params }: { params: PageProps<"/juegos/[id]">["param
               JUGAR AHORA
             </Link>
             <Link
-              href="/"
+              href="/biblioteca"
               className="btn-neon neon-cyan px-[18px] py-4 text-[11px] no-underline hover:text-void"
             >
               VOLVER AL VAULT
