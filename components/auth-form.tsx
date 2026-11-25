@@ -61,7 +61,7 @@ export function AuthForm() {
   };
 
   return (
-    <div className="panel-neon neon-cyan flex w-full max-w-[440px] flex-col gap-[22px] px-[26px] py-[30px] shadow-glow-cyan-lg">
+    <div className="panel-crt flex w-full max-w-[440px] flex-col gap-[22px] px-[26px] py-[30px] shadow-glow-cyan-lg">
       <div className="animate-flicker text-center font-pixel text-xl leading-normal text-neon-cyan [text-shadow:0_0_8px_#00f5ff,0_0_24px_rgb(0_245_255/0.7)]">
         ARCADE
         <br />
@@ -98,7 +98,7 @@ export function AuthForm() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
-            className="input-neon"
+            className="input-crt"
           />
         </label>
         {isRegister && (
@@ -109,7 +109,7 @@ export function AuthForm() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="email"
-              className="input-neon"
+              className="input-crt"
             />
           </label>
         )}
@@ -120,7 +120,7 @@ export function AuthForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete={isRegister ? "new-password" : "current-password"}
-            className="input-neon"
+            className="input-crt"
           />
         </label>
         {error && (
@@ -134,7 +134,7 @@ export function AuthForm() {
         <button
           type="submit"
           disabled={pending}
-          className="btn-neon-solid neon-cyan mt-1 disabled:cursor-wait disabled:opacity-70"
+          className="btn-crt-solid mt-1 disabled:cursor-wait disabled:opacity-70"
         >
           {isRegister ? "CREAR CUENTA" : "ENTRAR"}
         </button>

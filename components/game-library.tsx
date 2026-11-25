@@ -30,7 +30,7 @@ export function GameLibrary({ entries }: { entries: LibraryEntry[] }) {
   return (
     <>
       <div className="mb-8 flex flex-col gap-4">
-        <label className="panel-neon neon-cyan mx-auto flex w-full max-w-[640px] items-center gap-3 px-4">
+        <label className="panel-crt mx-auto flex w-full max-w-[640px] items-center gap-3 px-4">
           <span aria-hidden="true" className="font-pixel text-xs text-neon-cyan">
             &gt;
           </span>
@@ -49,7 +49,7 @@ export function GameLibrary({ entries }: { entries: LibraryEntry[] }) {
             <button
               key={c}
               type="button"
-              className="chip-neon neon-cyan"
+              className="chip-crt"
               aria-pressed={category === c}
               onClick={() => setCategory(c)}
             >

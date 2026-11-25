@@ -11,12 +11,12 @@ export function PlanCta() {
   return user ? (
     <Link
       href="/biblioteca"
-      className="btn-home btn-home-xl btn-home-pulse neon-cyan w-full"
+      className="btn-cut btn-cut-xl btn-cut-pulse w-full"
     >
       IR A JUGAR →
     </Link>
   ) : (
-    <Link href="/acceso" className="btn-home btn-home-xl btn-home-pulse neon-cyan w-full">
+    <Link href="/acceso" className="btn-cut btn-cut-xl btn-cut-pulse w-full">
       EMPEZAR GRATIS →
     </Link>
   );

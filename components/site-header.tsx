@@ -99,12 +99,12 @@ export function SiteHeader() {
             type="button"
             onClick={handleSignOut}
             title="Cerrar sesión"
-            className="btn-home ml-4 border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none"
+            className="btn-cut ml-4 border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none"
           >
             {user.name} ▾
           </button>
         ) : (
-          <Link href="/acceso" onClick={closeMenu} className="btn-home neon-cyan ml-4 text-center">
+          <Link href="/acceso" onClick={closeMenu} className="btn-cut ml-4 text-center">
             Iniciar Sesión
           </Link>
         )}
@@ -116,7 +116,7 @@ export function SiteHeader() {
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
           onClick={() => setMenuOpen(true)}
-          className="btn-home border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none min-[841px]:hidden"
+          className="btn-cut border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none min-[841px]:hidden"
         >
           ≡
         </button>

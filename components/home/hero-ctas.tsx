@@ -10,15 +10,15 @@ export function HeroCtas() {
 
   return (
     <div className="flex flex-wrap justify-center gap-4">
-      <Link href="/biblioteca" className="btn-home btn-home-xl btn-home-pulse neon-cyan">
+      <Link href="/biblioteca" className="btn-cut btn-cut-xl btn-cut-pulse">
         ▶ EXPLORAR JUEGOS
       </Link>
       {user ? (
-        <Link href="/salon-de-la-fama" className="btn-home btn-home-xl neon-pink">
+        <Link href="/salon-de-la-fama" className="btn-cut btn-cut-xl">
           ✦ VER MI RANKING
         </Link>
       ) : (
-        <Link href="/acceso" className="btn-home btn-home-xl neon-pink">
+        <Link href="/acceso" className="btn-cut btn-cut-xl">
           ✦ CREAR CUENTA
         </Link>
       )}

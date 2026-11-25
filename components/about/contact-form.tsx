@@ -98,7 +98,7 @@ const LABEL = "font-mono text-[10px] tracking-[0.16em] text-home-faint uppercase
 const CONTROL =
   "border border-home-line bg-void text-home-ink outline-0 transition-[border-color,box-shadow] duration-[140ms] placeholder:text-home-faint focus:border-neon-cyan focus:shadow-[0_0_12px_rgb(0_245_255/0.35)]";
 const GHOST_BTN =
-  "btn-home border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none";
+  "btn-cut border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none";
 
 export function ContactForm() {
   const [form, setForm] = useState<Fields>(EMPTY);
@@ -235,7 +235,7 @@ export function ContactForm() {
           {/* .btn.xl.press */}
           <button
             type="submit"
-            className="btn-home btn-home-xl neon-cyan w-full disabled:cursor-wait active:[transform:translateY(3px)_scale(0.99)] active:shadow-[inset_0_0_6px_rgb(0_245_255/0.2)]"
+            className="btn-cut btn-cut-xl w-full disabled:cursor-wait active:[transform:translateY(3px)_scale(0.99)] active:shadow-[inset_0_0_6px_rgb(0_245_255/0.2)]"
           >
             {sending ? "▶  TRANSMITIENDO…" : "▶  ENVIAR MENSAJE"}
           </button>

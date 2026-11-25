@@ -15,6 +15,13 @@ Este spec **cambia una regla del proyecto**: la referencia sigue mandando en la 
 
 **Contraste.** `#748c7d` es un tono medio: el negro sobre él da 5,79:1 (cumple WCAG AA, ≥ 4,5:1), pero cualquier texto de color que no sea casi negro baja de 4,5:1. Por eso **todo el texto es negro o casi negro** y los colores de estado (éxito, aviso, error) y de medalla se usan solo en **iconos, bordes y barras**, donde basta 3:1. Los valores de la paleta se calcularon con la fórmula de luminancia de WCAG 2.x antes de escribir este spec (tabla en "Modelo de datos").
 
+**Ampliación (2026-11-24, durante el paso 3): refactorización de nombres.** Al empezar la implementación, el usuario pidió renombrar las clases CSS compartidas, porque este spec cambia el estilo visual del sitio y los nombres `*-neon` dejan de describirlo. El cliente pidió además refactorizar el código y **conservar la historia del cambio**. La historia queda en tres sitios:
+- la tabla "Renombrado de clases" de "Modelo de datos";
+- un commit por paso (`spec-04-step-MM`);
+- `CLAUDE.md`, que documenta los nombres nuevos.
+
+No se mantienen alias con los nombres antiguos.
+
 **Orden.** El spec 03 debe estar en estado `Implementado` y mergeado en `main` antes de ejecutar `/spec-impl` de este spec: aquí se recolorea su tarjeta de resultado. Los tests e2e de Playwright del servicio de correo, que el spec 03 apuntaba como "spec 04", pasan a ser el **spec 05**.
 
 ---
@@ -90,9 +97,24 @@ Otras estructuras que cambian de valor (no de forma):
 - `components/game-cover.tsx`: los colores fijos (`C`, `M`, `Y`, `GR`, `#fff` y los degradados por juego) se sustituyen por cuatro tonos: `#0e1511` (pixel oscuro), `#2f3b34` (fondo de portada), `#8aa293` (pixel claro) y `#748c7d` (pixel medio).
 - `components/home/accent.ts`: `NEON_TEXT` y `ACCENT_COLOR` devuelven las clases de la paleta para cualquier acento.
 
+**Renombrado de clases (ampliación del paso 3).** Las clases compartidas de `app/globals.css` cambian de nombre y todos los usos de `app/` y `components/` se actualizan en el mismo commit:
+
+| Antes (specs 01–03) | Después (spec 04) | Motivo |
+| --- | --- | --- |
+| `.btn-neon` | `.btn-crt` | Botón de contorno; ya no es neón |
+| `.btn-neon-solid` | `.btn-crt-solid` | Botón relleno |
+| `.chip-neon` | `.chip-crt` | Chip o pestaña de filtro |
+| `.panel-neon` | `.panel-crt` | Panel |
+| `.card-neon` | `.card-crt` | Tarjeta de juego |
+| `.input-neon` | `.input-crt` | Campo de formulario |
+| `.text-pixel-glow` | `.text-pixel-crt` | Texto pixel; ya no brilla |
+| `.btn-home`, `-lg`, `-xl`, `-pulse` | `.btn-cut`, `-lg`, `-xl`, `-pulse` | Botón de esquinas cortadas; no es exclusivo de la landing |
+| — | `.btn-cut-ghost` | Variante fantasma (borde `crt-line`) que antes se componía con utilidades |
+| `.neon-cyan`, `.neon-pink`, `.neon-yellow`, `.neon-green`, `.neon-muted` | eliminadas | Ponían el color por elemento (`--neon`, `--neon-rgb`); la paleta es única |
+
 **Convenciones:**
 
-- **Prohibido en `app/`, `components/` y `lib/`:** los valores del tema neón (`#00f5ff`, `#ff006e`, `#f5ff00`, `#00ff88`, `#39ff88`, `#e6e9ff`, `#8a8fb5`, `#0a0a0f`, `#ffcf3a`, `#ffd24a`, `#ff5f56`, sus `rgb(…)` y los tokens `neon-*` / `home-*` de color), salvo en comentarios. Se comprueba con `grep` en el criterio de aceptación.
+- **Prohibido en `app/`, `components/` y `lib/`:** los valores del tema neón (`#00f5ff`, `#ff006e`, `#f5ff00`, `#00ff88`, `#39ff88`, `#e6e9ff`, `#8a8fb5`, `#0a0a0f`, `#ffcf3a`, `#ffd24a`, `#ff5f56`, sus `rgb(…)` y los tokens `neon-*` / `home-*` de color), salvo en comentarios y en el campo `color` de los datos de `lib/games.ts`, que se conserva sin uso visual por decisión del usuario (ver "Decisiones"). Se comprueba con `grep` en el criterio de aceptación.
 - **Texto:** solo `crt-ink` o `crt-ink-2`. Los colores de estado y medalla nunca van en texto.
 - **Capa de televisor:** cuatro pseudo-elementos fijos en `app/globals.css` (`html::before`, `html::after`, `body::before`, `body::after`), por encima del contenido (`z-index` máximo del sitio) y con `pointer-events: none`. Para no bajar el contraste del texto de 4,5:1, la viñeta oscurece como máximo un 12 % (`rgb(0 0 0 / 0.12)`) y las scanlines un 8 % por línea.
   - **Viñeta:** `radial-gradient` transparente en el centro y `rgb(0 0 0 / 0.12)` en los bordes.
@@ -165,6 +187,9 @@ Toda la interfaz se trabaja con `/frontend-design`, siguiendo la paleta de este 
 - **Sí:** la referencia sigue mandando en maquetación, tipografía y textos, y este spec en color y efectos. Las medidas con Playwright de los specs 02 y 03 siguen sirviendo como regresión.
 - **Sí:** número 04 para este spec; los tests e2e del correo pasan al 05. El usuario lo eligió, para que los tests validen ya los colores nuevos.
 - **Sí:** el spec 03 se cierra y se mergea antes de implementar este.
+- **Sí (ampliación, paso 3):** renombrar las clases compartidas (`*-neon` → `*-crt`, `.btn-home` → `.btn-cut`) y eliminar los modificadores `.neon-*`. El usuario lo pidió: el cambio es de estilo visual y los nombres deben describirlo. El cliente pidió conservar la historia del cambio, que queda en la tabla de renombrado, en los commits por paso y en `CLAUDE.md`.
+- **No (ampliación):** alias temporales con los nombres antiguos. Mantendrían vivo un vocabulario que ya no describe el sitio; el renombrado completo cabe en un commit.
+- **Sí (ampliación):** el `grep` de valores prohibidos excluye el campo `color` de `lib/games.ts`. Este spec conserva esos datos sin uso visual por decisión del usuario, y la prohibición busca colores aplicados al estilo, no datos guardados.
 - **Sí:** un solo spec para todo el sitio. Es un único cambio de tema; partirlo por pantallas dejaría el sitio con dos temas mezclados entre specs. El riesgo de tamaño se reparte en pasos que dejan el sitio funcionando.
 
 ---

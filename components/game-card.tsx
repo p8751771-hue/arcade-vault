@@ -42,7 +42,7 @@ export function GameCard({ game, best }: GameCardProps) {
       onMouseMove={tiltMove}
       onMouseLeave={tiltLeave}
       style={neon}
-      className="card-neon flex flex-col text-ink no-underline will-change-transform hover:text-ink"
+      className="card-crt flex flex-col text-ink no-underline will-change-transform hover:text-ink"
     >
       <GameCover
         id={game.id}

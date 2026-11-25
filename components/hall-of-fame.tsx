@@ -29,7 +29,7 @@ export function HallOfFame() {
             aria-selected={gameId === game.id}
             aria-controls="hall-panel"
             onClick={() => setGameId(game.id)}
-            className="chip-neon py-3"
+            className="chip-crt py-3"
             style={
               {
                 "--neon": game.color,

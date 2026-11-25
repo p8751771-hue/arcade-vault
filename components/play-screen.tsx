@@ -282,7 +282,7 @@ export function PlayScreen({ game }: { game: Game }) {
         <button
           type="button"
           onClick={simulateEnd}
-          className="btn-neon neon-muted text-[9px]"
+          className="btn-crt text-[9px]"
         >
           SIMULAR FIN DE PARTIDA
         </button>
@@ -313,7 +313,7 @@ export function PlayScreen({ game }: { game: Game }) {
                   type="button"
                   autoFocus
                   onClick={save}
-                  className="btn-neon-solid neon-yellow p-[15px] text-[11px]"
+                  className="btn-crt-solid p-[15px] text-[11px]"
                 >
                   GUARDAR PUNTUACIÓN
                 </button>
@@ -348,13 +348,13 @@ export function PlayScreen({ game }: { game: Game }) {
               <button
                 type="button"
                 onClick={restart}
-                className="btn-neon neon-cyan flex-[1_1_150px] leading-[1.5]"
+                className="btn-crt flex-[1_1_150px] leading-[1.5]"
               >
                 JUGAR DE NUEVO
               </button>
               <Link
                 href="/biblioteca"
-                className="btn-neon neon-pink flex-[1_1_150px] text-center leading-[1.5] no-underline hover:text-void"
+                className="btn-crt flex-[1_1_150px] text-center leading-[1.5] no-underline hover:text-void"
               >
                 VOLVER AL VAULT
               </Link>

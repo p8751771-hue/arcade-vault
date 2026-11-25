@@ -82,7 +82,7 @@ export default function HomePage() {
           ))}
         </div>
         <div className="mt-6 text-center">
-          <Link href="/biblioteca" className="btn-home btn-home-lg neon-cyan">
+          <Link href="/biblioteca" className="btn-cut btn-cut-lg">
             VER TODOS LOS JUEGOS →
           </Link>
         </div>
@@ -215,7 +215,7 @@ export default function HomePage() {
         </h2>
         <Link
           href="/biblioteca"
-          className="btn-home btn-home-xl btn-home-pulse neon-cyan"
+          className="btn-cut btn-cut-xl btn-cut-pulse"
         >
           INSERTAR MONEDA →
         </Link>
