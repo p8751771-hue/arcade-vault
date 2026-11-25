@@ -1,23 +1,15 @@
 import { TOP_PLAYERS, formatHomeScore } from "@/lib/home";
 
-// Colores de rango de la landing (oro/plata/bronce propios, distintos del spec 01) y
-// degradado de fondo de cada fila.
+// Spec 04: el texto de rango es negro y la medalla se marca con una barra lateral de
+// 4 px en crt-gold / crt-silver / crt-bronze (≥ 3:1 sobre la superficie). Antes, el
+// texto y un degradado de fondo usaban oro/plata/bronce neón.
 const RANK = [
-  {
-    text: "text-home-gold [text-shadow:0_0_6px_rgb(255_207_58/0.6)]",
-    bg: "before:bg-[linear-gradient(90deg,rgb(255_207_58/0.14),transparent)]",
-  },
-  {
-    text: "text-home-silver",
-    bg: "before:bg-[linear-gradient(90deg,rgb(199_208_224/0.10),transparent)]",
-  },
-  {
-    text: "text-home-bronze",
-    bg: "before:bg-[linear-gradient(90deg,rgb(217_122_58/0.10),transparent)]",
-  },
+  { text: "text-crt-ink", bg: "before:border-l-4 before:border-crt-gold" },
+  { text: "text-crt-ink", bg: "before:border-l-4 before:border-crt-silver" },
+  { text: "text-crt-ink", bg: "before:border-l-4 before:border-crt-bronze" },
 ] as const;
 
-const DEFAULT_BG = "before:bg-[linear-gradient(90deg,rgb(0_245_255/0.06),transparent)]";
+const DEFAULT_BG = "before:border-l-4 before:border-crt-line";
 
 // "TOP JUGADORES · HOY": 5 filas. La barra (`width = 100 - i * 16` %) se renderiza como
 // en la referencia, que no le da estilo propio: el degradado de la fila es el fondo visible.
@@ -32,19 +24,19 @@ export function TopPlayers() {
             className={`relative grid grid-cols-[36px_1fr_auto_auto] items-center gap-2.5 py-2 before:pointer-events-none before:absolute before:inset-y-0 before:right-0 before:left-9 before:z-0 before:content-[''] ${rank?.bg ?? DEFAULT_BG}`}
           >
             <span
-              className={`relative z-[1] font-pixel text-[10px] ${rank?.text ?? "text-home-faint"}`}
+              className={`relative z-[1] font-pixel text-[10px] ${rank?.text ?? "text-crt-ink-2"}`}
             >
               #{String(row.rank).padStart(2, "0")}
             </span>
             <span className="absolute" aria-hidden="true">
               <span data-bar style={{ width: `${100 - i * 16}%` }} />
             </span>
-            <span className="relative z-[1] font-pixel text-[11px] tracking-[0.06em] text-home-ink">
+            <span className="relative z-[1] font-pixel text-[11px] tracking-[0.06em] text-crt-ink">
               {row.player}
             </span>
             <span
               className={`relative z-[1] font-pixel text-[11px] ${
-                rank?.text ?? "text-neon-cyan [text-shadow:0_0_6px_rgb(0_245_255/0.4)]"
+                rank?.text ?? "text-crt-ink"
               }`}
             >
               {formatHomeScore(row.score)}

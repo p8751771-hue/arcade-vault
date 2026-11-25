@@ -39,7 +39,7 @@ export function SiteHeader() {
   return (
     <>
       {/* .av-nav: hereda 14px / 1.5 / 0.01em del body de la referencia */}
-      {/* Corte de la referencia: max-width 840px ⇒ móvil. `` ≡ ≤ 840 px (Tailwind v4 usa <).
+      {/* Corte de la referencia: max-width 840px ⇒ móvil. `max-[841px]:` ≡ ≤ 840 px (Tailwind v4 usa <).
           Desviación acordada (spec 02, paso 14): en móvil el hueco es 12 px y no 24, porque con
           24 px la barra mide 395 px a 390 y la hamburguesa queda recortada (igual que en el prototipo). */}
       <header className="sticky top-0 z-50 flex items-center gap-6 border-b border-crt-line bg-crt-surface px-8 py-3.5 text-[14px] leading-[1.5] tracking-[0.01em] text-crt-ink backdrop-blur-[8px] max-[841px]:gap-3 max-[841px]:px-4 max-[841px]:py-3">
