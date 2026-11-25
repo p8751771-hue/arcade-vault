@@ -1,13 +1,29 @@
+import Image from "next/image";
 import { CoinCabinet } from "@/components/history/coin-cabinet";
 import { MilestoneBody } from "@/components/history/milestone-body";
 import { SectionHead } from "@/components/home/section-head";
-import { MILESTONES } from "@/lib/history";
+import { MILESTONES, STYLE_NOTE } from "@/lib/history";
 
 // "Historia": los primeros arcades (1971–1982) y por qué Arcade Vault parece un
 // televisor antiguo (spec 05). Mismo lenguaje que "Acerca de": cabecera centrada,
 // secciones de 1100 px con SectionHead, paleta del spec 04. `leading-[1.5]` como el resto
 // de páginas de references/home-about.
 const SECTION = "mx-auto max-w-[1100px] px-8";
+
+// Capturas propias del sitio (no material de juegos reales): la landing a 1280×900
+// antes del spec 04 (neón) y después (televisor).
+const SHOTS = [
+  {
+    src: "/historia/estilo-neon.png",
+    alt: "Diseño original de Arcade Vault: tema neón sobre fondo negro",
+    caption: "ANTES · NEÓN (2026)",
+  },
+  {
+    src: "/historia/estilo-tv.png",
+    alt: "Diseño actual de Arcade Vault: pantalla de televisor antiguo verde-gris",
+    caption: "AHORA · TV (2026)",
+  },
+] as const;
 
 export default function HistoryPage() {
   return (
@@ -48,6 +64,40 @@ export default function HistoryPage() {
             </li>
           ))}
         </ol>
+      </section>
+
+      {/* POR QUÉ PARECEMOS UN TELEVISOR: reseña del cambio de estilo del sitio */}
+      <section className={`${SECTION} my-20`} aria-labelledby="por-que-tv">
+        <SectionHead
+          kicker="// 02"
+          accent="cyan"
+          title="POR QUÉ PARECEMOS UN TELEVISOR"
+          id="por-que-tv"
+        />
+        <div className="flex max-w-[72ch] flex-col gap-4">
+          {STYLE_NOTE.map((paragraph) => (
+            <p key={paragraph.slice(0, 24)} className="m-0 text-[15px] leading-[1.8] text-crt-ink">
+              {paragraph}
+            </p>
+          ))}
+        </div>
+        <div className="mt-10 grid grid-cols-[repeat(2,1fr)] gap-6 max-[901px]:grid-cols-[1fr]">
+          {SHOTS.map((shot) => (
+            <figure key={shot.src} className="m-0">
+              <Image
+                src={shot.src}
+                alt={shot.alt}
+                width={1280}
+                height={900}
+                sizes="(max-width: 900px) 100vw, 520px"
+                className="block h-auto w-full border-2 border-crt-ink"
+              />
+              <figcaption className="mt-3 font-pixel text-[9px] tracking-[0.16em] text-crt-ink-2">
+                {shot.caption}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
       </section>
     </main>
   );
