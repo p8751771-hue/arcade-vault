@@ -1,12 +1,12 @@
 import { TOP_PLAYERS, formatHomeScore } from "@/lib/home";
 
-// Spec 04: el texto de rango es negro y la medalla se marca con una barra lateral de
-// 4 px en crt-gold / crt-silver / crt-bronze (≥ 3:1 sobre la superficie). Antes, el
+// Spec 05: el texto de rango es negro y el top 3 se marca con una barra lateral negra de
+// 4 px (el resto, crt-line). En el spec 04 eran tonos de medalla oro/plata/bronce; antes, el
 // texto y un degradado de fondo usaban oro/plata/bronce neón.
 const RANK = [
-  { text: "text-crt-ink", bg: "before:border-l-4 before:border-crt-gold" },
-  { text: "text-crt-ink", bg: "before:border-l-4 before:border-crt-silver" },
-  { text: "text-crt-ink", bg: "before:border-l-4 before:border-crt-bronze" },
+  { text: "text-crt-ink", bg: "before:border-l-4 before:border-crt-ink" },
+  { text: "text-crt-ink", bg: "before:border-l-4 before:border-crt-ink" },
+  { text: "text-crt-ink", bg: "before:border-l-4 before:border-crt-ink" },
 ] as const;
 
 const DEFAULT_BG = "before:border-l-4 before:border-crt-line";

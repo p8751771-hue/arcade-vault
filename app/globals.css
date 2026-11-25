@@ -13,7 +13,8 @@
    -------------------------------------------------------------------------- */
 @theme inline {
   /* Paleta de televisor antiguo (spec 04). Texto siempre crt-ink / crt-ink-2;
-     ok/warn/err y gold/silver/bronze solo en iconos, bordes y barras (contraste ≥ 3:1). */
+     ok/warn/err solo en iconos y bordes (contraste ≥ 3:1). Sin tonos de medalla desde el
+     spec 05: el top 3 se marca en negro. */
   --color-crt-bg: #748c7d; /* fondo de página */
   --color-crt-surface: #8aa293; /* tarjetas, paneles, header, menú, formulario */
   --color-crt-well: #6e8677; /* inputs, pozos, pantalla de la cabina */
@@ -24,9 +25,6 @@
   --color-crt-ok: #0b3d21;
   --color-crt-warn: #3d3000;
   --color-crt-err: #4a0d0a;
-  --color-crt-gold: #3f3200;
-  --color-crt-silver: #2b352f;
-  --color-crt-bronze: #4a230c;
 
   /* Tipografía */
   /* La referencia no fija interlineado salvo donde lo indica (leading-*): las utilidades
