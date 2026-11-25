@@ -6,14 +6,16 @@ import { useState } from "react";
 import { useSession } from "@/components/session-provider";
 
 // Header de references/home-about (nav.jsx + styles.css .av-nav), con "Acerca de"
-// tras "Salón de la Fama" (spec 03). El CSS es el literal de la referencia: el logo y
-// el botón se parten en dos líneas si falta espacio (a 1280 px, como el prototipo).
+// tras "Salón de la Fama" (spec 03) e "Historia" tras "Acerca de" (spec 05). El CSS
+// es el literal de la referencia: el logo y el botón se parten en dos líneas si falta
+// espacio (a 1280 px, como el prototipo).
 
 const NAV = [
   { href: "/", label: "Inicio" },
   { href: "/biblioteca", label: "Biblioteca" },
   { href: "/salon-de-la-fama", label: "Salón de la Fama" },
   { href: "/acerca-de", label: "Acerca de" },
+  { href: "/historia", label: "Historia" },
 ] as const;
 
 function isActive(href: string, pathname: string) {
