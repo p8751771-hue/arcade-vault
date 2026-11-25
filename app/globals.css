@@ -176,6 +176,38 @@ html .next-error-h1 {
   border-right-color: rgb(0 0 0 / 0.3);
 }
 
+/* Barra de desplazamiento en la paleta (spec 04, paso 13): pista crt-surface con filo
+   crt-line y pulgar negro cuadrado, sin flechas. 15 px, el ancho por defecto de Chrome,
+   para no mover la maquetación. Firefox no tiene ::-webkit-scrollbar: usa scrollbar-color. */
+@supports not selector(::-webkit-scrollbar) {
+  html {
+    scrollbar-color: var(--color-crt-ink) var(--color-crt-surface);
+  }
+}
+::-webkit-scrollbar {
+  width: 15px;
+  height: 15px;
+  background: var(--color-crt-surface);
+}
+::-webkit-scrollbar-track {
+  background: var(--color-crt-surface);
+  border-left: 2px solid var(--color-crt-line);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-crt-ink);
+  border: 2px solid var(--color-crt-surface);
+  border-left-width: 4px; /* deja ver el filo de la pista; pulgar de 9 px */
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-crt-ink-2);
+}
+::-webkit-scrollbar-button {
+  display: none;
+}
+::-webkit-scrollbar-corner {
+  background: var(--color-crt-surface);
+}
+
 /* Botón nativo "borrar" (×) de <input type="search">: Chrome lo pinta azul; aquí,
    una × negra del mismo tamaño (spec 04, paso 12). */
 input[type="search"]::-webkit-search-cancel-button {

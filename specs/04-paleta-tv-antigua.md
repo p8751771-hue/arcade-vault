@@ -155,6 +155,11 @@ Toda la interfaz se trabaja con `/frontend-design`, siguiendo la paleta de este 
     - el corazón de "HECHO CON ❤️ PARA JUGADORES" era el emoji rojo del sistema y pasa a un SVG pixel de 7×6 del alto de la letra (`InlineHeart` en `components/about/highlight-icon.tsx`). El dato de `lib/about.ts` guarda la marca `♥︎` y `withPixelHeart` la sustituye.
 
     Verificación con Playwright: × y moneda en negro, borde del error `rgb(0,0,0)`, corazón SVG de 10 px en `rgb(0,0,0)` y las 16 alturas iguales a las de `main`.
+13. **(Ampliación) Barra de desplazamiento.** Con el PR abierto, el usuario vio que la barra de desplazamiento vertical seguía con el gris del navegador. Se estiliza en `app/globals.css`:
+    - **Chrome y Edge (`::-webkit-scrollbar`):** 15 px, el ancho por defecto de Chrome, para no mover la maquetación. Pista `crt-surface` con filo `crt-line` de 2 px y pulgar negro cuadrado de 9 px, sin flechas.
+    - **Firefox:** `scrollbar-color: crt-ink crt-surface`, con `@supports not selector(::-webkit-scrollbar)`.
+
+    Verificación con capturas de Chrome sin ocultar barras en `/`, `/biblioteca` y `/acerca-de`: pista `rgb(138,162,147)`, filo `rgb(47,59,52)` y pulgar `rgb(0,0,0)`. El navegador de Playwright oculta las barras, así que las alturas medidas no cambian.
 
 ---
 
@@ -198,6 +203,7 @@ Toda la interfaz se trabaja con `/frontend-design`, siguiendo la paleta de este 
 - **Sí:** el spec 03 se cierra y se mergea antes de implementar este.
 - **Sí (ampliación, paso 3):** renombrar las clases compartidas (`*-neon` → `*-crt`, `.btn-home` → `.btn-cut`) y eliminar los modificadores `.neon-*`. El usuario lo pidió: el cambio es de estilo visual y los nombres deben describirlo. El cliente pidió conservar la historia del cambio, que queda en la tabla de renombrado, en los commits por paso y en `CLAUDE.md`.
 - **No (ampliación):** alias temporales con los nombres antiguos. Mantendrían vivo un vocabulario que ya no describe el sitio; el renombrado completo cabe en un commit.
+- **Sí (ampliación, paso 13):** barra de desplazamiento en la paleta, con el mismo ancho que la de Chrome para no mover la maquetación. El usuario lo señaló al revisar el PR.
 - **Sí (ampliación, paso 12):** ajustes de revisión del usuario: × del buscador, moneda, texto del pie, borde del error de acceso y corazón, todos en negro y en pixel-art. "SCANLINES" sustituye a "NEÓN" en el pie porque nombra lo que se ve en la pantalla.
 - **Sí (ampliación, paso 12):** el error de acceso usa borde negro y no `crt-err`. El usuario lo pidió: en ese recuadro `crt-err` se leía como rojo. La tarjeta de resultado de "Acerca de" mantiene sus tonos de estado.
 - **No (ampliación, paso 12):** el carácter ♥ con selector de texto (VS15) como corazón. Dependía de la fuente del sistema; el usuario pidió un corazón pixel-art del tamaño de la letra.
