@@ -107,6 +107,13 @@
   --animate-wipe: wipe 0.9s linear infinite;
   --animate-modal-in: modal-in 0.3s both;
   --animate-grid-move: grid-move 8s linear infinite;
+  /* Banda de refresco de la capa de televisor (spec 04) */
+  --animate-crt-roll: crt-roll 8s linear infinite;
+
+  @keyframes crt-roll {
+    from { transform: translateY(-18vh); }
+    to { transform: translateY(100vh); }
+  }
   /* Landing */
   --animate-fade-up: fade-up 240ms ease-out;
   --animate-float: float 6s ease-in-out infinite;
@@ -197,9 +204,6 @@
    -------------------------------------------------------------------------- */
 :root {
   color-scheme: light; /* pantalla de televisor verde-gris (spec 04): controles nativos claros */
-  /* Intensidad del fondo (references/home-about: scanlines .6, rejilla .55) */
-  --scanline-opacity: 0.6;
-  --grid-opacity: 0.55;
 }
 
 html {
@@ -244,69 +248,64 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   3. Fondo (references/home-about/styles.css: .av-bg, .av-bg::before,
-      .av-bg::after y .av-noise). Capas fijas detrás del contenido, en este
-      orden de pintado: degradados → rejilla → scanlines → ruido.
+   3. Capa de televisor antiguo (spec 04). Cuatro capas fijas POR ENCIMA del
+   contenido (el cristal del televisor), sin capturar clics. Oscurecimiento
+   limitado para no bajar el texto negro de 4,5:1: viñeta ≤ 12 %, scanlines 8 %.
    -------------------------------------------------------------------------- */
-/* .av-bg: resplandor magenta arriba y cian abajo */
-html::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(120% 80% at 50% 0%, rgb(255 0 110 / 0.08), transparent 60%),
-    radial-gradient(120% 80% at 50% 100%, rgb(0 245 255 / 0.1), transparent 60%),
-    var(--color-void);
-}
-
-/* .av-bg::before: rejilla cian en perspectiva */
-body::before {
-  content: "";
-  position: fixed;
-  left: -10%;
-  right: -10%;
-  bottom: -10%;
-  height: 70%;
-  z-index: -1;
-  pointer-events: none;
-  opacity: var(--grid-opacity);
-  background:
-    linear-gradient(to right, rgb(0 245 255 / 0.22) 1px, transparent 1px) 0 0 / 60px 60px,
-    linear-gradient(to bottom, rgb(0 245 255 / 0.22) 1px, transparent 1px) 0 0 / 60px 60px;
-  transform: perspective(600px) rotateX(60deg);
-  transform-origin: center bottom;
-  -webkit-mask-image: linear-gradient(to top, black 0%, transparent 90%);
-  mask-image: linear-gradient(to top, black 0%, transparent 90%);
-  animation: var(--animate-grid-move);
-}
-
-/* .av-bg::after: scanlines suaves (detrás del contenido) */
+html::before,
+html::after,
+body::before,
 body::after {
   content: "";
   position: fixed;
-  inset: 0;
-  z-index: -1;
   pointer-events: none;
-  opacity: var(--scanline-opacity);
-  background-image: repeating-linear-gradient(
-    to bottom,
-    rgb(255 255 255 / 0.03) 0 1px,
-    transparent 1px 3px
-  );
-  mix-blend-mode: overlay;
+  z-index: 1000;
 }
 
-/* .av-noise: grano */
-html::after {
-  content: "";
-  position: fixed;
+/* Viñeta: bordes ligeramente más oscuros, como el cristal curvo de un CRT */
+html::before {
   inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  opacity: 0.35;
+  background: radial-gradient(ellipse at center, transparent 55%, rgb(0 0 0 / 0.12) 100%);
+}
+
+/* Scanlines fijas: 1 px oscuro cada 3 px */
+body::before {
+  inset: 0;
+  background-image: repeating-linear-gradient(
+    to bottom,
+    rgb(0 0 0 / 0.08) 0 1px,
+    transparent 1px 3px
+  );
+}
+
+/* Ruido */
+html::after {
+  inset: 0;
+  opacity: 0.15;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1   0 0 0 0 1   0 0 0 0 1   0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+/* Banda de refresco: franja algo más clara que baja por la ventana en bucle */
+body::after {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 18vh;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgb(255 255 255 / 0.07),
+    transparent
+  );
+  transform: translateY(-18vh);
+  animation: var(--animate-crt-roll);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after {
+    display: none;
+  }
 }
 
 /* --------------------------------------------------------------------------
