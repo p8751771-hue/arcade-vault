@@ -161,13 +161,14 @@
     0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
     20%, 24%, 55% { opacity: 0.3; }
   }
+  /* Spec 04: el pulso del botón JUGAR AHORA es un contorno negro, sin brillo amarillo */
   @keyframes pulse-coin {
     0%, 100% {
-      box-shadow: 0 0 14px rgb(245 255 0 / 0.5), inset 0 0 10px rgb(245 255 0 / 0.2);
+      box-shadow: 0 0 0 0 rgb(0 0 0 / 0.35);
       transform: scale(1);
     }
     50% {
-      box-shadow: 0 0 44px rgb(245 255 0 / 0.95), inset 0 0 18px rgb(245 255 0 / 0.35);
+      box-shadow: 0 0 0 6px rgb(0 0 0 / 0);
       transform: scale(1.04);
     }
   }

@@ -11,10 +11,10 @@ export default function LibraryPage() {
           <br />
           <span className="text-pixel-crt">VAULT</span>
         </h1>
-        <div className="flex items-center gap-3.5 font-pixel text-[clamp(9px,2.2vw,13px)] leading-[1.6] text-neon-yellow [text-shadow:0_0_10px_rgb(245_255_0/0.7)]">
-          <span className="h-4 w-4 flex-none rounded-full bg-neon-yellow shadow-[0_0_12px_#f5ff00]" />
+        <div className="flex items-center gap-3.5 font-pixel text-[clamp(9px,2.2vw,13px)] leading-[1.6] text-crt-ink">
+          <span className="h-4 w-4 flex-none rounded-full bg-crt-ink" />
           <span className="animate-blink">INSERTA UNA MONEDA PARA JUGAR</span>
-          <span className="h-4 w-4 flex-none rounded-full bg-neon-yellow shadow-[0_0_12px_#f5ff00]" />
+          <span className="h-4 w-4 flex-none rounded-full bg-crt-ink" />
         </div>
       </div>
 
