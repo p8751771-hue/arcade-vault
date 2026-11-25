@@ -179,12 +179,12 @@ export function PlayScreen({ game }: { game: Game }) {
           // Spec 04: marco del televisor en la paleta; solo sombras negras.
           background: "var(--color-crt-surface)",
           boxShadow:
-            "0 0 0 2px var(--color-crt-line), 0 30px 60px rgb(0 0 0 / 0.35), inset 0 -6px 14px rgb(0 0 0 / 0.2)",
+            "0 0 0 2px rgb(0 0 0 / 0.65), 0 30px 60px rgb(0 0 0 / 0.35), inset 0 -6px 14px rgb(0 0 0 / 0.2)",
         }}
       >
         <div
           className="relative aspect-square overflow-hidden rounded-[26px/22px] bg-crt-well"
-          style={{ boxShadow: "inset 0 0 0 3px var(--color-crt-line)" }}
+          style={{ boxShadow: "inset 0 0 0 3px rgb(0 0 0 / 0.65)" }}
         >
           {/* Pantalla placeholder: aún no hay juego */}
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-crt-well px-6 text-center">

@@ -165,6 +165,17 @@ body {
   box-sizing: border-box;
 }
 
+/* 404 por defecto de Next: trae su propio <style> con body {background:#fff} (o #000
+   según el sistema). La guía de not-found de Next 16 recomienda una regla más
+   específica en el CSS global para aplicar el tema sin cambiar su marcado. */
+html body {
+  background: var(--color-crt-bg);
+  color: var(--color-crt-ink);
+}
+html .next-error-h1 {
+  border-right-color: rgb(0 0 0 / 0.3);
+}
+
 /* En @layer base: es solo el color por defecto; las utilidades (text-crt-ink-2, …) deben poder ganarle */
 @layer base {
   a {
