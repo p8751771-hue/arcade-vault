@@ -141,9 +141,9 @@ export function AuthForm() {
       </form>
 
       <div className="flex items-center gap-3 text-[13px] text-crt-ink-2">
-        <span className="h-px flex-1 bg-line" />
+        <span className="h-px flex-1 bg-crt-line" />
         O CONTINÚA CON
-        <span className="h-px flex-1 bg-line" />
+        <span className="h-px flex-1 bg-crt-line" />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <button type="button" onClick={() => finish("JUGADOR_GOOGLE")} className={SOCIAL_BUTTON}>

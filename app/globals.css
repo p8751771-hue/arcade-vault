@@ -2,13 +2,14 @@
 
 /* ==========================================================================
    ARCADE VAULT — tema global
-   Fuente de verdad visual: /references/Arcade Vault.dc.html
-   Estética neón / CRT: fondo casi negro, cian + magenta + amarillo,
-   tipografía pixel (Press Start 2P) y lectura en Courier Prime.
+   Maquetación: /references (Arcade Vault.dc.html y home-about/).
+   Color y efectos: spec 04, televisor antiguo. Fondo verde-gris #748c7d, texto
+   negro, scanlines y banda de refresco; tipografía pixel (Press Start 2P) y
+   lectura en Courier Prime. Hasta el spec 03 el tema era neón sobre negro.
    ========================================================================== */
 
 /* --------------------------------------------------------------------------
-   1. Tokens (generan utilidades: bg-void, text-neon-cyan, font-pixel, …)
+   1. Tokens (generan utilidades: bg-crt-bg, text-crt-ink, font-pixel, …)
    -------------------------------------------------------------------------- */
 @theme inline {
   /* Paleta de televisor antiguo (spec 04). Texto siempre crt-ink / crt-ink-2;
@@ -27,50 +28,6 @@
   --color-crt-silver: #2b352f;
   --color-crt-bronze: #4a230c;
 
-  /* Superficies */
-  --color-void: #0a0a0f; /* fondo de la app */
-  --color-panel: #0d0d16; /* paneles, HUD, buscador, modales */
-  --color-card: #0e0e18; /* tarjetas de juego */
-  --color-cover: #12122a; /* fondo de portadas */
-  --color-well: #07070d; /* inputs */
-  --color-stage: #05050b; /* pantalla del juego */
-
-  /* Neones */
-  --color-neon-cyan: #00f5ff;
-  --color-neon-pink: #ff006e;
-  --color-neon-yellow: #f5ff00;
-  --color-neon-green: #39ff88;
-
-  /* Texto */
-  --color-ink: #d8e6f0; /* texto base */
-  --color-ink-bright: #e8f4ff; /* inputs, nombres */
-  --color-ink-soft: #b4bdd0; /* descripciones */
-  --color-ink-date: #aab3c8; /* fechas */
-  --color-ink-muted: #8c93a8; /* etiquetas secundarias */
-  --color-ink-faint: #4a4d66; /* marca del marco de la consola */
-
-  /* Bordes neutros */
-  --color-line: #3a3d52;
-  --color-line-input: #2d6f78;
-
-  /* Landing (`/`): valores de references/home-about/styles.css que difieren de
-     los tokens de arriba. Prefijo propio para poder unificarlos en un spec de tema. */
-  --color-home-bg2: #0f0f18;
-  --color-home-bg3: #15151f;
-  --color-home-ink: #e6e9ff;
-  --color-home-dim: #8a8fb5;
-  --color-home-faint: #4a4f70;
-  --color-home-green: #00ff88;
-  --color-home-gold: #ffcf3a;
-  --color-home-silver: #c7d0e0;
-  --color-home-bronze: #d97a3a;
-  --color-home-line: rgb(0 245 255 / 0.18);
-  --color-home-line-2: rgb(255 255 255 / 0.06);
-
-  /* Alias semánticos */
-  --color-background: var(--color-void);
-  --color-foreground: var(--color-ink);
-
   /* Tipografía */
   /* La referencia no fija interlineado salvo donde lo indica (leading-*): las utilidades
      text-xs … text-xl de Tailwind no deben imponer el suyo. */
@@ -83,20 +40,6 @@
   --font-sans: var(--font-courier-prime), monospace;
   --font-mono: var(--font-courier-prime), monospace;
 
-  /* Resplandores (box-shadow) */
-  --shadow-glow-cyan: 0 0 10px rgb(0 245 255 / 0.4);
-  --shadow-glow-cyan-lg: 0 0 40px rgb(0 245 255 / 0.35), inset 0 0 30px rgb(0 0 0 / 0.6);
-  --shadow-glow-pink: 0 0 10px rgb(255 0 110 / 0.4);
-  --shadow-glow-pink-lg: 0 0 60px rgb(255 0 110 / 0.6), inset 0 0 30px rgb(0 0 0 / 0.6);
-  --shadow-glow-yellow: 0 0 10px rgb(245 255 0 / 0.3);
-  --shadow-glow-green: 0 0 10px rgb(57 255 136 / 0.4);
-
-  /* Resplandores (text-shadow) */
-  --text-shadow-neon-cyan: 0 0 6px #00f5ff, 0 0 22px rgb(0 245 255 / 0.8), 0 0 56px rgb(0 245 255 / 0.5);
-  --text-shadow-neon-pink: 0 0 6px #ff006e, 0 0 22px rgb(255 0 110 / 0.8), 0 0 56px rgb(255 0 110 / 0.5);
-  --text-shadow-neon-yellow: 0 0 8px #f5ff00, 0 0 30px rgb(245 255 0 / 0.6);
-  --text-shadow-neon-green: 0 0 12px #39ff88;
-
   /* Animaciones */
   --animate-flicker: flicker 4s linear infinite;
   --animate-pulse-coin: pulse-coin 1.4s ease-in-out infinite;
@@ -106,7 +49,6 @@
   --animate-px-spin: px-spin 0.8s steps(8) infinite;
   --animate-wipe: wipe 0.9s linear infinite;
   --animate-modal-in: modal-in 0.3s both;
-  --animate-grid-move: grid-move 8s linear infinite;
   /* Banda de refresco de la capa de televisor (spec 04) */
   --animate-crt-roll: crt-roll 8s linear infinite;
 
@@ -194,10 +136,6 @@
     from { opacity: 0; transform: scale(0.88); }
     to { opacity: 1; transform: none; }
   }
-  @keyframes grid-move {
-    from { background-position: 0 0; }
-    to { background-position: 0 60px; }
-  }
 }
 
 /* --------------------------------------------------------------------------
@@ -227,7 +165,7 @@ body {
   box-sizing: border-box;
 }
 
-/* En @layer base: es solo el color por defecto; las utilidades (text-ink, …) deben poder ganarle */
+/* En @layer base: es solo el color por defecto; las utilidades (text-crt-ink-2, …) deben poder ganarle */
 @layer base {
   a {
     color: var(--color-crt-ink);
