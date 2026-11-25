@@ -20,6 +20,8 @@ La página tiene tres partes:
 
 **Numeración.** Los tests e2e del correo, que el spec 04 llamaba "spec 05", pasan a ser el **spec 06**.
 
+**Ampliación (2026-11-25): medallas sin color.** Con el spec 04 ya mergeado, y antes de empezar este, el usuario vio en el Salón de la Fama que los recuadros de los puestos 01 y 03 tenían el borde ocre (`crt-gold` `#3f3200`) y marrón rojizo (`crt-bronze` `#4a230c`): se leían como colores fuera de la paleta. Pidió incluir la corrección en este spec y quitar los tonos de medalla **en todo el sitio**. Los tres primeros puestos se distinguen con un **borde negro más grueso**, no con color. Esto sustituye a la decisión del spec 04 sobre `crt-gold` / `crt-silver` / `crt-bronze`. El spec 04 no se reescribe porque ya está `Implementado`.
+
 ---
 
 ## Alcance
@@ -44,6 +46,11 @@ La página tiene tres partes:
 - Capturas `public/historia/estilo-neon.png` (landing de `main` antes del spec 04) y `public/historia/estilo-tv.png` (landing con el spec 04), tomadas con Playwright a 1280×900.
 - Enlace "Historia" en el header de escritorio y en el menú móvil, tras "Acerca de"; activo solo en `/historia`.
 - Paleta y efectos del spec 04 (tokens `crt-*`, texto negro, hover invertido).
+- **(Ampliación) Medallas sin color en todo el sitio:**
+  - **Salón de la Fama** (`components/hall-of-fame.tsx`): los puestos 01–03 llevan borde `crt-ink` de 3 px y el resto `crt-line` de 2 px. El relleno de las filas 01–03 baja 1 px por lado para que todas midan lo mismo.
+  - **Ranking del detalle de juego** (`app/(site)/juegos/[id]/page.tsx`): la barra izquierda de 3 px es `crt-ink` en los puestos 01–03 y `crt-line` en el resto.
+  - **"TOP JUGADORES · HOY"** de la landing (`components/home/top-players.tsx`): la barra lateral de 4 px es `crt-ink` en los puestos 01–03 y `crt-line` en el resto.
+  - `MEDALS` (`lib/scores.ts`) pasa a `crt-ink` para los tres, y se eliminan los tokens `--color-crt-gold`, `--color-crt-silver` y `--color-crt-bronze` de `app/globals.css`.
 - Actualizar `CLAUDE.md` (tabla de rutas, arquitectura, numeración de specs).
 
 **Fuera de alcance (para specs futuros):**
@@ -138,7 +145,12 @@ Requisito: el spec 04 implementado (tokens `crt-*` y capa de televisor). La rama
 5. **Capturas y reseña.** Tomar con Playwright las dos capturas (la neón desde `main`, la de televisor desde la rama del spec 04), optimizarlas a ≤ 400 KB y guardarlas en `public/historia/`. Añadir la sección "POR QUÉ PARECEMOS UN TELEVISOR" con las dos imágenes. Verificación: las imágenes cargan con su `alt` y su tamaño.
 6. **Citas y referencias.** Añadir las citas APA al final de cada hito (en la cabina y en la lista) y la sección "REFERENCIAS" en formato APA con sangría francesa. Verificación: todos los enlaces externos responden con 2xx o 3xx (`curl -I`); cada cita enlaza a una entrada existente; las entradas están en orden alfabético.
 7. **Documentación.** Actualizar `CLAUDE.md`: ruta `/historia`, `lib/history.ts`, `components/history/`, `public/historia/`, el enlace del header y la numeración (spec 06 para los tests e2e).
-8. **Verificación global.** Con Playwright, a 1280×900 y 390×844:
+8. **(Ampliación) Medallas sin color.** Aplicar los cambios del alcance en `components/hall-of-fame.tsx`, `app/(site)/juegos/[id]/page.tsx`, `components/home/top-players.tsx` y `lib/scores.ts`, y eliminar `--color-crt-gold|silver|bronze` de `app/globals.css`. Actualizar `CLAUDE.md` (paleta, `MEDALS`). Verificación con Playwright:
+   - en `/salon-de-la-fama` los bordes de las filas 01–03 son `rgb(0, 0, 0)` de 3 px y los demás `rgb(47, 59, 52)` de 2 px;
+   - en `/juegos/arkanoid` y `/` las barras de los puestos 01–03 son `rgb(0, 0, 0)`;
+   - `grep` de `crt-gold|crt-silver|crt-bronze` en `app/`, `components/` y `lib/` sin resultados;
+   - el alto del documento de `/`, `/juegos/arkanoid` y `/salon-de-la-fama`, a 1280 y a 390, es igual al de `main` antes de este paso.
+9. **Verificación global.** Con Playwright, a 1280×900 y 390×844:
    - capturas de página completa;
    - escaneo de contraste del spec 04 en `/historia`;
    - `grep` de los valores prohibidos del spec 04 (las imágenes PNG no cuentan);
@@ -164,6 +176,8 @@ Requisito: el spec 04 implementado (tokens `crt-*` y capa de televisor). La rama
 - [ ] Ningún texto de hito comparte 8 o más palabras seguidas con el contenido de sus fuentes (comparación automática del paso 2) ni contiene citas textuales.
 - [ ] `public/historia/estilo-neon.png` y `public/historia/estilo-tv.png` existen, pesan ≤ 400 KB y se muestran con su `alt` y su pie de foto; a ≤ 900 px van en una columna.
 - [ ] La página no contiene imágenes, logotipos ni personajes de juegos reales (solo las dos capturas propias de Arcade Vault).
+- [ ] (Ampliación) Ningún ranking del sitio usa color de medalla. En el Salón de la Fama los puestos 01–03 tienen borde negro de 3 px y el resto borde `crt-line` de 2 px. En el detalle de juego y en "TOP JUGADORES · HOY" las barras de los puestos 01–03 son negras y las demás `crt-line`. Los tokens `crt-gold`, `crt-silver` y `crt-bronze` ya no existen.
+- [ ] (Ampliación) Las alturas de `/`, `/juegos/arkanoid` y `/salon-de-la-fama` no cambian con el paso 8.
 - [ ] El escaneo de contraste del spec 04 no encuentra ningún texto por debajo de 4,5:1 en `/historia`, a 1280 ni a 390.
 - [ ] El `grep` de valores prohibidos del spec 04 sigue sin resultados.
 - [ ] `CLAUDE.md` documenta la ruta, los archivos nuevos y que los tests e2e son el spec 06.
@@ -189,6 +203,10 @@ Requisito: el spec 04 implementado (tokens `crt-*` y capa de televisor). La rama
 - **No:** imágenes, logotipos o personajes de juegos reales. Son material de terceros; la pantalla de cada hito es texto en la tipografía del sitio.
 - **Sí:** efecto de cambio de canal de 250 ms, instantáneo con `reduced-motion`. Recuerda al televisor sin retrasar la lectura, y sigue la regla de movimiento del sitio.
 - **Sí:** spec 05 para la historia; los tests e2e del correo pasan al 06.
+- **Sí (ampliación):** quitar los tonos de medalla en todo el sitio. El usuario los vio como colores ajenos a la paleta en el Salón de la Fama y eligió aplicarlo también al detalle y a la landing, para que todos los rankings sigan el mismo criterio.
+- **Sí (ampliación):** los tres primeros puestos se marcan con borde o barra negros más gruesos. El usuario lo eligió frente a invertir la fila o a no distinguirlos; el número de rango sigue siendo la señal principal.
+- **No (ampliación):** filas invertidas (fondo negro) para el top 3. Tres filas negras seguidas pesan demasiado frente al resto de la lista.
+- **Sí (ampliación):** la corrección va en este spec, aunque no trate de la historia, porque el usuario lo pidió así. El spec 04 queda como histórico.
 
 ---
 
@@ -212,5 +230,6 @@ Requisito: el spec 04 implementado (tokens `crt-*` y capa de televisor). La rama
 - Material de juegos reales (capturas, logotipos, personajes) o versiones jugables.
 - Historia posterior a 1982.
 - Tests e2e del correo (spec 06) y tests automatizados en general.
+- Otros cambios de paleta aparte de las medallas.
 
 Cada uno, si llega, va en su propio spec.
