@@ -126,7 +126,7 @@ export function AuthForm() {
         {error && (
           <div
             role="alert"
-            className="border border-l-4 border-crt-err bg-crt-surface px-3 py-2.5 text-[15px] text-crt-ink"
+            className="border border-l-4 border-crt-ink bg-crt-surface px-3 py-2.5 text-[15px] text-crt-ink"
           >
             {error}
           </div>

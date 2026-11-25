@@ -1,5 +1,5 @@
 import { ContactForm } from "@/components/about/contact-form";
-import { HighlightIcon } from "@/components/about/highlight-icon";
+import { HighlightIcon, withPixelHeart } from "@/components/about/highlight-icon";
 import { Reveal } from "@/components/home/reveal";
 import {
   ABOUT_MISSION,
@@ -60,7 +60,7 @@ export default function AboutPage() {
             >
               <HighlightIcon kind={h.icon} />
               <div className="font-pixel text-[10px] leading-[1.5] tracking-[0.1em] text-crt-ink uppercase">
-                {h.text}
+                {withPixelHeart(h.text)}
               </div>
             </div>
           ))}

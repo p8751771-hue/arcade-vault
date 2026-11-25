@@ -50,7 +50,7 @@ No se mantienen alias con los nombres antiguos.
 
 **Fuera de alcance (para specs futuros):**
 
-- Maquetación, tamaños, tipografía (Press Start 2P y Courier Prime) y textos: no cambian. Las medidas con Playwright de los specs 02 y 03 deben seguir coincidiendo.
+- Maquetación, tamaños, tipografía (Press Start 2P y Courier Prime) y textos: no cambian, salvo el texto del pie y el corazón de "Acerca de" (paso 12). Las medidas con Playwright de los specs 02 y 03 deben seguir coincidiendo.
 - Datos: `color` de `Game` (`lib/games.ts`), `accent` de `lib/home.ts` y de `lib/about.ts` y `HomeAccent` se conservan sin uso visual (ver "Decisiones").
 - Selector de tema, modo claro/oscuro o volver al tema neón: el sitio tiene un único tema.
 - Efectos más allá de los listados: curvatura de pantalla, aberración cromática, parpadeo de encendido o sonido.
@@ -147,6 +147,15 @@ Toda la interfaz se trabaja con `/frontend-design`, siguiendo la paleta de este 
     - comparar el alto del documento y del header con las medidas de partida de `main`;
     - guardar una captura de página completa por ruta y ancho.
 
+12. **(Ampliación) Ajustes de revisión.** El usuario revisó el sitio con los pasos 1–11 y pidió cinco ajustes:
+    - el botón nativo "borrar" (×) del buscador (`input[type="search"]`), que Chrome pinta azul, pasa a una × pixel negra de 14 px (`::-webkit-search-cancel-button` en `app/globals.css`);
+    - la moneda de "CRÉDITOS · 03" pasa a un SVG pixel de 7×7 en negro con la ranura en `crt-surface`, al mismo tamaño (14 px);
+    - el pie dice "HECHO CON PIXELES Y SCANLINES" en lugar de "… Y NEÓN";
+    - el recuadro de error de `auth-form` tiene el borde negro (`crt-ink`) en lugar de `crt-err`;
+    - el corazón de "HECHO CON ❤️ PARA JUGADORES" era el emoji rojo del sistema y pasa a un SVG pixel de 7×6 del alto de la letra (`InlineHeart` en `components/about/highlight-icon.tsx`). El dato de `lib/about.ts` guarda la marca `♥︎` y `withPixelHeart` la sustituye.
+
+    Verificación con Playwright: × y moneda en negro, borde del error `rgb(0,0,0)`, corazón SVG de 10 px en `rgb(0,0,0)` y las 16 alturas iguales a las de `main`.
+
 ---
 
 ## Criterios de aceptación
@@ -189,6 +198,9 @@ Toda la interfaz se trabaja con `/frontend-design`, siguiendo la paleta de este 
 - **Sí:** el spec 03 se cierra y se mergea antes de implementar este.
 - **Sí (ampliación, paso 3):** renombrar las clases compartidas (`*-neon` → `*-crt`, `.btn-home` → `.btn-cut`) y eliminar los modificadores `.neon-*`. El usuario lo pidió: el cambio es de estilo visual y los nombres deben describirlo. El cliente pidió conservar la historia del cambio, que queda en la tabla de renombrado, en los commits por paso y en `CLAUDE.md`.
 - **No (ampliación):** alias temporales con los nombres antiguos. Mantendrían vivo un vocabulario que ya no describe el sitio; el renombrado completo cabe en un commit.
+- **Sí (ampliación, paso 12):** ajustes de revisión del usuario: × del buscador, moneda, texto del pie, borde del error de acceso y corazón, todos en negro y en pixel-art. "SCANLINES" sustituye a "NEÓN" en el pie porque nombra lo que se ve en la pantalla.
+- **Sí (ampliación, paso 12):** el error de acceso usa borde negro y no `crt-err`. El usuario lo pidió: en ese recuadro `crt-err` se leía como rojo. La tarjeta de resultado de "Acerca de" mantiene sus tonos de estado.
+- **No (ampliación, paso 12):** el carácter ♥ con selector de texto (VS15) como corazón. Dependía de la fuente del sistema; el usuario pidió un corazón pixel-art del tamaño de la letra.
 - **Sí (ampliación):** el `grep` de valores prohibidos excluye el campo `color` de `lib/games.ts`. Este spec conserva esos datos sin uso visual por decisión del usuario, y la prohibición busca colores aplicados al estilo, no datos guardados.
 - **Sí:** un solo spec para todo el sitio. Es un único cambio de tema; partirlo por pantallas dejaría el sitio con dos temas mezclados entre specs. El riesgo de tamaño se reparte en pasos que dejan el sitio funcionando.
 

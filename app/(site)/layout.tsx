@@ -16,7 +16,7 @@ export default function SiteLayout({ children }: LayoutProps<"/">) {
       </Suspense>
       <div className="flex-1">{children}</div>
       <footer className="relative z-[1] border-t border-crt-line px-8 py-5 text-center text-[11px] leading-[1.5] tracking-[0.16em] text-crt-ink-2">
-        © 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0
+        © 2026 ARCADE VAULT · HECHO CON PIXELES Y SCANLINES · v2.6.0
       </footer>
     </div>
   );

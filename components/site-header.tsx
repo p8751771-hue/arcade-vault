@@ -84,10 +84,19 @@ export function SiteHeader() {
 
         {/* .coin-counter (decorativo) */}
         <div className="flex items-center gap-2 font-pixel text-[9px] text-crt-ink max-[841px]:hidden">
-          <span
+          {/* Moneda pixel de 7×7 en negro con la ranura en crt-surface (spec 04, paso 12) */}
+          <svg
             aria-hidden="true"
-            className="h-3.5 w-3.5 rounded-full border border-crt-ink bg-crt-gold"
-          />
+            viewBox="0 0 7 7"
+            shapeRendering="crispEdges"
+            className="h-3.5 w-3.5 flex-none"
+          >
+            <path
+              fill="var(--color-crt-ink)"
+              d="M2 0h3v1h1v1h1v3h-1v1h-1v1h-3v-1h-1v-1h-1v-3h1v-1h1z"
+            />
+            <rect x="3" y="2" width="1" height="3" fill="var(--color-crt-surface)" />
+          </svg>
           <span>CRÉDITOS · 03</span>
         </div>
 

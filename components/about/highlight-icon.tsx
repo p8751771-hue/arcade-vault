@@ -56,3 +56,33 @@ export function HighlightIcon({ kind }: { kind: HighlightIconKind }) {
     </svg>
   );
 }
+
+/** Marca del corazón dentro de los textos de lib/about.ts ("HECHO CON ♥︎ PARA JUGADORES"). */
+export const HEART_MARK = "♥︎";
+
+/**
+ * Corazón pixel-art de 7×6 del alto de la letra (1em), en el color del texto.
+ * Sustituye al emoji ❤️ de la referencia, que el sistema pinta en rojo (spec 04, paso 12).
+ */
+export function InlineHeart() {
+  return (
+    <svg
+      role="img"
+      aria-label="corazón"
+      viewBox="0 0 7 6"
+      shapeRendering="crispEdges"
+      className="inline-block h-[1em] w-[1.1667em] align-[-0.1em]"
+    >
+      <path
+        fill="currentColor"
+        d="M1 0h2v1h1v-1h2v1h1v2h-1v1h-1v1h-1v1h-1v-1h-1v-1h-1v-1h-1v-2h1z"
+      />
+    </svg>
+  );
+}
+
+/** Pinta un texto de lib/about.ts cambiando HEART_MARK por <InlineHeart />. */
+export function withPixelHeart(text: string) {
+  const parts = text.split(HEART_MARK);
+  return parts.flatMap((part, i) => (i === 0 ? [part] : [<InlineHeart key={i} />, part]));
+}

@@ -176,6 +176,17 @@ html .next-error-h1 {
   border-right-color: rgb(0 0 0 / 0.3);
 }
 
+/* Botón nativo "borrar" (×) de <input type="search">: Chrome lo pinta azul; aquí,
+   una × negra del mismo tamaño (spec 04, paso 12). */
+input[type="search"]::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' shape-rendering='crispEdges'><path fill='black' d='M0 0h1v1h1v1h1v1h1v-1h1v-1h1v-1h1v1h-1v1h-1v1h-1v1h1v1h1v1h1v1h-1v-1h-1v-1h-1v-1h-1v1h-1v1h-1v1h-1v-1h1v-1h1v-1h1v-1h-1v-1h-1v-1h-1z'/></svg>") center / contain no-repeat;
+}
+
 /* En @layer base: es solo el color por defecto; las utilidades (text-crt-ink-2, …) deben poder ganarle */
 @layer base {
   a {
