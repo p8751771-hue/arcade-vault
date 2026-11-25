@@ -11,6 +11,22 @@
    1. Tokens (generan utilidades: bg-void, text-neon-cyan, font-pixel, …)
    -------------------------------------------------------------------------- */
 @theme inline {
+  /* Paleta de televisor antiguo (spec 04). Texto siempre crt-ink / crt-ink-2;
+     ok/warn/err y gold/silver/bronze solo en iconos, bordes y barras (contraste ≥ 3:1). */
+  --color-crt-bg: #748c7d; /* fondo de página */
+  --color-crt-surface: #8aa293; /* tarjetas, paneles, header, menú, formulario */
+  --color-crt-well: #6e8677; /* inputs, pozos, pantalla de la cabina */
+  --color-crt-line: #2f3b34; /* bordes y separadores */
+  --color-crt-ink: #000000; /* texto principal, títulos, botones */
+  --color-crt-ink-2: #0e1511; /* texto secundario, placeholders */
+  --color-crt-invert: #8aa293; /* texto sobre crt-ink (hover, foco, activo) */
+  --color-crt-ok: #0b3d21;
+  --color-crt-warn: #3d3000;
+  --color-crt-err: #4a0d0a;
+  --color-crt-gold: #3f3200;
+  --color-crt-silver: #2b352f;
+  --color-crt-bronze: #4a230c;
+
   /* Superficies */
   --color-void: #0a0a0f; /* fondo de la app */
   --color-panel: #0d0d16; /* paneles, HUD, buscador, modales */
@@ -180,20 +196,20 @@
    2. Base
    -------------------------------------------------------------------------- */
 :root {
-  color-scheme: dark; /* la app es siempre oscura, como en la referencia */
+  color-scheme: light; /* pantalla de televisor verde-gris (spec 04): controles nativos claros */
   /* Intensidad del fondo (references/home-about: scanlines .6, rejilla .55) */
   --scanline-opacity: 0.6;
   --grid-opacity: 0.55;
 }
 
 html {
-  background: var(--color-void);
+  background: var(--color-crt-bg);
 }
 
 body {
   margin: 0;
-  background: transparent; /* deja ver el fondo animado de html::before / body::before */
-  color: var(--color-home-ink); /* texto base de references/home-about (#e6e9ff) */
+  background: var(--color-crt-bg); /* spec 04: fondo plano #748c7d */
+  color: var(--color-crt-ink); /* spec 04: texto negro */
   font-family: var(--font-sans);
   font-size: 16px;
   line-height: normal; /* la referencia no fija un interlineado base (el preflight pone 1.5) */
@@ -209,21 +225,21 @@ body {
 /* En @layer base: es solo el color por defecto; las utilidades (text-ink, …) deben poder ganarle */
 @layer base {
   a {
-    color: var(--color-neon-cyan);
+    color: var(--color-crt-ink);
   }
   a:hover {
-    color: var(--color-neon-yellow);
+    color: var(--color-crt-ink);
   }
 }
 
 ::selection {
-  background: var(--color-neon-pink);
-  color: #fff;
+  background: var(--color-crt-ink);
+  color: var(--color-crt-invert);
 }
 
-/* Foco visible con el mismo lenguaje neón */
+/* Foco visible: contorno negro de 2 px separado 2 px (spec 04) */
 :focus-visible {
-  outline: 2px solid var(--color-neon-yellow);
+  outline: 2px solid var(--color-crt-ink);
   outline-offset: 2px;
 }
 
