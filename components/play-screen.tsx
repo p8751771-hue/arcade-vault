@@ -50,31 +50,23 @@ function PixelSpinner({ rgb, className = "" }: { rgb: string; className?: string
   );
 }
 
+// Spec 04: los marcadores del HUD comparten la paleta (borde crt-ink, etiqueta crt-ink-2);
+// antes cada uno tenía su neón (cian, magenta, amarillo) y el de puntuación brillaba.
 function HudBox({
   label,
   value,
-  color,
   className = "",
-  glow,
 }: {
   label: string;
   value: string;
-  color: string;
   className?: string;
-  glow?: boolean;
 }) {
   return (
-    <div
-      className={`min-w-0 border-2 bg-panel px-3 py-[9px] ${className}`}
-      style={{
-        borderColor: color,
-        boxShadow: glow ? "0 0 10px rgb(0 245 255 / 0.3)" : undefined,
-      }}
-    >
-      <div className="mb-2 font-pixel text-[7px]" style={{ color }}>
+    <div className={`min-w-0 border-2 border-crt-ink bg-crt-surface px-3 py-[9px] ${className}`}>
+      <div className="mb-2 font-pixel text-[7px] text-crt-ink-2">
         {label}
       </div>
-      <div className="font-pixel text-sm text-white">{value}</div>
+      <div className="font-pixel text-sm text-crt-ink">{value}</div>
     </div>
   );
 }
@@ -155,25 +147,25 @@ export function PlayScreen({ game }: { game: Game }) {
       {/* HUD */}
       <div className="flex w-[min(100%,640px)] flex-wrap items-stretch justify-between gap-2.5">
         <div className="flex min-w-0 flex-1 flex-wrap gap-2.5">
-          <HudBox label="PUNTUACIÓN" value={String(SCORE)} color="#00f5ff" glow className="flex-[2_1_120px]" />
-          <HudBox label="VIDAS" value={String(LIVES)} color="#ff006e" className="flex-[1_1_60px]" />
-          <HudBox label="NIVEL" value={String(LEVEL)} color="#f5ff00" className="flex-[1_1_60px]" />
-          <div className="min-w-0 flex-[2_1_110px] border-2 border-line bg-panel px-3 py-[9px]">
-            <div className="mb-2 font-pixel text-[7px] text-ink-muted">JUGADOR</div>
-            <div className="truncate text-base font-bold text-ink-bright">{player}</div>
+          <HudBox label="PUNTUACIÓN" value={String(SCORE)} className="flex-[2_1_120px]" />
+          <HudBox label="VIDAS" value={String(LIVES)} className="flex-[1_1_60px]" />
+          <HudBox label="NIVEL" value={String(LEVEL)} className="flex-[1_1_60px]" />
+          <div className="min-w-0 flex-[2_1_110px] border-2 border-crt-line bg-crt-surface px-3 py-[9px]">
+            <div className="mb-2 font-pixel text-[7px] text-crt-ink-2">JUGADOR</div>
+            <div className="truncate text-base font-bold text-crt-ink">{player}</div>
           </div>
         </div>
         <div className="flex gap-2.5">
           <button
             type="button"
             onClick={togglePause}
-            className="cursor-pointer border-2 border-neon-yellow bg-transparent px-3.5 font-pixel text-[10px] text-neon-yellow shadow-[0_0_10px_rgb(245_255_0/0.3)] hover:bg-neon-yellow hover:text-void active:scale-[0.92]"
+            className="cursor-pointer border-2 border-crt-ink bg-transparent px-3.5 font-pixel text-[10px] text-crt-ink hover:bg-crt-ink hover:text-crt-invert active:scale-[0.92]"
           >
             {phase === "paused" ? "REANUDAR" : "PAUSA"}
           </button>
           <Link
             href={`/juegos/${game.id}`}
-            className="flex cursor-pointer items-center border-2 border-neon-pink bg-transparent px-3.5 font-pixel text-[10px] text-neon-pink no-underline shadow-[0_0_10px_rgb(255_0_110/0.3)] hover:bg-neon-pink hover:text-void active:scale-[0.92]"
+            className="flex cursor-pointer items-center border-2 border-crt-ink bg-transparent px-3.5 font-pixel text-[10px] text-crt-ink no-underline hover:bg-crt-ink hover:text-crt-invert active:scale-[0.92]"
           >
             SALIR
           </Link>
@@ -184,24 +176,22 @@ export function PlayScreen({ game }: { game: Game }) {
       <div
         className="w-[min(100%,640px)] rounded-[38px] p-[clamp(10px,3.2vw,24px)]"
         style={{
-          background: "linear-gradient(150deg,#262633,#12121a 55%,#1b1b26)",
+          // Spec 04: marco del televisor en la paleta; solo sombras negras.
+          background: "var(--color-crt-surface)",
           boxShadow:
-            "0 0 0 2px #34344a, 0 0 70px rgb(0 245 255 / 0.2), 0 30px 60px rgb(0 0 0 / 0.7), inset 0 2px 2px rgb(255 255 255 / 0.12), inset 0 -6px 14px rgb(0 0 0 / 0.6)",
+            "0 0 0 2px rgb(0 0 0 / 0.65), 0 30px 60px rgb(0 0 0 / 0.35), inset 0 -6px 14px rgb(0 0 0 / 0.2)",
         }}
       >
         <div
-          className="relative aspect-square overflow-hidden rounded-[26px/22px] bg-black"
-          style={{ boxShadow: "inset 0 0 0 3px #05050a, 0 0 36px rgb(0 245 255 / 0.28)" }}
+          className="relative aspect-square overflow-hidden rounded-[26px/22px] bg-crt-well"
+          style={{ boxShadow: "inset 0 0 0 3px rgb(0 0 0 / 0.65)" }}
         >
           {/* Pantalla placeholder: aún no hay juego */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-stage px-6 text-center">
-            <div
-              className="font-pixel text-[clamp(14px,4vw,24px)] leading-[1.4]"
-              style={{ color: game.color, textShadow: `0 0 12px ${game.color}` }}
-            >
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-crt-well px-6 text-center">
+            <div className="font-pixel text-[clamp(14px,4vw,24px)] leading-[1.4] text-crt-ink">
               {game.title}
             </div>
-            <div className="font-pixel text-[10px] leading-[1.8] text-ink-muted">
+            <div className="font-pixel text-[10px] leading-[1.8] text-crt-ink-2">
               EL JUEGO AÚN NO ESTÁ DISPONIBLE
             </div>
           </div>
@@ -211,8 +201,8 @@ export function PlayScreen({ game }: { game: Game }) {
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "radial-gradient(ellipse at 50% 50%, rgb(255 255 255 / 0.04) 0%, transparent 55%, rgb(0 0 0 / 0.6) 100%)",
-              boxShadow: "inset 0 0 90px rgb(0 0 0 / 0.85)",
+                "radial-gradient(ellipse at 50% 50%, transparent 55%, rgb(0 0 0 / 0.25) 100%)",
+              boxShadow: "inset 0 0 60px rgb(0 0 0 / 0.3)",
             }}
           />
           <div
@@ -220,24 +210,24 @@ export function PlayScreen({ game }: { game: Game }) {
             className="pointer-events-none absolute inset-0"
             style={{
               background:
-                "repeating-linear-gradient(to bottom, rgb(0 0 0 / 0) 0, rgb(0 0 0 / 0) 2px, rgb(0 0 0 / 0.22) 3px)",
+                "repeating-linear-gradient(to bottom, rgb(0 0 0 / 0) 0, rgb(0 0 0 / 0) 2px, rgb(0 0 0 / 0.08) 3px)",
             }}
           />
           {phase === "loading" && (
             <div
               role="status"
-              className="absolute inset-0 flex flex-col items-center justify-center gap-[22px] overflow-hidden bg-stage"
+              className="absolute inset-0 flex flex-col items-center justify-center gap-[22px] overflow-hidden bg-crt-well"
             >
               <div
                 aria-hidden="true"
                 className="animate-wipe absolute inset-x-0 top-0 h-2/5"
                 style={{
                   background:
-                    "linear-gradient(to bottom, transparent, rgb(0 245 255 / 0.35), transparent)",
+                    "linear-gradient(to bottom, transparent, rgb(0 0 0 / 0.12), transparent)",
                 }}
               />
-              <PixelSpinner rgb="0 245 255" />
-              <div className="animate-blink relative font-pixel text-xs text-neon-cyan [text-shadow:0_0_10px_#00f5ff]">
+              <PixelSpinner rgb="0 0 0" />
+              <div className="animate-blink relative font-pixel text-xs text-crt-ink">
                 CARGANDO...
               </div>
             </div>
@@ -245,20 +235,20 @@ export function PlayScreen({ game }: { game: Game }) {
           {phase === "paused" && (
             <div
               role="status"
-              className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-[rgb(5_5_10/0.75)]"
+              className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-crt-well/90"
             >
-              <div className="font-pixel text-[26px] text-neon-yellow [text-shadow:0_0_14px_#f5ff00]">
+              <div className="font-pixel text-[26px] text-crt-ink">
                 PAUSA
               </div>
-              <div className="text-[15px] text-ink-soft">Pulsa REANUDAR o la tecla P</div>
+              <div className="text-[15px] text-crt-ink-2">Pulsa REANUDAR o la tecla P</div>
             </div>
           )}
         </div>
         <div className="flex items-center justify-between px-2.5 pt-3">
-          <span className="font-pixel text-[8px] tracking-[2px] text-ink-faint">
+          <span className="font-pixel text-[8px] tracking-[2px] text-crt-ink-2">
             ARCADE VAULT
           </span>
-          <span className="h-2.5 w-2.5 rounded-full bg-neon-pink shadow-[0_0_10px_#ff006e]" />
+          <span className="h-2.5 w-2.5 rounded-full bg-crt-ink" />
         </div>
       </div>
 
@@ -270,7 +260,7 @@ export function PlayScreen({ game }: { game: Game }) {
               key={label}
               type="button"
               style={{ flex }}
-              className="min-h-14 cursor-pointer touch-none border-2 border-neon-cyan bg-panel px-1.5 py-px font-pixel text-[13px] text-neon-cyan active:bg-neon-cyan active:text-void"
+              className="min-h-14 cursor-pointer touch-none border-2 border-crt-ink bg-crt-surface px-1.5 py-px font-pixel text-[13px] text-crt-ink active:bg-crt-ink active:text-crt-invert"
             >
               {label}
             </button>
@@ -282,28 +272,28 @@ export function PlayScreen({ game }: { game: Game }) {
         <button
           type="button"
           onClick={simulateEnd}
-          className="btn-neon neon-muted text-[9px]"
+          className="btn-crt text-[9px]"
         >
           SIMULAR FIN DE PARTIDA
         </button>
       )}
 
       {phase === "over" && (
-        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-[rgb(5_5_10/0.88)] p-4">
+        <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 p-4">
           <div
             role="dialog"
             aria-modal="true"
             aria-labelledby="game-over-title"
-            className="animate-modal-in flex w-full max-w-[480px] flex-col items-center gap-5 border-[3px] border-neon-pink bg-panel px-6 py-[30px] text-center shadow-glow-pink-lg"
+            className="animate-modal-in flex w-full max-w-[480px] flex-col items-center gap-5 border-[3px] border-crt-ink bg-crt-surface px-6 py-[30px] text-center"
           >
             <div
               id="game-over-title"
-              className="animate-flicker font-pixel text-[clamp(20px,5vw,28px)] text-neon-pink [text-shadow:0_0_14px_#ff006e,0_0_40px_rgb(255_0_110/0.7)]"
+              className="animate-flicker font-pixel text-[clamp(20px,5vw,28px)] text-crt-ink"
             >
               FIN DEL JUEGO
             </div>
-            <div className="font-pixel text-[9px] text-ink-muted">PUNTUACIÓN FINAL</div>
-            <div className="font-pixel text-[clamp(24px,7vw,36px)] text-neon-yellow [text-shadow:0_0_14px_#f5ff00]">
+            <div className="font-pixel text-[9px] text-crt-ink-2">PUNTUACIÓN FINAL</div>
+            <div className="font-pixel text-[clamp(24px,7vw,36px)] text-crt-ink">
               {formatScore(finalScore)}
             </div>
 
@@ -313,11 +303,11 @@ export function PlayScreen({ game }: { game: Game }) {
                   type="button"
                   autoFocus
                   onClick={save}
-                  className="btn-neon-solid neon-yellow p-[15px] text-[11px]"
+                  className="btn-crt-solid p-[15px] text-[11px]"
                 >
                   GUARDAR PUNTUACIÓN
                 </button>
-                <span className="text-sm text-ink-muted">
+                <span className="text-sm text-crt-ink-2">
                   {user
                     ? "Se enviará a tu cuenta (conexión con el servidor)."
                     : "Modo invitado: se guardará solo en este dispositivo."}
@@ -326,20 +316,20 @@ export function PlayScreen({ game }: { game: Game }) {
             )}
             {saveState === "saving" && (
               <div role="status" className="flex h-[52px] items-center gap-3.5">
-                <PixelSpinner rgb="245 255 0" className="scale-[0.7]" />
-                <span className="font-pixel text-[10px] text-neon-yellow">GUARDANDO...</span>
+                <PixelSpinner rgb="0 0 0" className="scale-[0.7]" />
+                <span className="font-pixel text-[10px] text-crt-ink">GUARDANDO...</span>
               </div>
             )}
             {(saveState === "typing" || saveState === "done") && (
               <div
                 role="status"
                 aria-label={saveState === "done" ? SAVED_MESSAGE : undefined}
-                className="flex h-[52px] items-center font-pixel text-[clamp(11px,3vw,14px)] text-neon-green [text-shadow:0_0_12px_#39ff88]"
+                className="flex h-[52px] items-center font-pixel text-[clamp(11px,3vw,14px)] text-crt-ink"
               >
                 {typed}
                 <span
                   aria-hidden="true"
-                  className="animate-blink ml-1 inline-block h-4 w-2.5 bg-neon-green"
+                  className="animate-blink ml-1 inline-block h-4 w-2.5 bg-crt-ink"
                 />
               </div>
             )}
@@ -348,13 +338,13 @@ export function PlayScreen({ game }: { game: Game }) {
               <button
                 type="button"
                 onClick={restart}
-                className="btn-neon neon-cyan flex-[1_1_150px] leading-[1.5]"
+                className="btn-crt flex-[1_1_150px] leading-[1.5]"
               >
                 JUGAR DE NUEVO
               </button>
               <Link
                 href="/biblioteca"
-                className="btn-neon neon-pink flex-[1_1_150px] text-center leading-[1.5] no-underline hover:text-void"
+                className="btn-crt flex-[1_1_150px] text-center leading-[1.5] no-underline hover:text-crt-invert"
               >
                 VOLVER AL VAULT
               </Link>

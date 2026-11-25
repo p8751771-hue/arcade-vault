@@ -12,18 +12,18 @@ export function ActivityTicker() {
         <div
           key={`${row.player}-${row.gameId}`}
           style={{ animationDelay: `${i * 60}ms` }}
-          className="animate-tick-in grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-home-line-2 px-[18px] py-[11px] text-[13px] max-[521px]:grid-cols-[1fr_auto] max-[521px]:gap-y-1"
+          className="animate-tick-in grid grid-cols-[1fr_auto_auto_auto] items-center gap-3 border-b border-crt-line px-[18px] py-[11px] text-[13px] max-[521px]:grid-cols-[1fr_auto] max-[521px]:gap-y-1"
         >
           <span className={`font-pixel text-[10px] tracking-[0.06em] ${NEON_TEXT[row.accent]}`}>
             {row.player}
           </span>
-          <span className="text-[12px] text-home-dim max-[521px]:col-span-full">
+          <span className="text-[12px] text-crt-ink-2 max-[521px]:col-span-full">
             ▸ {TITLES.get(row.gameId)}
           </span>
-          <span className="font-pixel text-[11px] text-neon-yellow [text-shadow:0_0_6px_rgb(245_255_0/0.5)]">
+          <span className="font-pixel text-[11px] text-crt-ink">
             +{formatHomeScore(row.score)}
           </span>
-          <span className="text-[11px] tracking-[0.08em] text-home-faint max-[521px]:col-span-full">
+          <span className="text-[11px] tracking-[0.08em] text-crt-ink-2 max-[521px]:col-span-full">
             {row.ago}
           </span>
         </div>

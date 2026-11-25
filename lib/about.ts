@@ -19,7 +19,7 @@ export const ABOUT_MISSION =
   "ARCADE VAULT nació del amor por los videojuegos clásicos. Nuestra misión es preservar y celebrar los arcades que definieron una generación, haciéndolos accesibles para todos, en cualquier lugar y sin costo.";
 
 export const HIGHLIGHTS: readonly Highlight[] = [
-  { icon: "heart", text: "HECHO CON ❤️ PARA JUGADORES", accent: "magenta" },
+  { icon: "heart", text: "HECHO CON \u2665\uFE0E PARA JUGADORES", accent: "magenta" },
   { icon: "browser", text: "JUEGOS EN HTML — CORREN EN CUALQUIER NAVEGADOR", accent: "cyan" },
   { icon: "plant", text: "PROYECTO EN CONSTANTE CRECIMIENTO", accent: "green" },
 ];

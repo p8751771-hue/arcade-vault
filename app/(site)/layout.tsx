@@ -9,14 +9,14 @@ export default function SiteLayout({ children }: LayoutProps<"/">) {
       {/* usePathname() suspende en rutas con params fuera de generateStaticParams */}
       <Suspense
         fallback={
-          <div className="sticky top-0 z-50 h-[70px] border-b border-home-line bg-[linear-gradient(180deg,rgb(10_10_15/0.92),rgb(10_10_15/0.78))]" />
+          <div className="sticky top-0 z-50 h-[70px] border-b border-crt-line bg-crt-surface" />
         }
       >
         <SiteHeader />
       </Suspense>
       <div className="flex-1">{children}</div>
-      <footer className="relative z-[1] border-t border-home-line px-8 py-5 text-center text-[11px] leading-[1.5] tracking-[0.16em] text-home-faint">
-        © 2026 ARCADE VAULT · HECHO CON PIXELES Y NEÓN · v2.6.0
+      <footer className="relative z-[1] border-t border-crt-line px-8 py-5 text-center text-[11px] leading-[1.5] tracking-[0.16em] text-crt-ink-2">
+        © 2026 ARCADE VAULT · HECHO CON PIXELES Y SCANLINES · v2.6.0
       </footer>
     </div>
   );

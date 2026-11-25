@@ -3,7 +3,7 @@ import type { HighlightIcon as HighlightIconKind } from "@/lib/about";
 // Iconos pixel de los destacados (`HighlightIcon` de references/home-about/about.jsx).
 // Heredan el color del destacado (currentColor). `.hl-icon`: 36 px, resplandor y sin suavizado.
 const ICON =
-  "h-9 w-9 flex-none [filter:drop-shadow(0_0_6px_currentColor)] [image-rendering:pixelated]";
+  "h-9 w-9 flex-none [image-rendering:pixelated]";
 
 export function HighlightIcon({ kind }: { kind: HighlightIconKind }) {
   const C = "currentColor";
@@ -32,9 +32,9 @@ export function HighlightIcon({ kind }: { kind: HighlightIconKind }) {
         <g fill={C}>
           <rect x="1" y="2" width="14" height="12" fill="none" stroke={C} strokeWidth="1.4" />
           <rect x="1" y="2" width="14" height="3" />
-          <rect x="3" y="3" width="1" height="1" fill="#0a0a0f" />
-          <rect x="5" y="3" width="1" height="1" fill="#0a0a0f" />
-          <rect x="7" y="3" width="1" height="1" fill="#0a0a0f" />
+          <rect x="3" y="3" width="1" height="1" fill="var(--color-crt-surface)" />
+          <rect x="5" y="3" width="1" height="1" fill="var(--color-crt-surface)" />
+          <rect x="7" y="3" width="1" height="1" fill="var(--color-crt-surface)" />
           <rect x="3" y="7" width="4" height="1" />
           <rect x="3" y="9" width="6" height="1" />
           <rect x="3" y="11" width="3" height="1" />
@@ -55,4 +55,34 @@ export function HighlightIcon({ kind }: { kind: HighlightIconKind }) {
       </g>
     </svg>
   );
+}
+
+/** Marca del corazón dentro de los textos de lib/about.ts ("HECHO CON ♥︎ PARA JUGADORES"). */
+export const HEART_MARK = "♥︎";
+
+/**
+ * Corazón pixel-art de 7×6 del alto de la letra (1em), en el color del texto.
+ * Sustituye al emoji ❤️ de la referencia, que el sistema pinta en rojo (spec 04, paso 12).
+ */
+export function InlineHeart() {
+  return (
+    <svg
+      role="img"
+      aria-label="corazón"
+      viewBox="0 0 7 6"
+      shapeRendering="crispEdges"
+      className="inline-block h-[1em] w-[1.1667em] align-[-0.1em]"
+    >
+      <path
+        fill="currentColor"
+        d="M1 0h2v1h1v-1h2v1h1v2h-1v1h-1v1h-1v1h-1v-1h-1v-1h-1v-1h-1v-2h1z"
+      />
+    </svg>
+  );
+}
+
+/** Pinta un texto de lib/about.ts cambiando HEART_MARK por <InlineHeart />. */
+export function withPixelHeart(text: string) {
+  const parts = text.split(HEART_MARK);
+  return parts.flatMap((part, i) => (i === 0 ? [part] : [<InlineHeart key={i} />, part]));
 }

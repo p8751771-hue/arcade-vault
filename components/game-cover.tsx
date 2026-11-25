@@ -5,46 +5,44 @@ import type { GameId } from "@/lib/games";
 
 // Port de `cover()` de references/games.js: solo el dibujo de portadas,
 // sin nada de la lógica de los juegos. Canvas de 96×56 escalado con .pixelated.
+// Spec 04: se dibuja con cuatro tonos de la paleta de televisor, como una pantalla
+// de cuatro tonos (antes: neones por juego y fondos degradados).
 const W = 96;
 const H = 56;
 
-const C = "#00f5ff";
-const M = "#ff006e";
-const Y = "#f5ff00";
-const GR = "#39ff88";
+const DARK = "#0e1511"; // pixel oscuro (crt-ink-2)
+const BG = "#2f3b34"; // fondo de portada (crt-line)
+const MID = "#748c7d"; // pixel medio (crt-bg)
+const LIGHT = "#8aa293"; // pixel claro (crt-surface)
 
-const BACKGROUNDS: Record<GameId, [string, string]> = {
-  arkanoid: ["#16064a", "#003a52"],
-  tetris: ["#34052a", "#14064a"],
-  snake: ["#032a30", "#0c0c38"],
-  pacman: ["#0a0a42", "#38093a"],
-  invaders: ["#0c0c30", "#470628"],
-  asteroids: ["#05051c", "#16265a"],
-};
-
-function mix(a: string, b: string, t: number): string {
-  return (
-    "#" +
-    [1, 3, 5]
-      .map((i) =>
-        Math.round(
-          parseInt(a.slice(i, i + 2), 16) * (1 - t) +
-            parseInt(b.slice(i, i + 2), 16) * t,
-        )
-          .toString(16)
-          .padStart(2, "0"),
-      )
-      .join("")
-  );
+/** Línea de 1 px sin antialiasing (Bresenham), para no generar tonos intermedios. */
+function line(x: CanvasRenderingContext2D, a: [number, number], b: [number, number]) {
+  let [x0, y0] = a;
+  const [x1, y1] = b;
+  const dx = Math.abs(x1 - x0);
+  const dy = -Math.abs(y1 - y0);
+  const sx = x0 < x1 ? 1 : -1;
+  const sy = y0 < y1 ? 1 : -1;
+  let err = dx + dy;
+  for (;;) {
+    x.fillRect(x0, y0, 1, 1);
+    if (x0 === x1 && y0 === y1) break;
+    const e2 = 2 * err;
+    if (e2 >= dy) {
+      err += dy;
+      x0 += sx;
+    }
+    if (e2 <= dx) {
+      err += dx;
+      y0 += sy;
+    }
+  }
 }
 
 function drawCover(x: CanvasRenderingContext2D, id: GameId) {
-  const bg = BACKGROUNDS[id];
-  for (let y = 0; y < H; y += 4) {
-    x.fillStyle = mix(bg[0], bg[1], y / H);
-    x.fillRect(0, y, W, 4);
-  }
-  x.fillStyle = "#fff";
+  x.fillStyle = BG;
+  x.fillRect(0, 0, W, H);
+  x.fillStyle = MID;
   for (let i = 0; i < 22; i++) x.fillRect((i * 37 + 11) % W, (i * 23 + 5) % 36, 1, 1);
 
   const R = (a: number, b: number, w: number, h: number, c: string) => {
@@ -57,66 +55,62 @@ function drawCover(x: CanvasRenderingContext2D, id: GameId) {
       [12, 36], [16, 36], [20, 36], [24, 36], [28, 36], [32, 36], [32, 32], [32, 28],
       [36, 28], [40, 28], [44, 28], [48, 28], [52, 28], [52, 24], [52, 20], [56, 20],
     ];
-    body.forEach((p, i, a) => R(p[0], p[1], 4, 4, i === a.length - 1 ? "#fff" : C));
-    R(70, 18, 4, 4, M);
-    R(71, 15, 2, 2, Y);
+    body.forEach((p, i, a) => R(p[0], p[1], 4, 4, i === a.length - 1 ? MID : LIGHT));
+    R(70, 18, 4, 4, LIGHT);
+    R(71, 15, 2, 2, MID);
   }
 
   if (id === "tetris") {
-    const K: Record<string, string> = { C, M, Y, G: GR, O: "#ff7a00" };
+    const K: Record<string, string> = { C: LIGHT, M: MID, Y: LIGHT, G: MID, O: MID };
     ["..O....G..", "C.OMM.GGY.", "CCOMMYGYY.", "CCOMMYYGYC"].forEach((row, j) =>
       [...row].forEach((ch, i) => {
         if (K[ch]) R(18 + i * 6, 32 + j * 6, 5, 5, K[ch]);
       }),
     );
-    [[24, 6], [30, 6], [36, 6], [30, 12]].forEach((p) => R(p[0] + 12, p[1], 5, 5, M));
+    [[24, 6], [30, 6], [36, 6], [30, 12]].forEach((p) => R(p[0] + 12, p[1], 5, 5, LIGHT));
   }
 
   if (id === "arkanoid") {
-    const CO = [M, M, Y, Y, C];
+    const CO = [MID, MID, LIGHT, LIGHT, MID];
     for (let r = 0; r < 5; r++) for (let i = 0; i < 8; i++) R(8 + i * 11, 6 + r * 5, 10, 4, CO[r]);
-    R(36, 50, 24, 3, C);
-    R(56, 38, 3, 3, "#fff");
+    R(36, 50, 24, 3, LIGHT);
+    R(56, 38, 3, 3, LIGHT);
   }
 
   if (id === "pacman") {
     for (let dx = -12; dx <= 12; dx++)
       for (let dy = -12; dy <= 12; dy++)
-        if (dx * dx + dy * dy <= 144 && !(dx > 0 && Math.abs(dy) <= dx * 0.6)) R(24 + dx, 30 + dy, 1, 1, Y);
-    [44, 52, 60].forEach((p) => R(p, 30, 2, 2, "#fff"));
+        if (dx * dx + dy * dy <= 144 && !(dx > 0 && Math.abs(dy) <= dx * 0.6)) R(24 + dx, 30 + dy, 1, 1, LIGHT);
+    [44, 52, 60].forEach((p) => R(p, 30, 2, 2, LIGHT));
     for (let dx = -9; dx <= 9; dx++)
       for (let dy = -9; dy <= 9; dy++)
-        if ((dy <= 0 && dx * dx + dy * dy <= 81) || (dy > 0 && dy <= 9)) R(78 + dx, 30 + dy, 1, 1, M);
-    R(73, 27, 3, 4, "#fff");
-    R(80, 27, 3, 4, "#fff");
+        if ((dy <= 0 && dx * dx + dy * dy <= 81) || (dy > 0 && dy <= 9)) R(78 + dx, 30 + dy, 1, 1, MID);
+    R(73, 27, 3, 4, DARK);
+    R(80, 27, 3, 4, DARK);
   }
 
   if (id === "invaders") {
     const S = ["00100000100", "00010001000", "00111111100", "01101110110", "11111111111", "10111111101", "10100000101", "00011011000"];
     S.forEach((row, j) =>
       [...row].forEach((ch, i) => {
-        if (ch === "1") R(31 + i * 3, 12 + j * 3, 3, 3, M);
+        if (ch === "1") R(31 + i * 3, 12 + j * 3, 3, 3, LIGHT);
       }),
     );
-    R(47, 34, 2, 6, Y);
-    R(40, 48, 16, 4, C);
-    R(44, 45, 8, 3, C);
+    R(47, 34, 2, 6, MID);
+    R(40, 48, 16, 4, MID);
+    R(44, 45, 8, 3, MID);
   }
 
   if (id === "asteroids") {
-    x.lineWidth = 1;
     const P = (pts: [number, number][], col: string) => {
-      x.strokeStyle = col;
-      x.beginPath();
-      pts.forEach((p, i) => (i ? x.lineTo(p[0], p[1]) : x.moveTo(p[0], p[1])));
-      x.closePath();
-      x.stroke();
+      x.fillStyle = col;
+      pts.forEach((p, i) => line(x, p, pts[(i + 1) % pts.length]));
     };
-    P([[44, 34], [30, 40], [33, 34], [30, 28]], C);
-    P([[60, 12], [70, 10], [76, 18], [72, 28], [62, 28], [56, 20]], M);
-    P([[78, 40], [84, 38], [88, 44], [82, 48], [77, 46]], Y);
-    R(54, 31, 2, 2, "#fff");
-    R(60, 29, 2, 2, "#fff");
+    P([[44, 34], [30, 40], [33, 34], [30, 28]], LIGHT);
+    P([[60, 12], [70, 10], [76, 18], [72, 28], [62, 28], [56, 20]], MID);
+    P([[78, 40], [84, 38], [88, 44], [82, 48], [77, 46]], LIGHT);
+    R(54, 31, 2, 2, LIGHT);
+    R(60, 29, 2, 2, LIGHT);
   }
 }
 
@@ -147,7 +141,7 @@ export function GameCover({
   // mientras el canvas se dibuja en cliente.
   return (
     <div
-      className={`aspect-[96/56] w-full overflow-hidden bg-[var(--color-cover)] ${className}`}
+      className={`aspect-[96/56] w-full overflow-hidden bg-crt-line ${className}`}
       style={style}
     >
       <canvas

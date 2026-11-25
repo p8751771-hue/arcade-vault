@@ -16,7 +16,7 @@ const SECTION = "mx-auto my-20 max-w-[1320px] px-8";
 // Cortes: la referencia usa `max-width: Npx` (incluye N) y `max-[Npx]:` de Tailwind v4
 // es `width < Npx`. Por eso se escribe N+1 (`max-[981px]:` ≡ max-width: 980px).
 const delay = (ms: number) => ({ "--reveal-delay": `${ms}ms` }) as CSSProperties;
-const FAQ_BORDER = ["border-l-neon-cyan", "border-l-neon-pink", "border-l-neon-yellow"];
+const FAQ_BORDER = ["border-l-crt-ink", "border-l-crt-ink", "border-l-crt-ink"];
 
 // Landing "Inicio". Referencia: references/home-about/home.jsx + styles.css (.home-*).
 // `leading-[1.5]`: el body de esa referencia usa line-height 1.5 (el resto de la app, `normal`).
@@ -27,23 +27,23 @@ export default function HomePage() {
       <section className="relative flex min-h-[calc(100vh-60px)] items-center justify-center overflow-hidden px-8 pt-20 pb-[60px]">
         <FloatingSilhouettes />
         <div className="relative z-[3] max-w-[1100px] text-center">
-          <div className="mb-6 font-pixel text-[11px] leading-[1.25] tracking-[0.24em] text-neon-yellow uppercase [text-shadow:0_0_6px_rgb(245_255_0/0.7),0_0_16px_rgb(245_255_0/0.4)]">
+          <div className="mb-6 font-pixel text-[11px] leading-[1.25] tracking-[0.24em] text-crt-ink uppercase">
             ▸ INSERTA UNA MONEDA<span className="animate-blink">_</span>
           </div>
 
           <h1 className="m-0 flex flex-col gap-2 font-pixel text-[clamp(32px,7vw,88px)] leading-[1.05] font-normal tracking-[0.04em]">
-            <span className="text-white [text-shadow:0_0_14px_rgb(255_255_255/0.4)]">
+            <span className="text-crt-ink">
               EL ARCADE
             </span>
-            <span className="bg-[linear-gradient(180deg,#00f5ff,#4dd0e1)] bg-clip-text text-transparent [filter:drop-shadow(0_0_14px_rgb(0_245_255/0.45))]">
+            <span className="text-crt-ink">
               CLÁSICO ESTÁ
             </span>
-            <span className="bg-[linear-gradient(180deg,#ff006e,#ff6b9e)] bg-clip-text text-transparent [filter:drop-shadow(0_0_14px_rgb(255_0_110/0.45))]">
+            <span className="text-crt-ink">
               DE VUELTA
             </span>
           </h1>
 
-          <p className="mx-auto mt-7 mb-9 max-w-[640px] text-[15px] leading-[1.7] tracking-[0.04em] text-home-dim">
+          <p className="mx-auto mt-7 mb-9 max-w-[640px] text-[15px] leading-[1.7] tracking-[0.04em] text-crt-ink-2">
             Juega los mejores clásicos directamente en tu navegador.
             <br />
             Sin descargas. Sin costo. Solo diversión.
@@ -53,10 +53,10 @@ export default function HomePage() {
 
           <div
             aria-hidden="true"
-            className="mt-14 flex flex-col items-center gap-2 font-pixel max-[600px]:mt-10 text-[9px] tracking-[0.2em] text-home-faint"
+            className="mt-14 flex flex-col items-center gap-2 font-pixel max-[600px]:mt-10 text-[9px] tracking-[0.2em] text-crt-ink-2"
           >
             <span>DESLIZA</span>
-            <span className="animate-bounce-soft text-neon-cyan">▼</span>
+            <span className="animate-bounce-soft text-crt-ink">▼</span>
           </div>
         </div>
       </section>
@@ -82,33 +82,29 @@ export default function HomePage() {
           ))}
         </div>
         <div className="mt-6 text-center">
-          <Link href="/biblioteca" className="btn-home btn-home-lg neon-cyan">
+          <Link href="/biblioteca" className="btn-cut btn-cut-lg">
             VER TODOS LOS JUEGOS →
           </Link>
         </div>
       </Reveal>
 
       {/* ESTADÍSTICAS */}
-      <Reveal className="relative overflow-hidden border-y border-home-line bg-[linear-gradient(180deg,#06060a,#0c0c14)] px-8 py-[60px]">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-0 bg-[radial-gradient(80%_60%_at_50%_50%,rgb(245_255_0/0.06),transparent_70%)]"
-        />
+      <Reveal className="relative overflow-hidden border-y border-crt-line bg-crt-surface px-8 py-[60px]">
         <div className="relative mx-auto grid max-w-[1200px] grid-cols-[repeat(3,1fr)] gap-8 max-[721px]:grid-cols-[1fr]">
           {STATS.map((stat, i) => (
             <div
               key={stat.unit}
               data-reveal-item
               style={delay(i * 90)}
-              className="border-l border-home-line p-5 text-center first:border-l-0 max-[721px]:border-t max-[721px]:border-l-0 max-[721px]:first:border-t-0"
+              className="border-l border-crt-line p-5 text-center first:border-l-0 max-[721px]:border-t max-[721px]:border-l-0 max-[721px]:first:border-t-0"
             >
-              <div className="font-pixel text-[clamp(32px,5vw,56px)] tracking-[0.04em] text-neon-yellow [text-shadow:0_0_6px_rgb(245_255_0/0.7),0_0_16px_rgb(245_255_0/0.4)]">
+              <div className="font-pixel text-[clamp(32px,5vw,56px)] tracking-[0.04em] text-crt-ink">
                 {stat.value}
               </div>
-              <div className="mt-2.5 font-pixel text-[13px] leading-[1.25] tracking-[0.18em] text-home-ink uppercase">
+              <div className="mt-2.5 font-pixel text-[13px] leading-[1.25] tracking-[0.18em] text-crt-ink uppercase">
                 {stat.unit}
               </div>
-              <div className="mt-2 text-[11px] tracking-[0.16em] text-home-faint uppercase">
+              <div className="mt-2 text-[11px] tracking-[0.16em] text-crt-ink-2 uppercase">
                 {stat.caption}
               </div>
             </div>
@@ -120,23 +116,23 @@ export default function HomePage() {
       <Reveal className={SECTION}>
         <SectionHead kicker="// 03" accent="yellow" title="ACTIVIDAD EN VIVO" />
         <div className="grid grid-cols-[1.2fr_1fr] gap-[18px] max-[901px]:grid-cols-[1fr]">
-          <div className="border border-home-line bg-home-bg2">
-            <div className="flex min-w-0 items-center justify-between gap-2.5 border-b border-home-line px-3.5 py-3">
-              <div className="min-w-0 flex-auto overflow-hidden font-pixel text-[10px] leading-[1.25] tracking-[0.1em] text-ellipsis whitespace-nowrap text-neon-cyan uppercase [text-shadow:0_0_8px_rgb(0_245_255/0.5)]">
+          <div className="border border-crt-line bg-crt-surface">
+            <div className="flex min-w-0 items-center justify-between gap-2.5 border-b border-crt-line px-3.5 py-3">
+              <div className="min-w-0 flex-auto overflow-hidden font-pixel text-[10px] leading-[1.25] tracking-[0.1em] text-ellipsis whitespace-nowrap text-crt-ink uppercase">
                 ▸ ÚLTIMAS PUNTUACIONES
               </div>
             </div>
             <ActivityTicker />
           </div>
 
-          <div className="border border-home-line bg-home-bg2">
-            <div className="flex min-w-0 items-center justify-between gap-2.5 border-b border-home-line px-3.5 py-3">
-              <div className="min-w-0 flex-auto overflow-hidden font-pixel text-[10px] leading-[1.25] tracking-[0.1em] text-ellipsis whitespace-nowrap text-neon-pink uppercase [text-shadow:0_0_8px_rgb(255_0_110/0.5)]">
+          <div className="border border-crt-line bg-crt-surface">
+            <div className="flex min-w-0 items-center justify-between gap-2.5 border-b border-crt-line px-3.5 py-3">
+              <div className="min-w-0 flex-auto overflow-hidden font-pixel text-[10px] leading-[1.25] tracking-[0.1em] text-ellipsis whitespace-nowrap text-crt-ink uppercase">
                 ▸ TOP JUGADORES · HOY
               </div>
               <Link
                 href="/salon-de-la-fama"
-                className="border border-home-line px-2.5 py-1.5 font-pixel text-[9px] tracking-[0.14em] text-home-dim no-underline hover:border-neon-pink hover:text-neon-pink hover:shadow-[0_0_8px_rgb(255_0_110/0.35)]"
+                className="border border-crt-line px-2.5 py-1.5 font-pixel text-[9px] tracking-[0.14em] text-crt-ink-2 no-underline hover:border-crt-ink hover:text-crt-ink"
               >
                 VER SALÓN →
               </Link>
@@ -150,41 +146,41 @@ export default function HomePage() {
       <Reveal className={SECTION}>
         <SectionHead kicker="// 04" accent="green" title="PRECIOS" />
         <div className="grid grid-cols-[1fr_1fr] items-stretch gap-6 max-[901px]:grid-cols-[1fr]">
-          <div className="relative flex flex-col gap-3.5 border border-home-green bg-[linear-gradient(180deg,var(--color-home-bg2),#0a0e16)] px-7 py-8 shadow-[0_0_28px_rgb(0_255_136/0.18),inset_0_0_14px_rgb(0_255_136/0.08)] before:pointer-events-none before:absolute before:inset-1 before:border before:border-dashed before:border-[rgb(0_255_136/0.3)] before:content-['']">
-            <div className="font-pixel text-[9px] leading-[1.25] tracking-[0.22em] text-home-dim uppercase">
+          <div className="relative flex flex-col gap-3.5 border border-crt-ink bg-crt-surface px-7 py-8 before:pointer-events-none before:absolute before:inset-1 before:border before:border-dashed before:border-crt-line before:content-['']">
+            <div className="font-pixel text-[9px] leading-[1.25] tracking-[0.22em] text-crt-ink-2 uppercase">
               {PLAN.label}
             </div>
-            <div className="font-pixel text-base leading-[1.25] tracking-[0.08em] text-home-green uppercase [text-shadow:0_0_10px_rgb(0_255_136/0.5)]">
+            <div className="font-pixel text-base leading-[1.25] tracking-[0.08em] text-crt-ink uppercase">
               {PLAN.name}
             </div>
             <div className="mt-1.5 flex items-baseline gap-2.5">
-              <span className="bg-[linear-gradient(180deg,#fff,var(--color-home-green))] bg-clip-text font-pixel text-[64px] tracking-[0.02em] text-transparent [filter:drop-shadow(0_0_12px_rgb(0_255_136/0.5))]">
+              <span className="font-pixel text-[64px] tracking-[0.02em] text-crt-ink">
                 {PLAN.price}
               </span>
-              <span className="font-pixel text-[11px] tracking-[0.16em] text-home-dim">
+              <span className="font-pixel text-[11px] tracking-[0.16em] text-crt-ink-2">
                 {PLAN.unit}
               </span>
             </div>
-            <div className="font-pixel text-[9px] tracking-[0.18em] text-neon-yellow [text-shadow:0_0_6px_rgb(245_255_0/0.45)]">
+            <div className="font-pixel text-[9px] tracking-[0.18em] text-crt-ink">
               {PLAN.tag}
             </div>
             <ul className="mt-2.5 mb-1 flex list-none flex-col gap-2 p-0">
               {PLAN.perks.map((perk) => (
                 <li
                   key={perk}
-                  className="text-[13px] tracking-[0.02em] text-home-ink first-letter:text-home-green"
+                  className="text-[13px] tracking-[0.02em] text-crt-ink first-letter:text-crt-ink"
                 >
                   {perk}
                 </li>
               ))}
             </ul>
             <PlanCta />
-            <div className="mt-1 text-center text-[11px] tracking-[0.1em] text-home-faint">
+            <div className="mt-1 text-center text-[11px] tracking-[0.1em] text-crt-ink-2">
               {PLAN.foot}
             </div>
             <div
               aria-hidden="true"
-              className="absolute -top-[18px] -right-[18px] z-[3] rotate-[14deg] border-2 border-neon-pink bg-[rgb(10_10_15/0.85)] px-[18px] py-2.5 text-center font-pixel text-[13px] leading-[1.15] tracking-[0.16em] text-neon-pink uppercase [text-shadow:0_0_8px_rgb(255_0_110/0.6)] shadow-[0_0_14px_rgb(255_0_110/0.35),inset_0_0_8px_rgb(255_0_110/0.2)]"
+              className="absolute -top-[18px] -right-[18px] z-[3] rotate-[14deg] border-2 border-crt-ink bg-crt-surface px-[18px] py-2.5 text-center font-pixel text-[13px] leading-[1.15] tracking-[0.16em] text-crt-ink uppercase"
             >
               FREE
               <br />
@@ -196,12 +192,12 @@ export default function HomePage() {
             {FAQS.map((faq, i) => (
               <div
                 key={faq.question}
-                className={`border border-l-[3px] border-home-line bg-home-bg2 px-5 py-[18px] ${FAQ_BORDER[i]}`}
+                className={`border border-l-[3px] border-crt-line bg-crt-surface px-5 py-[18px] ${FAQ_BORDER[i]}`}
               >
-                <div className="mb-2 font-pixel text-[10px] leading-[1.25] tracking-[0.12em] text-home-ink uppercase">
+                <div className="mb-2 font-pixel text-[10px] leading-[1.25] tracking-[0.12em] text-crt-ink uppercase">
                   {faq.question}
                 </div>
-                <div className="text-[13px] leading-[1.6] text-home-dim">{faq.answer}</div>
+                <div className="text-[13px] leading-[1.6] text-crt-ink-2">{faq.answer}</div>
               </div>
             ))}
           </div>
@@ -209,17 +205,17 @@ export default function HomePage() {
       </Reveal>
 
       {/* CIERRE */}
-      <Reveal className="relative mx-auto max-w-[900px] px-8 pt-[100px] pb-[120px] text-center before:absolute before:top-[30px] before:left-1/2 before:h-px before:w-3/5 before:-translate-x-1/2 before:bg-[linear-gradient(90deg,transparent,var(--color-neon-cyan),transparent)] before:opacity-50 before:content-[''] after:absolute after:bottom-[30px] after:left-1/2 after:h-px after:w-3/5 after:-translate-x-1/2 after:bg-[linear-gradient(90deg,transparent,var(--color-neon-cyan),transparent)] after:opacity-50 after:content-['']">
-        <h2 className="m-0 mb-9 bg-[linear-gradient(180deg,#fff,var(--color-neon-yellow))] bg-clip-text font-pixel text-[clamp(22px,4vw,40px)] leading-[1.25] font-normal tracking-[0.08em] text-transparent uppercase [filter:drop-shadow(0_0_12px_rgb(245_255_0/0.4))]">
+      <Reveal className="relative mx-auto max-w-[900px] px-8 pt-[100px] pb-[120px] text-center before:absolute before:top-[30px] before:left-1/2 before:h-px before:w-3/5 before:-translate-x-1/2 before:bg-[linear-gradient(90deg,transparent,var(--color-crt-line),transparent)] before:opacity-50 before:content-[''] after:absolute after:bottom-[30px] after:left-1/2 after:h-px after:w-3/5 after:-translate-x-1/2 after:bg-[linear-gradient(90deg,transparent,var(--color-crt-line),transparent)] after:opacity-50 after:content-['']">
+        <h2 className="m-0 mb-9 font-pixel text-[clamp(22px,4vw,40px)] leading-[1.25] font-normal tracking-[0.08em] text-crt-ink uppercase">
           ¿LISTO PARA JUGAR?
         </h2>
         <Link
           href="/biblioteca"
-          className="btn-home btn-home-xl btn-home-pulse neon-cyan"
+          className="btn-cut btn-cut-xl btn-cut-pulse"
         >
           INSERTAR MONEDA →
         </Link>
-        <div className="mt-7 text-[13px] tracking-[0.06em] text-home-dim">
+        <div className="mt-7 text-[13px] tracking-[0.06em] text-crt-ink-2">
           Gratis. Sin registro obligatorio. Empieza en segundos.
         </div>
       </Reveal>

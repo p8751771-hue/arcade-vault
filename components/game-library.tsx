@@ -30,8 +30,8 @@ export function GameLibrary({ entries }: { entries: LibraryEntry[] }) {
   return (
     <>
       <div className="mb-8 flex flex-col gap-4">
-        <label className="panel-neon neon-cyan mx-auto flex w-full max-w-[640px] items-center gap-3 px-4">
-          <span aria-hidden="true" className="font-pixel text-xs text-neon-cyan">
+        <label className="panel-crt mx-auto flex w-full max-w-[640px] items-center gap-3 px-4">
+          <span aria-hidden="true" className="font-pixel text-xs text-crt-ink">
             &gt;
           </span>
           <input
@@ -40,7 +40,7 @@ export function GameLibrary({ entries }: { entries: LibraryEntry[] }) {
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Buscar juego por nombre o categoría..."
             aria-label="Buscar juego por nombre o categoría"
-            className="min-w-0 flex-1 appearance-none border-0 bg-transparent py-4 text-lg leading-[normal] text-ink-bright outline-none placeholder:text-ink-muted"
+            className="min-w-0 flex-1 appearance-none border-0 bg-transparent py-4 text-lg leading-[normal] text-crt-ink outline-none placeholder:text-crt-ink-2"
           />
         </label>
 
@@ -49,7 +49,7 @@ export function GameLibrary({ entries }: { entries: LibraryEntry[] }) {
             <button
               key={c}
               type="button"
-              className="chip-neon neon-cyan"
+              className="chip-crt"
               aria-pressed={category === c}
               onClick={() => setCategory(c)}
             >
@@ -68,11 +68,11 @@ export function GameLibrary({ entries }: { entries: LibraryEntry[] }) {
       {visible.length === 0 && (
         <div
           role="status"
-          className="px-5 py-[60px] text-center font-pixel text-[13px] leading-[2] text-neon-pink [text-shadow:0_0_10px_#ff006e]"
+          className="px-5 py-[60px] text-center font-pixel text-[13px] leading-[2] text-crt-ink"
         >
           NO SE ENCONTRARON JUEGOS
           <br />
-          <span className="text-[10px] text-ink-muted [text-shadow:none]">
+          <span className="text-[10px] text-crt-ink-2">
             Prueba con otro nombre o categoría.
           </span>
         </div>

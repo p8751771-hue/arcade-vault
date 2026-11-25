@@ -4,7 +4,7 @@ import type { Feature } from "@/lib/home";
 // Iconos pixel de 16×16 de references/home-about/home.jsx (FeatureIcon).
 function FeatureIcon({ kind }: { kind: Feature["icon"] }) {
   const C = "currentColor";
-  const svg = "h-11 w-11 pixelated [filter:drop-shadow(0_0_8px_currentColor)]";
+  const svg = "h-11 w-11 pixelated ";
 
   if (kind === "gamepad") {
     return (
@@ -58,7 +58,7 @@ function FeatureIcon({ kind }: { kind: Feature["icon"] }) {
         <rect x="5" y="5" width="6" height="6" />
         <rect x="4" y="11" width="2" height="2" />
         <rect x="10" y="11" width="2" height="2" />
-        <rect x="7" y="6" width="2" height="2" fill="#0a0a0f" />
+        <rect x="7" y="6" width="2" height="2" fill="var(--color-crt-surface)" />
         <rect x="6" y="13" width="1" height="2" />
         <rect x="9" y="13" width="1" height="2" />
       </g>
@@ -69,13 +69,13 @@ function FeatureIcon({ kind }: { kind: Feature["icon"] }) {
 export function FeatureCard({ feature }: { feature: Feature }) {
   return (
     <div
-      className={`relative flex h-full flex-col gap-3.5 border border-home-line bg-[linear-gradient(180deg,var(--color-home-bg2),var(--color-home-bg3))] px-5 py-6 transition-[transform,box-shadow,border-color] duration-[220ms] ease-[ease] hover:-translate-y-1.5 hover:border-current hover:shadow-[0_18px_40px_-16px_currentColor,0_0_0_1px_currentColor] ${ACCENT_COLOR[feature.accent]}`}
+      className={`relative flex h-full flex-col gap-3.5 border border-crt-line bg-crt-surface px-5 py-6 transition-[transform,border-color] duration-[220ms] ease-[ease] hover:-translate-y-1.5 hover:border-current ${ACCENT_COLOR[feature.accent]}`}
     >
       <FeatureIcon kind={feature.icon} />
-      <div className="font-pixel text-xs leading-[1.25] tracking-[0.1em] text-current uppercase [text-shadow:0_0_8px_currentColor]">
+      <div className="font-pixel text-xs leading-[1.25] tracking-[0.1em] text-current uppercase">
         {feature.title}
       </div>
-      <div className="text-[13px] leading-[1.6] text-home-dim">{feature.description}</div>
+      <div className="text-[13px] leading-[1.6] text-crt-ink-2">{feature.description}</div>
     </div>
   );
 }

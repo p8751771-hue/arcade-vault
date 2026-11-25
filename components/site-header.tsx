@@ -42,7 +42,7 @@ export function SiteHeader() {
       {/* Corte de la referencia: max-width 840px ⇒ móvil. `max-[841px]:` ≡ ≤ 840 px (Tailwind v4 usa <).
           Desviación acordada (spec 02, paso 14): en móvil el hueco es 12 px y no 24, porque con
           24 px la barra mide 395 px a 390 y la hamburguesa queda recortada (igual que en el prototipo). */}
-      <header className="sticky top-0 z-50 flex items-center gap-6 border-b border-home-line bg-[linear-gradient(180deg,rgb(10_10_15/0.92),rgb(10_10_15/0.78))] px-8 py-3.5 text-[14px] leading-[1.5] tracking-[0.01em] text-home-ink backdrop-blur-[8px] max-[841px]:gap-3 max-[841px]:px-4 max-[841px]:py-3">
+      <header className="sticky top-0 z-50 flex items-center gap-6 border-b border-crt-line bg-crt-surface px-8 py-3.5 text-[14px] leading-[1.5] tracking-[0.01em] text-crt-ink backdrop-blur-[8px] max-[841px]:gap-3 max-[841px]:px-4 max-[841px]:py-3">
         <Link
           href="/"
           onClick={closeMenu}
@@ -51,13 +51,11 @@ export function SiteHeader() {
         >
           <span
             aria-hidden="true"
-            className="h-7 w-7 border border-white/[0.18] bg-[linear-gradient(45deg,#ff006e_0_50%,transparent_50%),linear-gradient(-45deg,#00f5ff_0_50%,transparent_50%)] bg-blend-screen shadow-[0_0_12px_rgb(0_245_255/0.55),inset_0_0_6px_rgb(255_0_110/0.5)]"
+            className="h-7 w-7 border border-crt-ink bg-[linear-gradient(45deg,var(--color-crt-ink)_0_50%,transparent_50%),linear-gradient(-45deg,var(--color-crt-line)_0_50%,transparent_50%)]"
           />
-          <span className="font-pixel text-[12px] tracking-[0.12em] text-neon-cyan [text-shadow:0_0_6px_rgb(0_245_255/0.65),0_0_16px_rgb(0_245_255/0.45)]">
+          <span className="font-pixel text-[12px] tracking-[0.12em] text-crt-ink">
             ARCADE{" "}
-            <span className="text-neon-pink [text-shadow:0_0_6px_rgb(255_0_110/0.65),0_0_16px_rgb(255_0_110/0.45)]">
-              VAULT
-            </span>
+            <span className="text-crt-ink-2">VAULT</span>
           </span>
         </Link>
 
@@ -72,8 +70,8 @@ export function SiteHeader() {
                 aria-current={active ? "page" : undefined}
                 className={`relative px-3.5 py-2.5 font-pixel text-[9px] tracking-[0.16em] no-underline transition-colors duration-[120ms] ${
                   active
-                    ? "text-neon-cyan [text-shadow:0_0_8px_rgb(0_245_255/0.65)] after:absolute after:right-3.5 after:bottom-1 after:left-3.5 after:h-0.5 after:bg-neon-cyan after:shadow-[0_0_8px_#00f5ff,0_0_16px_#00f5ff] after:content-[''] hover:text-neon-cyan"
-                    : "text-home-dim hover:text-home-ink"
+                    ? "text-crt-ink after:absolute after:right-3.5 after:bottom-1 after:left-3.5 after:h-0.5 after:bg-crt-ink after:content-[''] hover:bg-crt-ink hover:text-crt-invert hover:after:bg-crt-invert"
+                    : "text-crt-ink-2 hover:bg-crt-ink hover:text-crt-invert"
                 }`}
               >
                 {label}
@@ -85,11 +83,20 @@ export function SiteHeader() {
         <div className="flex-1" />
 
         {/* .coin-counter (decorativo) */}
-        <div className="flex items-center gap-2 font-pixel text-[9px] text-neon-yellow max-[841px]:hidden">
-          <span
+        <div className="flex items-center gap-2 font-pixel text-[9px] text-crt-ink max-[841px]:hidden">
+          {/* Moneda pixel de 7×7 en negro con la ranura en crt-surface (spec 04, paso 12) */}
+          <svg
             aria-hidden="true"
-            className="h-3.5 w-3.5 rounded-full bg-[radial-gradient(circle_at_35%_35%,#fff8b0,#f5ff00_60%,#b0b800)] shadow-[0_0_8px_#f5ff00]"
-          />
+            viewBox="0 0 7 7"
+            shapeRendering="crispEdges"
+            className="h-3.5 w-3.5 flex-none"
+          >
+            <path
+              fill="var(--color-crt-ink)"
+              d="M2 0h3v1h1v1h1v3h-1v1h-1v1h-3v-1h-1v-1h-1v-3h1v-1h1z"
+            />
+            <rect x="3" y="2" width="1" height="3" fill="var(--color-crt-surface)" />
+          </svg>
           <span>CRÉDITOS · 03</span>
         </div>
 
@@ -99,12 +106,12 @@ export function SiteHeader() {
             type="button"
             onClick={handleSignOut}
             title="Cerrar sesión"
-            className="btn-home ml-4 border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none"
+            className="btn-cut btn-cut-ghost ml-4"
           >
             {user.name} ▾
           </button>
         ) : (
-          <Link href="/acceso" onClick={closeMenu} className="btn-home neon-cyan ml-4 text-center">
+          <Link href="/acceso" onClick={closeMenu} className="btn-cut ml-4 text-center">
             Iniciar Sesión
           </Link>
         )}
@@ -116,7 +123,7 @@ export function SiteHeader() {
           aria-expanded={menuOpen}
           aria-controls="mobile-menu"
           onClick={() => setMenuOpen(true)}
-          className="btn-home border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none min-[841px]:hidden"
+          className="btn-cut btn-cut-ghost min-[841px]:hidden"
         >
           ≡
         </button>
@@ -136,11 +143,11 @@ export function SiteHeader() {
         id="mobile-menu"
         aria-label="Menú"
         inert={!menuOpen}
-        className={`fixed top-0 right-0 bottom-0 z-[60] flex w-[min(320px,86vw)] flex-col gap-2 border-l border-home-line bg-home-bg2 px-5 py-6 text-[14px] leading-[1.5] tracking-[0.01em] text-home-ink transition-transform duration-[220ms] ease-[ease] min-[841px]:hidden ${
+        className={`fixed top-0 right-0 bottom-0 z-[60] flex w-[min(320px,86vw)] flex-col gap-2 border-l border-crt-line bg-crt-surface px-5 py-6 text-[14px] leading-[1.5] tracking-[0.01em] text-crt-ink transition-transform duration-[220ms] ease-[ease] min-[841px]:hidden ${
           menuOpen ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="mb-4 font-pixel text-[11px] leading-[1.25] tracking-[0.04em] text-neon-cyan uppercase [text-shadow:0_0_6px_rgb(0_245_255/0.65),0_0_16px_rgb(0_245_255/0.45)]">
+        <div className="mb-4 font-pixel text-[11px] leading-[1.25] tracking-[0.04em] text-crt-ink uppercase">
           MENÚ
         </div>
         {[...NAV, { href: "/acceso", label: user ? "Cuenta" : "Iniciar Sesión" }].map(
@@ -152,8 +159,8 @@ export function SiteHeader() {
                 href={href}
                 onClick={closeMenu}
                 aria-current={active ? "page" : undefined}
-                className={`border-b border-dashed border-home-line-2 px-3 py-3.5 font-pixel text-[11px] no-underline ${
-                  active ? "text-neon-cyan hover:text-neon-cyan" : "text-home-dim hover:text-home-dim"
+                className={`border-b border-dashed border-crt-line px-3 py-3.5 font-pixel text-[11px] no-underline ${
+                  active ? "bg-crt-ink text-crt-invert" : "text-crt-ink-2 hover:bg-crt-ink hover:text-crt-invert"
                 }`}
               >
                 {label}
@@ -162,7 +169,7 @@ export function SiteHeader() {
           },
         )}
         <div className="flex-1" />
-        <div className="font-pixel text-[9px] leading-[1.25] tracking-[0.16em] text-home-faint uppercase">
+        <div className="font-pixel text-[9px] leading-[1.25] tracking-[0.16em] text-crt-ink-2 uppercase">
           CRÉDITOS · 03
         </div>
       </aside>
