@@ -1,27 +1,98 @@
 "use client";
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from "react";
 import type { ContactError, ContactResponse } from "@/lib/contact";
 
-// Formulario de contacto de references/home-about/about.jsx (.contact-form, .field,
-// .terminal-success). `text-[14px] tracking-[0.01em]`: los campos heredan el cuerpo
-// de esa referencia (14 px), no los 16 px del resto de la app.
+// Formulario de contacto de references/home-about/about.jsx (.contact-form, .field).
+// `text-[14px] tracking-[0.01em]`: los campos heredan el cuerpo de esa referencia
+// (14 px), no los 16 px del resto de la app. El resultado no usa la terminal de la
+// referencia sino una tarjeta en lenguaje de usuario (spec 03, ampliación del paso 11).
 
 type Fields = { name: string; email: string; msg: string };
 const EMPTY: Fields = { name: "", email: "", msg: "" };
+
+// Errores que ve el visitante: los de la API (salvo bad_request, que se muestra como
+// "unexpected") más los del propio navegador.
+type ClientError = Exclude<ContactError, "bad_request"> | "network" | "unexpected";
 
 // Estados del spec 03: la referencia solo tiene formulario y éxito.
 type Status =
   | { kind: "idle" }
   | { kind: "sending" }
   | { kind: "sent"; name: string }
-  | { kind: "error"; error: ContactError };
+  | { kind: "error"; error: ClientError; code: string };
 
-const ERROR_TEXT: Record<ContactError, string> = {
-  invalid: "[ERR] Datos no válidos. Revisa el correo y la longitud del mensaje.",
-  config: "[ERR] Servidor de correo no configurado.",
-  send: "[ERR] No se pudo transmitir el paquete. Inténtalo de nuevo.",
+type Tone = "success" | "warn" | "error";
+
+// Un mensaje por causa (spec 03, ampliación del paso 11). "warn": el visitante corrige
+// sus datos; "error": el envío falló por algo que no depende de él.
+const ERRORS: Record<
+  ClientError,
+  { tone: Exclude<Tone, "success">; title: string; text: string; action: string; code?: string }
+> = {
+  empty: {
+    tone: "warn",
+    title: "DATOS INCOMPLETOS",
+    text: "Rellena tu nombre, tu correo y el mensaje para poder enviarlo.",
+    action: "CORREGIR DATOS",
+    code: "CONTACT-400-EMPTY",
+  },
+  email: {
+    tone: "warn",
+    title: "CORREO NO VÁLIDO",
+    text: "Revisa tu dirección de correo: debe tener el formato nombre@dominio.com.",
+    action: "CORREGIR DATOS",
+    code: "CONTACT-400-EMAIL",
+  },
+  too_long: {
+    tone: "warn",
+    title: "TEXTO DEMASIADO LARGO",
+    text: "El nombre admite hasta 60 caracteres y el mensaje hasta 2000. Acórtalos y vuelve a enviarlo.",
+    action: "CORREGIR DATOS",
+    code: "CONTACT-400-LENGTH",
+  },
+  rate_limited: {
+    tone: "error",
+    title: "DEMASIADOS ENVÍOS",
+    text: "Se han enviado muchos mensajes seguidos. Espera un minuto y vuelve a intentarlo.",
+    action: "REINTENTAR",
+    code: "CONTACT-429",
+  },
+  unavailable: {
+    tone: "error",
+    title: "SERVICIO NO DISPONIBLE",
+    text: "Nuestro servicio de correo no está disponible ahora mismo. Inténtalo más tarde; tu texto sigue guardado.",
+    action: "REINTENTAR",
+    code: "CONTACT-500",
+  },
+  network: {
+    tone: "error",
+    title: "SIN CONEXIÓN",
+    text: "No pudimos conectar con Arcade Vault. Comprueba tu conexión a internet e inténtalo de nuevo.",
+    action: "REINTENTAR",
+    code: "CONTACT-NET",
+  },
+  // El código depende de la respuesta (CONTACT-400-JSON, CONTACT-{estado} o CONTACT-UNKNOWN).
+  unexpected: {
+    tone: "error",
+    title: "ALGO SALIÓ MAL",
+    text: "Ocurrió un error inesperado al enviar tu mensaje. Inténtalo de nuevo en unos minutos.",
+    action: "REINTENTAR",
+  },
 };
+
+const isClientError = (value: unknown): value is Exclude<ClientError, "network" | "unexpected"> =>
+  value === "empty" ||
+  value === "email" ||
+  value === "too_long" ||
+  value === "rate_limited" ||
+  value === "unavailable";
+
+const fail = (error: ClientError, code = ERRORS[error].code ?? "CONTACT-UNKNOWN"): Status => ({
+  kind: "error",
+  error,
+  code,
+});
 
 const LABEL = "font-mono text-[10px] tracking-[0.16em] text-home-faint uppercase";
 const CONTROL =
@@ -51,25 +122,32 @@ export function ContactForm() {
     }
     const name = form.name.trim();
     setStatus({ kind: "sending" });
+    let res: Response;
     try {
-      const res = await fetch("/api/contact", {
+      // Sin tiempo máximo, una red colgada dejaría el botón en "TRANSMITIENDO…".
+      res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(form),
+        signal: AbortSignal.timeout(15000),
       });
-      const data = (await res.json().catch(() => null)) as ContactResponse | null;
-      if (res.ok && data && "ok" in data) {
-        setStatus({ kind: "sent", name });
-      } else {
-        const error = data && "error" in data ? data.error : "send";
-        setStatus({ kind: "error", error: error in ERROR_TEXT ? error : "send" });
-      }
     } catch {
-      setStatus({ kind: "error", error: "send" });
+      setStatus(fail("network"));
+      return;
+    }
+    const data = (await res.json().catch(() => null)) as ContactResponse | null;
+    if (res.ok && data && "ok" in data) {
+      setStatus({ kind: "sent", name });
+    } else if (data && "error" in data && isClientError(data.error)) {
+      setStatus(fail(data.error));
+    } else if (data && "error" in data && data.error === "bad_request") {
+      setStatus(fail("unexpected", "CONTACT-400-JSON"));
+    } else {
+      setStatus(fail("unexpected", `CONTACT-${res.status}`));
     }
   };
 
-  // "ENVIAR OTRO MENSAJE": formulario vacío. "REINTENTAR": conserva lo escrito.
+  // "ENVIAR OTRO MENSAJE": formulario vacío. "CORREGIR DATOS" / "REINTENTAR": conserva lo escrito.
   const reset = () => {
     setStatus({ kind: "idle" });
     setForm(EMPTY);
@@ -86,27 +164,27 @@ export function ContactForm() {
       }`}
     >
       {status.kind === "sent" ? (
-        <Terminal tone="success" onAction={reset} actionLabel="ENVIAR OTRO MENSAJE">
-          <div className="text-home-green">
-            <span className="mr-2 text-neon-cyan">vault@arcade:~$</span> ./send_message --to=team
-          </div>
-          <div className="text-home-dim">[OK] Conectando con servidor…</div>
-          <div className="text-home-dim">[OK] Validando contenido…</div>
-          <div className="text-home-dim">[OK] Transmitiendo paquete…</div>
-          <div className="mt-3 font-bold whitespace-pre-wrap text-home-green [text-shadow:0_0_6px_rgb(0_255_136/0.45)]">
-            &gt; MENSAJE RECIBIDO. TE RESPONDEREMOS PRONTO. GRACIAS, {status.name.toUpperCase()}.
-            <span className="[animation:blink_1s_steps(1)_infinite]">_</span>
-          </div>
-        </Terminal>
+        <ResultCard
+          tone="success"
+          title="¡MENSAJE ENVIADO!"
+          text={
+            <>
+              Gracias, {status.name}. Te responderemos en{" "}
+              <span className="whitespace-nowrap">24-48 h</span> en tu correo.
+            </>
+          }
+          actionLabel="ENVIAR OTRO MENSAJE"
+          onAction={reset}
+        />
       ) : status.kind === "error" ? (
-        <Terminal tone="error" onAction={retry} actionLabel="REINTENTAR">
-          <div className="text-home-green">
-            <span className="mr-2 text-neon-cyan">vault@arcade:~$</span> ./send_message --to=team
-          </div>
-          <div className="mt-3 font-bold whitespace-pre-wrap text-[#ff5f56] [text-shadow:0_0_6px_rgb(255_95_86/0.45)]">
-            {ERROR_TEXT[status.error]}
-          </div>
-        </Terminal>
+        <ResultCard
+          tone={ERRORS[status.error].tone}
+          title={ERRORS[status.error].title}
+          text={ERRORS[status.error].text}
+          code={status.code}
+          actionLabel={ERRORS[status.error].action}
+          onAction={retry}
+        />
       ) : (
         <fieldset disabled={sending} className="m-0 min-w-0 border-0 p-0">
           <div className="mb-3 flex flex-col gap-1.5">
@@ -167,40 +245,79 @@ export function ContactForm() {
   );
 }
 
-// .terminal-success (+ variante de error del spec 03: borde y sombra #ff5f56)
-function Terminal({
+// Tarjeta de resultado (sustituye a .terminal-success de la referencia).
+// Éxito: role="status"; errores: role="alert", para que se anuncien al momento.
+const TONE: Record<Tone, { color: string; glow: string; text: string }> = {
+  success: {
+    color: "text-home-green",
+    glow: "[filter:drop-shadow(0_0_8px_#00ff88)]",
+    text: "[text-shadow:0_0_8px_rgb(0_255_136/0.5)]",
+  },
+  warn: {
+    color: "text-neon-yellow",
+    glow: "[filter:drop-shadow(0_0_8px_#f5ff00)]",
+    text: "[text-shadow:0_0_8px_rgb(245_255_0/0.45)]",
+  },
+  error: {
+    color: "text-[#ff5f56]",
+    glow: "[filter:drop-shadow(0_0_8px_#ff5f56)]",
+    text: "[text-shadow:0_0_8px_rgb(255_95_86/0.5)]",
+  },
+};
+
+// Iconos pixel de 16×16: ✓, ! y ✕ con cuadros de 2×2.
+const ICON_CELLS: Record<Tone, [number, number, number, number][]> = {
+  success: [[1, 8, 2, 2], [3, 10, 2, 2], [5, 12, 2, 2], [7, 10, 2, 2], [9, 8, 2, 2], [11, 6, 2, 2], [13, 4, 2, 2]],
+  warn: [[7, 1, 2, 9], [7, 12, 2, 2]],
+  error: [[3, 3, 2, 2], [5, 5, 2, 2], [7, 7, 2, 2], [9, 9, 2, 2], [11, 11, 2, 2], [11, 3, 2, 2], [9, 5, 2, 2], [5, 9, 2, 2], [3, 11, 2, 2]],
+};
+
+function ResultCard({
   tone,
+  title,
+  text,
+  code,
   actionLabel,
   onAction,
-  children,
 }: {
-  tone: "success" | "error";
+  tone: Tone;
+  title: string;
+  text: ReactNode;
+  code?: string;
   actionLabel: string;
   onAction: () => void;
-  children: React.ReactNode;
 }) {
-  const frame =
-    tone === "success"
-      ? "border-home-green shadow-[0_0_22px_rgb(0_255_136/0.25)]"
-      : "border-[#ff5f56] shadow-[0_0_22px_rgb(255_95_86/0.25)]";
+  const t = TONE[tone];
   return (
-    <div role="status" className={`overflow-hidden border bg-black font-mono ${frame}`}>
-      <div className="flex items-center gap-2 border-b border-home-line bg-void px-3 py-2">
-        <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
-        <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
-        <span className="ml-2 font-pixel text-[9px] tracking-[0.14em] text-home-faint">
-          VAULT-OS // TERMINAL
-        </span>
-      </div>
-      <div className="px-[18px] pt-[18px] pb-[22px] text-[13px] leading-[1.8]">
-        {children}
-        <div className="mt-[18px]">
-          <button type="button" onClick={onAction} className={GHOST_BTN}>
-            {actionLabel}
-          </button>
-        </div>
-      </div>
+    <div
+      role={tone === "success" ? "status" : "alert"}
+      className="animate-fade-up flex flex-col items-center gap-4 py-6 text-center"
+    >
+      <svg
+        viewBox="0 0 16 16"
+        aria-hidden="true"
+        className={`h-10 w-10 [image-rendering:pixelated] ${t.color} ${t.glow}`}
+      >
+        <g fill="currentColor">
+          {ICON_CELLS[tone].map(([x, y, w, h]) => (
+            <rect key={`${x}-${y}`} x={x} y={y} width={w} height={h} />
+          ))}
+        </g>
+      </svg>
+      <h3
+        className={`m-0 font-pixel text-[14px] leading-[1.5] font-normal tracking-[0.12em] ${t.color} ${t.text}`}
+      >
+        {title}
+      </h3>
+      <p className="m-0 max-w-[40ch] leading-[1.7] text-home-dim">{text}</p>
+      {code && (
+        <p className="m-0 font-pixel text-[8px] tracking-[0.16em] text-home-faint">
+          Código: {code}
+        </p>
+      )}
+      <button type="button" onClick={onAction} className={`mt-2 ${GHOST_BTN}`}>
+        {actionLabel}
+      </button>
     </div>
   );
 }
