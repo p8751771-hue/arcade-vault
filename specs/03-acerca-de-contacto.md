@@ -1,6 +1,6 @@
 # SPEC 03 — Página "Acerca de" con formulario de contacto por Resend
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 01, SPEC 02
 > **Fecha:** 2026-11-24
 > **Objetivo:** Construir la página "Acerca de" de `references/home-about/` en `/acerca-de`, idéntica a la referencia, con un formulario de contacto que envía el mensaje por correo a través de `POST /api/contact` y Resend (plan gratuito).
@@ -15,7 +15,7 @@ Es también **el primer código de servidor real del proyecto**: hasta ahora tod
 
 La fuente de verdad visual es `references/home-about/about.jsx` (estructura y textos), `references/home-about/styles.css` líneas 1072–1146 (`.about-*`, `.highlight*`, `.about-divider`, `.div-pixels`, `.contact-*`, `.terminal-success`, `.term-*`), las líneas 813–824 (`.field`), y el prototipo empaquetado `arcade-vault-standalone.html`. Si algo de este spec contradice la referencia en lo visual, gana la referencia, salvo las excepciones de "Decisiones" (estados de envío y de error, que la referencia no tiene).
 
-**Ampliación (2026-11-24, paso 11).** Con los pasos 1–10 implementados, el usuario probó el formulario y pidió quitar la terminal "VAULT-OS // TERMINAL" de la referencia: `vault@arcade:~$ ./send_message` y `[ERR] Servidor de correo no configurado.` son lenguaje técnico que un jugador no reconoce. La terminal de éxito y la de error se sustituyen por una **tarjeta de resultado** con icono, título y una frase en lenguaje de usuario. Es la única parte de la página que deja de seguir la referencia; el resto sigue idéntico. Eligió ampliar este spec en lugar de abrir otro. En la misma ampliación pidió **un mensaje por cada tipo de error posible**, con un diseño claro y el código del error visible en pequeño: la API pasa a devolver un código concreto por causa (`empty`, `email`, `too_long`, `bad_request`, `rate_limited`, `unavailable`) y el cliente añade `network` y `unexpected`. Los tests e2e de Playwright del servicio de correo que pidió a la vez quedan para el **spec 04**.
+**Ampliación (2026-11-24, paso 11).** Con los pasos 1–10 implementados, el usuario probó el formulario y pidió quitar la terminal "VAULT-OS // TERMINAL" de la referencia: `vault@arcade:~$ ./send_message` y `[ERR] Servidor de correo no configurado.` son lenguaje técnico que un jugador no reconoce. La terminal de éxito y la de error se sustituyen por una **tarjeta de resultado** con icono, título y una frase en lenguaje de usuario. Es la única parte de la página que deja de seguir la referencia; el resto sigue idéntico. Eligió ampliar este spec en lugar de abrir otro. En la misma ampliación pidió **un mensaje por cada tipo de error posible**, con un diseño claro y el código del error visible en pequeño: la API pasa a devolver un código concreto por causa (`empty`, `email`, `too_long`, `bad_request`, `rate_limited`, `unavailable`) y el cliente añade `network` y `unexpected`. Los tests e2e de Playwright del servicio de correo que pidió a la vez quedan para el **spec 06** (inicialmente el 04; los números 04 y 05 los tomaron la paleta de televisor y la página de historia).
 
 **Restricción del plan gratuito de Resend.** Sin un dominio verificado, el remitente tiene que ser `onboarding@resend.dev` y Resend solo entrega al correo de la cuenta dueña de la API key. Por eso el correo va al equipo (`CONTACT_TO_EMAIL`) y no se envía copia al visitante. Límites del plan: 100 correos/día y 3.000/mes.
 
@@ -182,26 +182,26 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de Ro
 
 ## Criterios de aceptación
 
-- [ ] `npm run build`, `npm run lint` y `npx tsc --noEmit` pasan sin errores.
-- [ ] `/acerca-de` responde 200 y muestra, en orden, hero, divisor y bloque de contacto con los textos literales de `about.jsx`.
-- [ ] El header de escritorio y el menú móvil muestran "Acerca de" tras "Salón de la Fama", y solo está activo en `/acerca-de`.
-- [ ] Con Playwright a 1280×900 y 390×844, los rects y estilos calculados de los bloques medidos en el paso 10 coinciden con el prototipo, salvo la tipografía mono (Courier Prime en vez de JetBrains Mono) y los artefactos de medición (hover, animaciones en curso).
-- [ ] A ≤ 820 px los destacados van en una columna; a ≤ 900 px el contacto va en una columna con hueco de 24 px.
-- [ ] `curl` con body válido y la key configurada devuelve `200 { "ok": true }` y el correo llega a `CONTACT_TO_EMAIL` con asunto `[Arcade Vault] Mensaje de {name}`, cuerpo HTML y `replyTo` del visitante (confirmado por el usuario).
-- [ ] `curl` devuelve `400 { "error": "empty" }` con `name`, `email` o `msg` vacío; `400 { "error": "email" }` con un correo sin formato válido; `400 { "error": "too_long" }` con `name` de 61 caracteres o `msg` de 2001; y `400 { "error": "bad_request" }` con un body que no es JSON.
-- [ ] `curl` sin `RESEND_API_KEY` devuelve `500 { "error": "unavailable" }`, y un `rate_limit_exceeded` de Resend se traduce en `429 { "error": "rate_limited" }`.
-- [ ] Un `msg` con `<b>hola</b>` llega al correo como texto visible `<b>hola</b>`, no en negrita.
-- [ ] Enviar el formulario con algún campo vacío (o solo espacios) produce la animación `shake` y no hace ninguna petición a `/api/contact`.
-- [ ] Mientras se envía, el botón muestra "▶  TRANSMITIENDO…" y está deshabilitado.
-- [ ] Un envío válido desde el formulario muestra la tarjeta verde "¡MENSAJE ENVIADO!" con "Gracias, {nombre}. Te responderemos en 24-48 h en tu correo.".
-- [ ] Cada fila de errores de la tabla de "Convenciones" muestra su título, su frase, su código visible y su botón; "CORREGIR DATOS" y "REINTENTAR" vuelven al formulario con los campos intactos.
-- [ ] Sin `RESEND_API_KEY` el formulario muestra "SERVICIO NO DISPONIBLE" con `Código: CONTACT-500`, y sin conexión "SIN CONEXIÓN" con `Código: CONTACT-NET`.
-- [ ] Ningún estado del formulario muestra texto técnico (`vault@arcade`, `[OK]`, `[ERR]`, "servidor", "paquete").
-- [ ] "ENVIAR OTRO MENSAJE" vacía los campos y muestra el formulario de nuevo.
-- [ ] `RESEND_API_KEY` no aparece en el bundle del cliente (búsqueda en `.next/static`) ni en ninguna respuesta de `/api/contact`.
-- [ ] `.env` no está versionado y `.env.example` existe con `RESEND_API_KEY=` y `CONTACT_TO_EMAIL=` vacíos.
-- [ ] Con `prefers-reduced-motion: reduce` o sin JavaScript, el divisor y el bloque de contacto son visibles.
-- [ ] `/`, `/biblioteca`, `/juegos/arkanoid`, `/salon-de-la-fama` y `/acceso` mantienen su alto de documento salvo el cambio de alto del header por el nuevo enlace.
+- [x] `npm run build`, `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] `/acerca-de` responde 200 y muestra, en orden, hero, divisor y bloque de contacto con los textos literales de `about.jsx`.
+- [x] El header de escritorio y el menú móvil muestran "Acerca de" tras "Salón de la Fama", y solo está activo en `/acerca-de`.
+- [x] Con Playwright a 1280×900 y 390×844, los rects y estilos calculados de los bloques medidos en el paso 10 coinciden con el prototipo, salvo la tipografía mono (Courier Prime en vez de JetBrains Mono) y los artefactos de medición (hover, animaciones en curso).
+- [x] A ≤ 820 px los destacados van en una columna; a ≤ 900 px el contacto va en una columna con hueco de 24 px.
+- [x] `curl` con body válido y la key configurada devuelve `200 { "ok": true }` y el correo llega a `CONTACT_TO_EMAIL` con asunto `[Arcade Vault] Mensaje de {name}`, cuerpo HTML y `replyTo` del visitante (confirmado por el usuario).
+- [x] `curl` devuelve `400 { "error": "empty" }` con `name`, `email` o `msg` vacío; `400 { "error": "email" }` con un correo sin formato válido; `400 { "error": "too_long" }` con `name` de 61 caracteres o `msg` de 2001; y `400 { "error": "bad_request" }` con un body que no es JSON.
+- [x] `curl` sin `RESEND_API_KEY` devuelve `500 { "error": "unavailable" }`, y un `rate_limit_exceeded` de Resend se traduce en `429 { "error": "rate_limited" }`.
+- [x] Un `msg` con `<b>hola</b>` llega al correo como texto visible `<b>hola</b>`, no en negrita.
+- [x] Enviar el formulario con algún campo vacío (o solo espacios) produce la animación `shake` y no hace ninguna petición a `/api/contact`.
+- [x] Mientras se envía, el botón muestra "▶  TRANSMITIENDO…" y está deshabilitado.
+- [x] Un envío válido desde el formulario muestra la tarjeta verde "¡MENSAJE ENVIADO!" con "Gracias, {nombre}. Te responderemos en 24-48 h en tu correo.".
+- [x] Cada fila de errores de la tabla de "Convenciones" muestra su título, su frase, su código visible y su botón; "CORREGIR DATOS" y "REINTENTAR" vuelven al formulario con los campos intactos.
+- [x] Sin `RESEND_API_KEY` el formulario muestra "SERVICIO NO DISPONIBLE" con `Código: CONTACT-500`, y sin conexión "SIN CONEXIÓN" con `Código: CONTACT-NET`.
+- [x] Ningún estado del formulario muestra texto técnico (`vault@arcade`, `[OK]`, `[ERR]`, "servidor", "paquete").
+- [x] "ENVIAR OTRO MENSAJE" vacía los campos y muestra el formulario de nuevo.
+- [x] `RESEND_API_KEY` no aparece en el bundle del cliente (búsqueda en `.next/static`) ni en ninguna respuesta de `/api/contact`.
+- [x] `.env` no está versionado y `.env.example` existe con `RESEND_API_KEY=` y `CONTACT_TO_EMAIL=` vacíos.
+- [x] Con `prefers-reduced-motion: reduce` o sin JavaScript, el divisor y el bloque de contacto son visibles.
+- [x] `/`, `/biblioteca`, `/juegos/arkanoid`, `/salon-de-la-fama` y `/acceso` mantienen su alto de documento salvo el cambio de alto del header por el nuevo enlace.
 
 ---
 
@@ -233,7 +233,7 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de Ro
 - **Sí (ampliación):** botón "CORREGIR DATOS" para los errores de datos y "REINTENTAR" para el resto. El botón dice lo que el visitante va a hacer.
 - **Sí (ampliación):** `429` para `rate_limited`, fuera del contrato `200/400/500` del curso. Es el estado HTTP estándar para "demasiadas peticiones" y permite un mensaje que pide esperar.
 - **Sí (ampliación):** `fetch` con `AbortSignal.timeout(15000)`. Sin tiempo máximo, una red colgada dejaría el botón en "TRANSMITIENDO…" indefinidamente.
-- **Sí (ampliación):** tests e2e de Playwright del servicio de correo en un spec 04 aparte. Los tests automatizados están fuera de alcance de los specs 01–03; el usuario eligió un spec nuevo, con envío simulado por defecto y un envío real opcional (`E2E_REAL_EMAIL=1`).
+- **Sí (ampliación):** tests e2e de Playwright del servicio de correo en un spec aparte (el 06; iba a ser el 04). Los tests automatizados están fuera de alcance de los specs 01–03; el usuario eligió un spec nuevo, con envío simulado por defecto y un envío real opcional (`E2E_REAL_EMAIL=1`).
 - **Sí (ampliación):** el nombre de la tarjeta de éxito se muestra tal como lo escribió el visitante, no en mayúsculas: la frase es texto normal, no un título.
 - **Sí:** "REINTENTAR" conserva lo escrito. Perder un mensaje largo por un fallo del servidor es frustrante.
 - **Sí:** el `shake` con campos vacíos se queda en el cliente, igual que la referencia; el formato del correo lo comprueba el `type="email"` nativo del navegador, como la referencia, y el servidor vuelve a validar todo.
@@ -266,6 +266,6 @@ Antes del paso 1, leer en `node_modules/next/dist/docs/01-app/` las guías de Ro
 - Guardar mensajes o un panel para leerlos.
 - Honeypot, rate limit, CAPTCHA, comprobación de `Origin` u otras protecciones contra spam.
 - Backend real para `login`, `register` o `submitScore`.
-- Tests automatizados, SEO, i18n y despliegue. Los tests e2e de Playwright del servicio de correo van en el spec 04.
+- Tests automatizados, SEO, i18n y despliegue. Los tests e2e de Playwright del servicio de correo van en el spec 06.
 
 Cada uno, si llega, va en su propio spec.

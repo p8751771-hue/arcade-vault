@@ -31,7 +31,7 @@ npm run lint     # eslint (flat config, lints whole project)
 npx tsc --noEmit # type-check (no dedicated script)
 ```
 
-There is no test runner configured (Playwright e2e tests for the contact email service are planned as spec 04).
+There is no test runner configured (Playwright e2e tests for the contact email service are planned as spec 06).
 
 ## Spec Driven Design workflow
 
