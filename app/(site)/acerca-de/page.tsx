@@ -1,3 +1,4 @@
+import { ContactForm } from "@/components/about/contact-form";
 import { HighlightIcon } from "@/components/about/highlight-icon";
 import { Reveal } from "@/components/home/reveal";
 import {
@@ -112,8 +113,7 @@ export default function AboutPage() {
               ))}
             </div>
           </div>
-          {/* .contact-form: paso 5 */}
-          <div />
+          <ContactForm />
         </div>
       </Reveal>
     </main>
