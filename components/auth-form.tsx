@@ -11,9 +11,9 @@ const EMAIL_PATTERN = /.+@.+\..+/;
 
 const TAB_BASE =
   "cursor-pointer border-2 px-1.5 py-3.5 font-pixel text-[9px] leading-[1.6]";
-const FIELD_LABEL = "flex flex-col gap-2 text-[15px] font-bold text-ink-soft";
+const FIELD_LABEL = "flex flex-col gap-2 text-[15px] font-bold text-crt-ink-2";
 const SOCIAL_BUTTON =
-  "cursor-pointer border-2 border-line bg-transparent p-3 text-base font-bold text-ink transition-all duration-[120ms] hover:border-neon-yellow hover:text-neon-yellow active:scale-95";
+  "cursor-pointer border-2 border-crt-line bg-transparent p-3 text-base font-bold text-crt-ink transition-all duration-[120ms] hover:border-crt-ink hover:text-crt-ink active:scale-95";
 
 export function AuthForm() {
   const router = useRouter();
@@ -61,11 +61,11 @@ export function AuthForm() {
   };
 
   return (
-    <div className="panel-crt flex w-full max-w-[440px] flex-col gap-[22px] px-[26px] py-[30px] shadow-glow-cyan-lg">
-      <div className="animate-flicker text-center font-pixel text-xl leading-normal text-neon-cyan [text-shadow:0_0_8px_#00f5ff,0_0_24px_rgb(0_245_255/0.7)]">
+    <div className="panel-crt flex w-full max-w-[440px] flex-col gap-[22px] px-[26px] py-[30px]">
+      <div className="animate-flicker text-center font-pixel text-xl leading-normal text-crt-ink">
         ARCADE
         <br />
-        <span className="text-neon-pink [text-shadow:0_0_8px_#ff006e,0_0_24px_rgb(255_0_110/0.7)]">
+        <span className="text-crt-ink">
           VAULT
         </span>
       </div>
@@ -76,7 +76,7 @@ export function AuthForm() {
           role="tab"
           aria-selected={!isRegister}
           onClick={() => switchTab("login")}
-          className={`${TAB_BASE} border-neon-cyan ${!isRegister ? "bg-neon-cyan text-void" : "bg-transparent text-neon-cyan"}`}
+          className={`${TAB_BASE} border-crt-ink ${!isRegister ? "bg-crt-ink text-crt-invert" : "bg-transparent text-crt-ink"}`}
         >
           INICIAR SESIÓN
         </button>
@@ -85,7 +85,7 @@ export function AuthForm() {
           role="tab"
           aria-selected={isRegister}
           onClick={() => switchTab("register")}
-          className={`${TAB_BASE} border-neon-pink ${isRegister ? "bg-neon-pink text-void" : "bg-transparent text-neon-pink"}`}
+          className={`${TAB_BASE} border-crt-ink ${isRegister ? "bg-crt-ink text-crt-invert" : "bg-transparent text-crt-ink"}`}
         >
           CREAR CUENTA
         </button>
@@ -126,7 +126,7 @@ export function AuthForm() {
         {error && (
           <div
             role="alert"
-            className="border border-neon-pink bg-neon-pink/[0.08] px-3 py-2.5 text-[15px] text-[#ff5c9a]"
+            className="border border-l-4 border-crt-err bg-crt-surface px-3 py-2.5 text-[15px] text-crt-ink"
           >
             {error}
           </div>
@@ -140,7 +140,7 @@ export function AuthForm() {
         </button>
       </form>
 
-      <div className="flex items-center gap-3 text-[13px] text-ink-muted">
+      <div className="flex items-center gap-3 text-[13px] text-crt-ink-2">
         <span className="h-px flex-1 bg-line" />
         O CONTINÚA CON
         <span className="h-px flex-1 bg-line" />
@@ -157,11 +157,11 @@ export function AuthForm() {
       <button
         type="button"
         onClick={() => router.push("/biblioteca")}
-        className="cursor-pointer border-2 border-dashed border-neon-pink bg-transparent p-3.5 font-pixel text-[10px] text-neon-pink transition-all duration-[120ms] hover:bg-neon-pink/15 hover:shadow-[0_0_18px_rgb(255_0_110/0.5)] active:scale-95"
+        className="cursor-pointer border-2 border-dashed border-crt-ink bg-transparent p-3.5 font-pixel text-[10px] text-crt-ink transition-all duration-[120ms] hover:bg-crt-ink/15 active:scale-95"
       >
         JUGAR COMO INVITADO
       </button>
-      <p className="m-0 text-center text-sm leading-normal text-ink-muted">
+      <p className="m-0 text-center text-sm leading-normal text-crt-ink-2">
         Como invitado tus puntuaciones solo se guardan en este dispositivo.
       </p>
     </div>

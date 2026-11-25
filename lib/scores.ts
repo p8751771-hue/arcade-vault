@@ -57,9 +57,11 @@ export function formatDate(iso: string): string {
   return dateFormat.format(new Date(iso));
 }
 
-/** Medallas del top 3 (ranking y salón): oro, plata, bronce. */
+/** Medallas del top 3 (ranking y salón): oro, plata, bronce.
+ *  Spec 04: tonos de la paleta de televisor (crt-gold / crt-silver / crt-bronze), solo
+ *  para barras y bordes (≥ 3:1); el texto del ranking va en negro. */
 export const MEDALS = [
-  { color: "#ffd24a", rgb: "255,210,74" },
-  { color: "#dfe9f5", rgb: "223,233,245" },
-  { color: "#ff9a4d", rgb: "255,154,77" },
+  { color: "var(--color-crt-gold)", rgb: "63,50,0" },
+  { color: "var(--color-crt-silver)", rgb: "43,53,47" },
+  { color: "var(--color-crt-bronze)", rgb: "74,35,12" },
 ] as const;
