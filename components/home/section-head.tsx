@@ -6,10 +6,13 @@ export function SectionHead({
   kicker,
   accent,
   title,
+  id,
 }: {
   kicker: string;
   accent: HomeAccent;
   title: string;
+  /** Para enlazar la sección con aria-labelledby (spec 05). */
+  id?: string;
 }) {
   return (
     <div className="mb-9 flex items-center gap-[18px]">
@@ -18,7 +21,7 @@ export function SectionHead({
       >
         {kicker}
       </div>
-      <h2 className="m-0 font-pixel text-[clamp(18px,2.8vw,28px)] font-normal tracking-[0.06em] text-crt-ink">
+      <h2 id={id} className="m-0 font-pixel text-[clamp(18px,2.8vw,28px)] font-normal tracking-[0.06em] text-crt-ink">
         {title}
       </h2>
       <div className="h-px flex-1 bg-[linear-gradient(90deg,var(--color-crt-line),transparent)]" />

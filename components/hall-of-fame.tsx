@@ -70,10 +70,13 @@ export function HallOfFame() {
             return (
               <li
                 key={row.name}
-                className={`animate-row-in grid ${COLUMNS} items-center gap-3 border-2 bg-crt-surface px-4 py-3.5`}
+                // Spec 05: top 3 con borde negro de 3 px (el relleno baja 1 px por lado para
+                // que la fila mida lo mismo); el resto, borde crt-line de 2 px.
+                className={`animate-row-in grid ${COLUMNS} items-center gap-3 bg-crt-surface ${
+                  medal ? "border-[3px] px-[15px] py-[13px]" : "border-2 border-crt-line px-4 py-3.5"
+                }`}
                 style={{
-                  // Spec 04: la medalla es el borde (≥ 3:1); el texto va en negro.
-                  borderColor: medal?.color ?? "var(--color-crt-line)",
+                  borderColor: medal?.color,
                   animationDelay: `${i * 70}ms`,
                 }}
               >

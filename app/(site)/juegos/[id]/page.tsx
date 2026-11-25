@@ -80,7 +80,7 @@ async function GameDetail({ params }: { params: PageProps<"/juegos/[id]">["param
           <ol className="m-0 flex list-none flex-col gap-1.5 p-0">
             {rows.map((row, i) => {
               const medal = MEDALS[i];
-              // Spec 04: la medalla es solo la barra lateral; el texto va en negro.
+              // Spec 05: barra lateral negra en el top 3 y crt-line en el resto; texto negro.
               const color = medal?.color ?? "var(--color-crt-line)";
               return (
                 <li
