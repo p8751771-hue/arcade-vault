@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
+import type { ContactError, ContactResponse } from "@/lib/contact";
 
 // Formulario de contacto de references/home-about/about.jsx (.contact-form, .field,
 // .terminal-success). `text-[14px] tracking-[0.01em]`: los campos heredan el cuerpo
@@ -8,6 +9,19 @@ import { useEffect, useRef, useState, type FormEvent } from "react";
 
 type Fields = { name: string; email: string; msg: string };
 const EMPTY: Fields = { name: "", email: "", msg: "" };
+
+// Estados del spec 03: la referencia solo tiene formulario y éxito.
+type Status =
+  | { kind: "idle" }
+  | { kind: "sending" }
+  | { kind: "sent"; name: string }
+  | { kind: "error"; error: ContactError };
+
+const ERROR_TEXT: Record<ContactError, string> = {
+  invalid: "[ERR] Datos no válidos. Revisa el correo y la longitud del mensaje.",
+  config: "[ERR] Servidor de correo no configurado.",
+  send: "[ERR] No se pudo transmitir el paquete. Inténtalo de nuevo.",
+};
 
 const LABEL = "font-mono text-[10px] tracking-[0.16em] text-home-faint uppercase";
 const CONTROL =
@@ -17,7 +31,7 @@ const GHOST_BTN =
 
 export function ContactForm() {
   const [form, setForm] = useState<Fields>(EMPTY);
-  const [sent, setSent] = useState<string | null>(null);
+  const [status, setStatus] = useState<Status>({ kind: "idle" });
   const [shake, setShake] = useState(false);
   const shakeTimer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -26,21 +40,43 @@ export function ContactForm() {
   const update = (key: keyof Fields) => (e: { target: { value: string } }) =>
     setForm((f) => ({ ...f, [key]: e.target.value }));
 
-  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (status.kind === "sending") return;
     if (!form.name.trim() || !form.email.trim() || !form.msg.trim()) {
       setShake(true);
       clearTimeout(shakeTimer.current);
       shakeTimer.current = setTimeout(() => setShake(false), 400);
       return;
     }
-    setSent(form.name.trim());
+    const name = form.name.trim();
+    setStatus({ kind: "sending" });
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      const data = (await res.json().catch(() => null)) as ContactResponse | null;
+      if (res.ok && data && "ok" in data) {
+        setStatus({ kind: "sent", name });
+      } else {
+        const error = data && "error" in data ? data.error : "send";
+        setStatus({ kind: "error", error: error in ERROR_TEXT ? error : "send" });
+      }
+    } catch {
+      setStatus({ kind: "error", error: "send" });
+    }
   };
 
+  // "ENVIAR OTRO MENSAJE": formulario vacío. "REINTENTAR": conserva lo escrito.
   const reset = () => {
-    setSent(null);
+    setStatus({ kind: "idle" });
     setForm(EMPTY);
   };
+  const retry = () => setStatus({ kind: "idle" });
+
+  const sending = status.kind === "sending";
 
   return (
     <form
@@ -49,8 +85,30 @@ export function ContactForm() {
         shake ? "animate-shake" : ""
       }`}
     >
-      {sent === null ? (
-        <>
+      {status.kind === "sent" ? (
+        <Terminal tone="success" onAction={reset} actionLabel="ENVIAR OTRO MENSAJE">
+          <div className="text-home-green">
+            <span className="mr-2 text-neon-cyan">vault@arcade:~$</span>./send_message --to=team
+          </div>
+          <div className="text-home-dim">[OK] Conectando con servidor…</div>
+          <div className="text-home-dim">[OK] Validando contenido…</div>
+          <div className="text-home-dim">[OK] Transmitiendo paquete…</div>
+          <div className="mt-3 font-bold whitespace-pre-wrap text-home-green [text-shadow:0_0_6px_rgb(0_255_136/0.45)]">
+            &gt; MENSAJE RECIBIDO. TE RESPONDEREMOS PRONTO. GRACIAS, {status.name.toUpperCase()}.
+            <span className="[animation:blink_1s_steps(1)_infinite]">_</span>
+          </div>
+        </Terminal>
+      ) : status.kind === "error" ? (
+        <Terminal tone="error" onAction={retry} actionLabel="REINTENTAR">
+          <div className="text-home-green">
+            <span className="mr-2 text-neon-cyan">vault@arcade:~$</span>./send_message --to=team
+          </div>
+          <div className="mt-3 font-bold whitespace-pre-wrap text-[#ff5f56] [text-shadow:0_0_6px_rgb(255_95_86/0.45)]">
+            {ERROR_TEXT[status.error]}
+          </div>
+        </Terminal>
+      ) : (
+        <fieldset disabled={sending} className="m-0 min-w-0 border-0 p-0">
           <div className="mb-3 flex flex-col gap-1.5">
             <label htmlFor="contact-name" className={LABEL}>
               NOMBRE
@@ -98,24 +156,11 @@ export function ContactForm() {
           {/* .btn.xl.press */}
           <button
             type="submit"
-            className="btn-home btn-home-xl neon-cyan w-full active:[transform:translateY(3px)_scale(0.99)] active:shadow-[inset_0_0_6px_rgb(0_245_255/0.2)]"
+            className="btn-home btn-home-xl neon-cyan w-full disabled:cursor-wait active:[transform:translateY(3px)_scale(0.99)] active:shadow-[inset_0_0_6px_rgb(0_245_255/0.2)]"
           >
-            {"▶  ENVIAR MENSAJE"}
+            {sending ? "▶  TRANSMITIENDO…" : "▶  ENVIAR MENSAJE"}
           </button>
-        </>
-      ) : (
-        <Terminal tone="success" onAction={reset} actionLabel="ENVIAR OTRO MENSAJE">
-          <div className="text-home-green">
-            <span className="mr-2 text-neon-cyan">vault@arcade:~$</span>./send_message --to=team
-          </div>
-          <div className="text-home-dim">[OK] Conectando con servidor…</div>
-          <div className="text-home-dim">[OK] Validando contenido…</div>
-          <div className="text-home-dim">[OK] Transmitiendo paquete…</div>
-          <div className="mt-3 font-bold whitespace-pre-wrap text-home-green [text-shadow:0_0_6px_rgb(0_255_136/0.45)]">
-            &gt; MENSAJE RECIBIDO. TE RESPONDEREMOS PRONTO. GRACIAS, {sent.toUpperCase()}.
-            <span className="[animation:blink_1s_steps(1)_infinite]">_</span>
-          </div>
-        </Terminal>
+        </fieldset>
       )}
     </form>
   );
