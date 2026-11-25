@@ -88,7 +88,7 @@ export function ContactForm() {
       {status.kind === "sent" ? (
         <Terminal tone="success" onAction={reset} actionLabel="ENVIAR OTRO MENSAJE">
           <div className="text-home-green">
-            <span className="mr-2 text-neon-cyan">vault@arcade:~$</span>./send_message --to=team
+            <span className="mr-2 text-neon-cyan">vault@arcade:~$</span> ./send_message --to=team
           </div>
           <div className="text-home-dim">[OK] Conectando con servidor…</div>
           <div className="text-home-dim">[OK] Validando contenido…</div>
@@ -101,7 +101,7 @@ export function ContactForm() {
       ) : status.kind === "error" ? (
         <Terminal tone="error" onAction={retry} actionLabel="REINTENTAR">
           <div className="text-home-green">
-            <span className="mr-2 text-neon-cyan">vault@arcade:~$</span>./send_message --to=team
+            <span className="mr-2 text-neon-cyan">vault@arcade:~$</span> ./send_message --to=team
           </div>
           <div className="mt-3 font-bold whitespace-pre-wrap text-[#ff5f56] [text-shadow:0_0_6px_rgb(255_95_86/0.45)]">
             {ERROR_TEXT[status.error]}
@@ -120,7 +120,7 @@ export function ContactForm() {
               value={form.name}
               onChange={update("name")}
               placeholder="px_kai"
-              className={`h-11 px-3 font-mono ${CONTROL}`}
+              className={`h-11 px-3 font-mono tracking-normal ${CONTROL}`}
             />
           </div>
           <div className="mb-3 flex flex-col gap-1.5">
@@ -135,14 +135,15 @@ export function ContactForm() {
               value={form.email}
               onChange={update("email")}
               placeholder="jugador@vault.gg"
-              className={`h-11 px-3 font-mono ${CONTROL}`}
+              className={`h-11 px-3 font-mono tracking-normal ${CONTROL}`}
             />
           </div>
           <div className="mb-3 flex flex-col gap-1.5">
             <label htmlFor="contact-msg" className={LABEL}>
               MENSAJE
             </label>
-            {/* La referencia no hereda la fuente en textarea: tamaño por defecto del navegador */}
+            {/* La referencia no hereda la fuente en textarea (13,33 px, espaciado normal). Su interlineado
+                "normal" con JetBrains Mono son 18 px: se fija para que 5 filas midan 116 px con Courier Prime. */}
             <textarea
               id="contact-msg"
               name="msg"
@@ -150,7 +151,7 @@ export function ContactForm() {
               value={form.msg}
               onChange={update("msg")}
               placeholder="Cuéntanos qué tienes en mente…"
-              className={`min-h-[110px] w-full resize-y p-3 font-mono text-[13.3333px] ${CONTROL}`}
+              className={`min-h-[110px] w-full resize-y p-3 font-mono text-[13.3333px] leading-[18px] tracking-normal ${CONTROL}`}
             />
           </div>
           {/* .btn.xl.press */}

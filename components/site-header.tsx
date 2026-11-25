@@ -104,7 +104,7 @@ export function SiteHeader() {
             {user.name} ▾
           </button>
         ) : (
-          <Link href="/acceso" onClick={closeMenu} className="btn-home neon-cyan ml-4">
+          <Link href="/acceso" onClick={closeMenu} className="btn-home neon-cyan ml-4 text-center">
             Iniciar Sesión
           </Link>
         )}
