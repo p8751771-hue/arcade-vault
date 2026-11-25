@@ -5,14 +5,15 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useSession } from "@/components/session-provider";
 
-// Header de references/home-about (nav.jsx + styles.css .av-nav). Sin "Acerca de"
-// hasta que exista su página (spec 02). El CSS es el literal de la referencia: el
-// logo y el botón solo se parten en dos líneas si falta espacio.
+// Header de references/home-about (nav.jsx + styles.css .av-nav), con "Acerca de"
+// tras "Salón de la Fama" (spec 03). El CSS es el literal de la referencia: el logo y
+// el botón se parten en dos líneas si falta espacio (a 1280 px, como el prototipo).
 
 const NAV = [
   { href: "/", label: "Inicio" },
   { href: "/biblioteca", label: "Biblioteca" },
   { href: "/salon-de-la-fama", label: "Salón de la Fama" },
+  { href: "/acerca-de", label: "Acerca de" },
 ] as const;
 
 function isActive(href: string, pathname: string) {
@@ -103,7 +104,7 @@ export function SiteHeader() {
             {user.name} ▾
           </button>
         ) : (
-          <Link href="/acceso" onClick={closeMenu} className="btn-home neon-cyan ml-4">
+          <Link href="/acceso" onClick={closeMenu} className="btn-home neon-cyan ml-4 text-center">
             Iniciar Sesión
           </Link>
         )}
