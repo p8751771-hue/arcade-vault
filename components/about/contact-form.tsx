@@ -94,11 +94,10 @@ const fail = (error: ClientError, code = ERRORS[error].code ?? "CONTACT-UNKNOWN"
   code,
 });
 
-const LABEL = "font-mono text-[10px] tracking-[0.16em] text-home-faint uppercase";
+const LABEL = "font-mono text-[10px] tracking-[0.16em] text-crt-ink-2 uppercase";
 const CONTROL =
-  "border border-home-line bg-void text-home-ink outline-0 transition-[border-color,box-shadow] duration-[140ms] placeholder:text-home-faint focus:border-neon-cyan focus:shadow-[0_0_12px_rgb(0_245_255/0.35)]";
-const GHOST_BTN =
-  "btn-cut border-home-faint text-home-dim hover:border-home-dim hover:text-home-ink hover:shadow-none";
+  "border border-crt-line bg-crt-well text-crt-ink outline-0 transition-[border-color] duration-[140ms] placeholder:text-crt-ink-2 focus:border-crt-ink";
+const GHOST_BTN = "btn-cut btn-cut-ghost";
 
 export function ContactForm() {
   const [form, setForm] = useState<Fields>(EMPTY);
@@ -159,7 +158,7 @@ export function ContactForm() {
   return (
     <form
       onSubmit={onSubmit}
-      className={`relative border border-home-line bg-home-bg2 p-7 text-[14px] tracking-[0.01em] transition-transform duration-[80ms] before:pointer-events-none before:absolute before:inset-1 before:border before:border-dashed before:border-[rgb(0_245_255/0.15)] before:content-[''] ${
+      className={`relative border border-crt-line bg-crt-surface p-7 text-[14px] tracking-[0.01em] transition-transform duration-[80ms] before:pointer-events-none before:absolute before:inset-1 before:border before:border-dashed before:border-crt-line before:content-[''] ${
         shake ? "animate-shake" : ""
       }`}
     >
@@ -235,9 +234,9 @@ export function ContactForm() {
           {/* .btn.xl.press */}
           <button
             type="submit"
-            className="btn-cut btn-cut-xl w-full disabled:cursor-wait active:[transform:translateY(3px)_scale(0.99)] active:shadow-[inset_0_0_6px_rgb(0_245_255/0.2)]"
+            className="btn-cut btn-cut-xl w-full disabled:cursor-wait active:[transform:translateY(3px)_scale(0.99)]"
           >
-            {sending ? "▶  TRANSMITIENDO…" : "▶  ENVIAR MENSAJE"}
+            {sending ? "▶ TRANSMITIENDO…" : "▶ ENVIAR MENSAJE"}
           </button>
         </fieldset>
       )}
@@ -247,22 +246,12 @@ export function ContactForm() {
 
 // Tarjeta de resultado (sustituye a .terminal-success de la referencia).
 // Éxito: role="status"; errores: role="alert", para que se anuncien al momento.
-const TONE: Record<Tone, { color: string; glow: string; text: string }> = {
-  success: {
-    color: "text-home-green",
-    glow: "[filter:drop-shadow(0_0_8px_#00ff88)]",
-    text: "[text-shadow:0_0_8px_rgb(0_255_136/0.5)]",
-  },
-  warn: {
-    color: "text-neon-yellow",
-    glow: "[filter:drop-shadow(0_0_8px_#f5ff00)]",
-    text: "[text-shadow:0_0_8px_rgb(245_255_0/0.45)]",
-  },
-  error: {
-    color: "text-[#ff5f56]",
-    glow: "[filter:drop-shadow(0_0_8px_#ff5f56)]",
-    text: "[text-shadow:0_0_8px_rgb(255_95_86/0.5)]",
-  },
+// Spec 04: el estado solo colorea el icono y el borde de 2 px (≥ 3:1); título y texto
+// van en negro. Antes: verde/amarillo/rojo neón con resplandor también en el título.
+const TONE: Record<Tone, { icon: string; border: string }> = {
+  success: { icon: "text-crt-ok", border: "border-crt-ok" },
+  warn: { icon: "text-crt-warn", border: "border-crt-warn" },
+  error: { icon: "text-crt-err", border: "border-crt-err" },
 };
 
 // Iconos pixel de 16×16: ✓, ! y ✕ con cuadros de 2×2.
@@ -291,12 +280,12 @@ function ResultCard({
   return (
     <div
       role={tone === "success" ? "status" : "alert"}
-      className="animate-fade-up flex flex-col items-center gap-4 py-6 text-center"
+      className={`animate-fade-up flex flex-col items-center gap-4 border-2 px-4 py-6 text-center ${t.border}`}
     >
       <svg
         viewBox="0 0 16 16"
         aria-hidden="true"
-        className={`h-10 w-10 [image-rendering:pixelated] ${t.color} ${t.glow}`}
+        className={`h-10 w-10 [image-rendering:pixelated] ${t.icon}`}
       >
         <g fill="currentColor">
           {ICON_CELLS[tone].map(([x, y, w, h]) => (
@@ -304,14 +293,12 @@ function ResultCard({
           ))}
         </g>
       </svg>
-      <h3
-        className={`m-0 font-pixel text-[14px] leading-[1.5] font-normal tracking-[0.12em] ${t.color} ${t.text}`}
-      >
+      <h3 className="m-0 font-pixel text-[14px] leading-[1.5] font-normal tracking-[0.12em] text-crt-ink">
         {title}
       </h3>
-      <p className="m-0 max-w-[40ch] leading-[1.7] text-home-dim">{text}</p>
+      <p className="m-0 max-w-[40ch] leading-[1.7] text-crt-ink-2">{text}</p>
       {code && (
-        <p className="m-0 font-pixel text-[8px] tracking-[0.16em] text-home-faint">
+        <p className="m-0 font-pixel text-[8px] tracking-[0.16em] text-crt-ink-2">
           Código: {code}
         </p>
       )}

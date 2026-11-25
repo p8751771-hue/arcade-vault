@@ -3,7 +3,7 @@ import type { HighlightIcon as HighlightIconKind } from "@/lib/about";
 // Iconos pixel de los destacados (`HighlightIcon` de references/home-about/about.jsx).
 // Heredan el color del destacado (currentColor). `.hl-icon`: 36 px, resplandor y sin suavizado.
 const ICON =
-  "h-9 w-9 flex-none [filter:drop-shadow(0_0_6px_currentColor)] [image-rendering:pixelated]";
+  "h-9 w-9 flex-none [image-rendering:pixelated]";
 
 export function HighlightIcon({ kind }: { kind: HighlightIconKind }) {
   const C = "currentColor";
@@ -32,9 +32,9 @@ export function HighlightIcon({ kind }: { kind: HighlightIconKind }) {
         <g fill={C}>
           <rect x="1" y="2" width="14" height="12" fill="none" stroke={C} strokeWidth="1.4" />
           <rect x="1" y="2" width="14" height="3" />
-          <rect x="3" y="3" width="1" height="1" fill="#0a0a0f" />
-          <rect x="5" y="3" width="1" height="1" fill="#0a0a0f" />
-          <rect x="7" y="3" width="1" height="1" fill="#0a0a0f" />
+          <rect x="3" y="3" width="1" height="1" fill="var(--color-crt-surface)" />
+          <rect x="5" y="3" width="1" height="1" fill="var(--color-crt-surface)" />
+          <rect x="7" y="3" width="1" height="1" fill="var(--color-crt-surface)" />
           <rect x="3" y="7" width="4" height="1" />
           <rect x="3" y="9" width="6" height="1" />
           <rect x="3" y="11" width="3" height="1" />
