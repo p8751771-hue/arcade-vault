@@ -1,6 +1,6 @@
 # SPEC 04 — Paleta de televisor antiguo (#748c7d) en todo el sitio
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 01, SPEC 02, SPEC 03
 > **Fecha:** 2026-11-24
 > **Objetivo:** Sustituir el tema neón de todas las pantallas (incluidos los mensajes de resultado y error) por una paleta monocroma verde-gris basada en `#748c7d` con texto negro, y añadir una capa de scanlines con una banda de refresco que baja por la pantalla para que el sitio parezca un televisor antiguo.
@@ -160,20 +160,20 @@ Toda la interfaz se trabaja con `/frontend-design`, siguiendo la paleta de este 
 
 ## Criterios de aceptación
 
-- [ ] `npm run build`, `npm run lint` y `npx tsc --noEmit` pasan sin errores.
-- [ ] `grep` de los valores prohibidos de "Convenciones" en `app/`, `components/` y `lib/` (sin comentarios) no devuelve resultados.
-- [ ] `body` tiene fondo `#748c7d` y texto `#000000` en todas las rutas.
-- [ ] El escaneo de contraste de Playwright no encuentra ningún texto por debajo de 4,5:1 (3:1 para texto de ≥ 24 px o ≥ 18,66 px en negrita) en ninguna ruta, a 1280 ni a 390.
-- [ ] Ningún elemento visible tiene `text-shadow` ni `box-shadow` de color: solo `none` o sombras negras.
-- [ ] La banda de refresco se desplaza de arriba abajo de la ventana en 8 s y se repite; está presente en todas las rutas, incluida `/juegos/arkanoid/jugar`.
-- [ ] Con `prefers-reduced-motion: reduce`, la banda tiene `display: none` y ningún elemento tiene una animación en curso de más de 0,01 ms; las scanlines siguen visibles.
-- [ ] La capa de televisor no bloquea clics: los enlaces del header, las tarjetas y los botones del formulario funcionan con la capa encima.
-- [ ] Hover y foco de teclado de botones y enlaces muestran el estado invertido (fondo negro, texto `#8aa293`) o el contorno negro de 2 px.
-- [ ] Las seis portadas solo usan píxeles de `#0e1511`, `#2f3b34`, `#748c7d` y `#8aa293`.
-- [ ] La tarjeta de resultado del formulario de contacto muestra, para las 9 respuestas del spec 03, texto negro, icono y borde de `crt-ok`, `crt-warn` o `crt-err` según su tono.
-- [ ] Las medallas del Salón de la Fama y de "TOP JUGADORES · HOY" usan `crt-gold`, `crt-silver` y `crt-bronze`, con el texto en negro.
-- [ ] El alto del documento y del header de cada ruta, a 1280 y a 390, es igual al de `main` antes de este spec.
-- [ ] `CLAUDE.md` dice que la referencia manda en la maquetación y este spec en el color, y documenta los tokens `crt-*` y la capa de televisor.
+- [x] `npm run build`, `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] `grep` de los valores prohibidos de "Convenciones" en `app/`, `components/` y `lib/` (sin comentarios) no devuelve resultados.
+- [x] `body` tiene fondo `#748c7d` y texto `#000000` en todas las rutas.
+- [x] El escaneo de contraste de Playwright no encuentra ningún texto por debajo de 4,5:1 (3:1 para texto de ≥ 24 px o ≥ 18,66 px en negrita) en ninguna ruta, a 1280 ni a 390.
+- [x] Ningún elemento visible tiene `text-shadow` ni `box-shadow` de color: solo `none` o sombras negras.
+- [x] La banda de refresco se desplaza de arriba abajo de la ventana en 8 s y se repite; está presente en todas las rutas, incluida `/juegos/arkanoid/jugar`.
+- [x] Con `prefers-reduced-motion: reduce`, la banda tiene `display: none` y ningún elemento tiene una animación en curso de más de 0,01 ms; las scanlines siguen visibles.
+- [x] La capa de televisor no bloquea clics: los enlaces del header, las tarjetas y los botones del formulario funcionan con la capa encima.
+- [x] Hover y foco de teclado de botones y enlaces muestran el estado invertido (fondo negro, texto `#8aa293`) o el contorno negro de 2 px.
+- [x] Las seis portadas solo usan píxeles de `#0e1511`, `#2f3b34`, `#748c7d` y `#8aa293`.
+- [x] La tarjeta de resultado del formulario de contacto muestra, para las 9 respuestas del spec 03, texto negro, icono y borde de `crt-ok`, `crt-warn` o `crt-err` según su tono.
+- [x] Las medallas del Salón de la Fama y de "TOP JUGADORES · HOY" usan `crt-gold`, `crt-silver` y `crt-bronze`, con el texto en negro.
+- [x] El alto del documento y del header de cada ruta, a 1280 y a 390, es igual al de `main` antes de este spec.
+- [x] `CLAUDE.md` dice que la referencia manda en la maquetación y este spec en el color, y documenta los tokens `crt-*` y la capa de televisor.
 
 ---
 
