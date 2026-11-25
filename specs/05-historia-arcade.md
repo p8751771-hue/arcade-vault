@@ -1,6 +1,6 @@
 # SPEC 05 — Página "Historia" de los primeros arcades
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 02, SPEC 03, SPEC 04
 > **Fecha:** 2026-11-24
 > **Objetivo:** Crear la página `/historia`, con una cabina "inserta moneda" que recorre 8 hitos de los primeros arcades (1971–1982) parafraseados de fuentes verificadas y citadas en formato APA, con crédito a sus creadores, y un bloque que explica por qué Arcade Vault pasó del estilo neón al de televisor antiguo.
@@ -160,27 +160,27 @@ Requisito: el spec 04 implementado (tokens `crt-*` y capa de televisor). La rama
 
 ## Criterios de aceptación
 
-- [ ] `npm run build`, `npm run lint` y `npx tsc --noEmit` pasan sin errores.
-- [ ] `/historia` responde 200 y muestra, en orden, cabecera, cabina, "TODOS LOS HITOS", "POR QUÉ PARECEMOS UN TELEVISOR" y "REFERENCIAS".
-- [ ] El header y el menú móvil muestran "Historia" tras "Acerca de", y solo está activo en `/historia`.
-- [ ] La cabina empieza en 1971 con "CRÉDITO 1/8" y "CANAL ANTERIOR" deshabilitado.
-- [ ] Cada clic en "INSERTAR MONEDA", o cada pulsación de → o Enter con el foco en la cabina, avanza un hito; ← o "CANAL ANTERIOR" retroceden.
-- [ ] En 1982 ("CRÉDITO 8/8") el botón dice "VOLVER A 1971" y lleva al primer hito.
-- [ ] El hito nuevo se anuncia por `aria-live="polite"`.
-- [ ] Sin `prefers-reduced-motion` aparece el ruido de cambio de canal durante unos 250 ms; con `reduce` no aparece.
-- [ ] Sin JavaScript, la lista "TODOS LOS HITOS" muestra los 8 hitos completos.
-- [ ] Los 8 hitos coinciden en orden, año, título y fabricante con la lista del alcance, salvo correcciones aprobadas por el usuario en el paso 2.
-- [ ] Cada hito (salvo 1982) muestra "CREADO POR" con sus diseñadores verificados.
-- [ ] Cada hito termina con al menos dos citas APA en el texto ("(Autor, año; Autor, año)"), y cada cita enlaza a su entrada de "REFERENCIAS".
-- [ ] "REFERENCIAS" sigue el formato APA 7.ª edición (autor, año o "s.f.", título en cursiva, sitio y URL), en orden alfabético y con sangría francesa, y todos sus enlaces responden con 2xx o 3xx.
-- [ ] Ningún texto de hito comparte 8 o más palabras seguidas con el contenido de sus fuentes (comparación automática del paso 2) ni contiene citas textuales.
-- [ ] `public/historia/estilo-neon.png` y `public/historia/estilo-tv.png` existen, pesan ≤ 400 KB y se muestran con su `alt` y su pie de foto; a ≤ 900 px van en una columna.
-- [ ] La página no contiene imágenes, logotipos ni personajes de juegos reales (solo las dos capturas propias de Arcade Vault).
-- [ ] (Ampliación) Ningún ranking del sitio usa color de medalla. En el Salón de la Fama los puestos 01–03 tienen borde negro de 3 px y el resto borde `crt-line` de 2 px. En el detalle de juego y en "TOP JUGADORES · HOY" las barras de los puestos 01–03 son negras y las demás `crt-line`. Los tokens `crt-gold`, `crt-silver` y `crt-bronze` ya no existen.
-- [ ] (Ampliación) Las alturas de `/`, `/juegos/arkanoid` y `/salon-de-la-fama` no cambian con el paso 8.
-- [ ] El escaneo de contraste del spec 04 no encuentra ningún texto por debajo de 4,5:1 en `/historia`, a 1280 ni a 390.
-- [ ] El `grep` de valores prohibidos del spec 04 sigue sin resultados.
-- [ ] `CLAUDE.md` documenta la ruta, los archivos nuevos y que los tests e2e son el spec 06.
+- [x] `npm run build`, `npm run lint` y `npx tsc --noEmit` pasan sin errores.
+- [x] `/historia` responde 200 y muestra, en orden, cabecera, cabina, "TODOS LOS HITOS", "POR QUÉ PARECEMOS UN TELEVISOR" y "REFERENCIAS".
+- [x] El header y el menú móvil muestran "Historia" tras "Acerca de", y solo está activo en `/historia`.
+- [x] La cabina empieza en 1971 con "CRÉDITO 1/8" y "CANAL ANTERIOR" deshabilitado.
+- [x] Cada clic en "INSERTAR MONEDA", o cada pulsación de → o Enter con el foco en la cabina, avanza un hito; ← o "CANAL ANTERIOR" retroceden.
+- [x] En 1982 ("CRÉDITO 8/8") el botón dice "VOLVER A 1971" y lleva al primer hito.
+- [x] El hito nuevo se anuncia por `aria-live="polite"`.
+- [x] Sin `prefers-reduced-motion` aparece el ruido de cambio de canal durante unos 250 ms; con `reduce` no aparece.
+- [x] Sin JavaScript, la lista "TODOS LOS HITOS" muestra los 8 hitos completos.
+- [x] Los 8 hitos coinciden en orden, año, título y fabricante con la lista del alcance, salvo correcciones aprobadas por el usuario en el paso 2.
+- [x] Cada hito (salvo 1982) muestra "CREADO POR" con sus diseñadores verificados.
+- [x] Cada hito termina con al menos dos citas APA en el texto ("(Autor, año; Autor, año)"), y cada cita enlaza a su entrada de "REFERENCIAS".
+- [x] "REFERENCIAS" sigue el formato APA 7.ª edición (autor, año o "s.f.", título en cursiva, sitio y URL), en orden alfabético y con sangría francesa, y todos sus enlaces responden con 2xx o 3xx. (18 de 19 con `curl -I`; Smithsonian Magazine rechaza `HEAD` con 403 y responde 200 a `GET`, comprobado así.)
+- [x] Ningún texto de hito comparte 8 o más palabras seguidas con el contenido de sus fuentes (comparación automática del paso 2) ni contiene citas textuales.
+- [x] `public/historia/estilo-neon.png` y `public/historia/estilo-tv.png` existen, pesan ≤ 400 KB y se muestran con su `alt` y su pie de foto; a ≤ 900 px van en una columna.
+- [x] La página no contiene imágenes, logotipos ni personajes de juegos reales (solo las dos capturas propias de Arcade Vault).
+- [x] (Ampliación) Ningún ranking del sitio usa color de medalla. En el Salón de la Fama los puestos 01–03 tienen borde negro de 3 px y el resto borde `crt-line` de 2 px. En el detalle de juego y en "TOP JUGADORES · HOY" las barras de los puestos 01–03 son negras y las demás `crt-line`. Los tokens `crt-gold`, `crt-silver` y `crt-bronze` ya no existen.
+- [x] (Ampliación) Las alturas de `/`, `/juegos/arkanoid` y `/salon-de-la-fama` no cambian con el paso 8.
+- [x] El escaneo de contraste del spec 04 no encuentra ningún texto por debajo de 4,5:1 en `/historia`, a 1280 ni a 390.
+- [x] El `grep` de valores prohibidos del spec 04 sigue sin resultados.
+- [x] `CLAUDE.md` documenta la ruta, los archivos nuevos y que los tests e2e son el spec 06.
 
 ---
 
