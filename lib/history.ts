@@ -310,7 +310,8 @@ export function formatApaReference(source: HistorySource): ApaReferenceParts {
   return {
     authors: authors.endsWith(".") ? authors : `${authors}.`,
     year: `(${apaYear(source)}).`,
-    title: `${source.title}.`,
+    // APA: el título termina en punto salvo que ya acabe en "?" o "!".
+    title: /[?!.]$/.test(source.title) ? source.title : `${source.title}.`,
     container: source.container ? `${source.container}.` : null,
     url: source.url,
   };

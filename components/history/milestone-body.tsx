@@ -1,6 +1,8 @@
-import type { Milestone } from "@/lib/history";
+import { SORTED_SOURCES, formatApaCitation, type Milestone } from "@/lib/history";
 
-// Contenido de un hito (spec 05): título, fabricante, "CREADO POR" y texto parafraseado.
+// Contenido de un hito (spec 05): título, fabricante, "CREADO POR", texto parafraseado y
+// sus citas APA en el texto, "(Autor, año; Autor, año)" en orden alfabético, cada una
+// enlazada a su entrada de "REFERENCIAS" (#ref-{id}).
 // Lo comparten la cabina "inserta moneda" y la lista "TODOS LOS HITOS". Sin hooks: se
 // puede renderizar en servidor (lista) y en cliente (cabina).
 export function MilestoneBody({ milestone }: { milestone: Milestone }) {
@@ -17,7 +19,21 @@ export function MilestoneBody({ milestone }: { milestone: Milestone }) {
           CREADO POR {milestone.creators.join(" · ").toUpperCase()}
         </p>
       )}
-      <p className="m-0 mt-3 text-[15px] leading-[1.7] text-crt-ink">{milestone.text}</p>
+      <p className="m-0 mt-3 text-[15px] leading-[1.7] text-crt-ink">
+        {milestone.text}{" "}
+        <span className="text-crt-ink-2">
+          (
+          {SORTED_SOURCES.filter((src) => milestone.sources.includes(src.id)).map((src, i) => (
+            <span key={src.id}>
+              {i > 0 && "; "}
+              <a href={`#ref-${src.id}`} className="text-crt-ink-2 underline underline-offset-2 hover:bg-crt-ink hover:text-crt-invert">
+                {formatApaCitation(src)}
+              </a>
+            </span>
+          ))}
+          )
+        </span>
+      </p>
     </>
   );
 }

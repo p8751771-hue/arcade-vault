@@ -2,7 +2,7 @@ import Image from "next/image";
 import { CoinCabinet } from "@/components/history/coin-cabinet";
 import { MilestoneBody } from "@/components/history/milestone-body";
 import { SectionHead } from "@/components/home/section-head";
-import { MILESTONES, STYLE_NOTE } from "@/lib/history";
+import { MILESTONES, SORTED_SOURCES, STYLE_NOTE, formatApaReference } from "@/lib/history";
 
 // "Historia": los primeros arcades (1971–1982) y por qué Arcade Vault parece un
 // televisor antiguo (spec 05). Mismo lenguaje que "Acerca de": cabecera centrada,
@@ -98,6 +98,34 @@ export default function HistoryPage() {
             </figure>
           ))}
         </div>
+      </section>
+
+      {/* REFERENCIAS: APA 7.ª edición, orden alfabético, sangría francesa */}
+      <section className={`${SECTION} my-20`} aria-labelledby="referencias">
+        <SectionHead kicker="// 03" accent="cyan" title="REFERENCIAS" id="referencias" />
+        <ul className="m-0 flex max-w-[80ch] list-none flex-col gap-3 p-0">
+          {SORTED_SOURCES.map((src) => {
+            const ref = formatApaReference(src);
+            return (
+              <li
+                key={src.id}
+                id={`ref-${src.id}`}
+                className="scroll-mt-28 pl-[2em] -indent-[2em] text-[14px] leading-[1.7] break-words text-crt-ink target:bg-crt-surface"
+              >
+                {ref.authors} {ref.year} <cite>{ref.title}</cite>
+                {ref.container && ` ${ref.container}`}{" "}
+                <a
+                  href={ref.url}
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  className="text-crt-ink underline underline-offset-2 hover:bg-crt-ink hover:text-crt-invert"
+                >
+                  {ref.url}
+                </a>
+              </li>
+            );
+          })}
+        </ul>
       </section>
     </main>
   );
