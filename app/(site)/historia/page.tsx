@@ -1,3 +1,4 @@
+import { CoinCabinet } from "@/components/history/coin-cabinet";
 import { MilestoneBody } from "@/components/history/milestone-body";
 import { SectionHead } from "@/components/home/section-head";
 import { MILESTONES } from "@/lib/history";
@@ -24,6 +25,11 @@ export default function HistoryPage() {
           damos por hecho en un videojuego. Inserta una moneda y recorre aquellos años, máquina
           a máquina.
         </p>
+      </section>
+
+      {/* Cabina "inserta moneda" */}
+      <section className={`${SECTION} mt-4`} aria-label="Cabina inserta moneda">
+        <CoinCabinet />
       </section>
 
       {/* TODOS LOS HITOS: siempre visible y legible sin JavaScript */}
