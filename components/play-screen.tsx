@@ -191,7 +191,7 @@ export function PlayScreen({ game }: { game: Game }) {
   return (
     <main className="animate-fade-slide relative z-[1] flex min-h-screen flex-col items-center gap-4 px-3.5 pt-3.5 pb-7">
       {/* HUD */}
-      <div className="flex w-[min(100%,640px)] flex-wrap items-stretch justify-between gap-2.5">
+      <div className="flex w-[min(100%,860px,calc(100svh_-_170px))] flex-wrap items-stretch justify-between gap-2.5">
         <div className="flex min-w-0 flex-1 flex-wrap gap-2.5">
           <HudBox
             label="PUNTUACIÓN"
@@ -236,7 +236,7 @@ export function PlayScreen({ game }: { game: Game }) {
 
       {/* Marco de la máquina */}
       <div
-        className="w-[min(100%,640px)] rounded-[38px] p-[clamp(10px,3.2vw,24px)]"
+        className="w-[min(100%,860px,calc(100svh_-_170px))] rounded-[38px] p-[clamp(10px,3.2vw,24px)]"
         style={{
           // Spec 04: marco del televisor en la paleta; solo sombras negras.
           background: "var(--color-crt-surface)",
@@ -327,7 +327,7 @@ export function PlayScreen({ game }: { game: Game }) {
 
       {/* Botonera táctil: solo en móvil y oculta con el modal abierto */}
       {phase !== "over" && (
-        <div className="flex w-[min(100%,640px)] touch-none gap-2 select-none min-[760px]:hidden">
+        <div className="flex w-[min(100%,860px,calc(100svh_-_170px))] touch-none gap-2 select-none min-[760px]:hidden">
           {PAD_BUTTONS.map(({ label, flex }) => (
             <button
               key={label}
