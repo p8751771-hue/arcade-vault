@@ -44,11 +44,25 @@ export function useFullscreen<T extends HTMLElement>(): {
     return () => document.removeEventListener("fullscreenchange", sync);
   }, []);
 
+  // Al abandonar la pantalla se sale de pantalla completa. Con `cacheComponents`
+  // Next no desmonta la ruta anterior: la deja oculta (`display: none`), y un
+  // elemento oculto no saca al navegador de pantalla completa por sí solo.
+  useEffect(() => {
+    const element = ref.current;
+    return () => {
+      if (element && document.fullscreenElement === element) {
+        document.exitFullscreen().catch(() => {});
+      }
+    };
+  }, []);
+
   // Wake Lock: pedido al entrar, liberado al salir o al desmontar. El navegador
   // lo suelta al ocultar la pestaña, así que se repite al volver a verla.
   // Sin soporte o con rechazo no pasa nada: la pantalla completa sigue igual.
   useEffect(() => {
-    if (!active || !("wakeLock" in navigator)) return;
+    // `navigator.wakeLock` no existe en todos los navegadores (ni en contextos
+    // no seguros), aunque el tipo diga lo contrario.
+    if (!active || !(navigator as { wakeLock?: unknown }).wakeLock) return;
     let sentinel: WakeLockSentinel | null = null;
     let cancelled = false;
 
