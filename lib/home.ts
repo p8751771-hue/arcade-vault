@@ -91,16 +91,58 @@ export const STATS: readonly HomeStat[] = [
 ];
 
 // Los juegos de la referencia se adaptan al catálogo real:
-// Caída → tetris, Glotón → pacman, Invasores → invaders, Rocas → asteroids,
+// Caída → tetris, Glotón → pacman, Invasores → invaders, Rocas → asteroides,
 // Bloque Buster → arkanoid, Serpentina → snake, Ranaria → arkanoid (no hay juego de rana).
 export const ACTIVITY: readonly ActivityEntry[] = [
-  { player: "NEONFOX", gameId: "tetris", score: 184220, ago: "hace 2 min", accent: "magenta" },
-  { player: "PX_KAI", gameId: "pacman", score: 96400, ago: "hace 5 min", accent: "yellow" },
-  { player: "Z3R0COOL", gameId: "invaders", score: 54190, ago: "hace 8 min", accent: "green" },
-  { player: "VAULT_07", gameId: "asteroids", score: 41200, ago: "hace 12 min", accent: "cyan" },
-  { player: "GLITCHA", gameId: "arkanoid", score: 28450, ago: "hace 18 min", accent: "cyan" },
-  { player: "ARKADYA", gameId: "snake", score: 7820, ago: "hace 24 min", accent: "green" },
-  { player: "CYBER_LU", gameId: "arkanoid", score: 18900, ago: "hace 31 min", accent: "yellow" },
+  {
+    player: "NEONFOX",
+    gameId: "tetris",
+    score: 184220,
+    ago: "hace 2 min",
+    accent: "magenta",
+  },
+  {
+    player: "PX_KAI",
+    gameId: "pacman",
+    score: 96400,
+    ago: "hace 5 min",
+    accent: "yellow",
+  },
+  {
+    player: "Z3R0COOL",
+    gameId: "invaders",
+    score: 54190,
+    ago: "hace 8 min",
+    accent: "green",
+  },
+  {
+    player: "VAULT_07",
+    gameId: "asteroides",
+    score: 41200,
+    ago: "hace 12 min",
+    accent: "cyan",
+  },
+  {
+    player: "GLITCHA",
+    gameId: "arkanoid",
+    score: 28450,
+    ago: "hace 18 min",
+    accent: "cyan",
+  },
+  {
+    player: "ARKADYA",
+    gameId: "snake",
+    score: 7820,
+    ago: "hace 24 min",
+    accent: "green",
+  },
+  {
+    player: "CYBER_LU",
+    gameId: "arkanoid",
+    score: 18900,
+    ago: "hace 31 min",
+    accent: "yellow",
+  },
 ];
 
 export const TOP_PLAYERS: readonly TopPlayer[] = [
