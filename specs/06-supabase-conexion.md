@@ -26,7 +26,7 @@ Las decisiones de este spec salen de las respuestas del curso (proyecto ya cread
 - Instalar las dependencias `@supabase/supabase-js` y `@supabase/ssr`.
 - Dos variables de entorno públicas:
   - `NEXT_PUBLIC_SUPABASE_URL`: URL del proyecto.
-  - `NEXT_PUBLIC_SUPABASE_ANON_KEY`: clave pública (`anon`) del proyecto.
+  - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: clave pública (`anon`) del proyecto.
 - Añadir ambas, **vacías**, a `.env.example` (versionado, junto a `RESEND_API_KEY` y `CONTACT_TO_EMAIL`). Los valores reales los pone el usuario en `.env`, que sigue ignorado por git.
 - `lib/supabase/client.ts`: función que crea el cliente de Supabase para el navegador (componentes `"use client"`) con `createBrowserClient` de `@supabase/ssr`.
 - `lib/supabase/server.ts`: función asíncrona que crea el cliente de Supabase para el servidor (Server Components y Route Handlers) con `createServerClient` de `@supabase/ssr`, leyendo y escribiendo las cookies con `cookies()` de `next/headers`.
@@ -62,13 +62,13 @@ export async function createClient(): Promise<SupabaseClient>;
 ```bash
 # .env.example (valores vacíos; los reales van en .env)
 NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=
 ```
 
 Convenciones:
 
 - Las dos funciones se llaman `createClient`, como en la guía oficial de Supabase para Next.js; se distinguen por el archivo desde el que se importan (`@/lib/supabase/client` o `@/lib/supabase/server`).
-- Las variables se leen escribiendo `process.env.NEXT_PUBLIC_SUPABASE_URL` y `process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY` literalmente (no con una clave dinámica), porque Next.js solo sustituye en el navegador las referencias literales.
+- Las variables se leen escribiendo `process.env.NEXT_PUBLIC_SUPABASE_URL` y `process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` literalmente (no con una clave dinámica), porque Next.js solo sustituye en el navegador las referencias literales.
 - `lib/supabase/server.ts` solo se importa desde código de servidor; `lib/supabase/client.ts` solo desde componentes de cliente.
 - Ningún cliente se guarda en una variable de módulo: se crea uno por llamada (en servidor, uno por petición, porque depende de las cookies de esa petición).
 
@@ -77,7 +77,7 @@ Convenciones:
 ## Plan de implementación
 
 1. **Instalar dependencias.** `npm install @supabase/supabase-js @supabase/ssr`. Comprobar que `package.json` y `package-lock.json` los reflejan y que `npm run build` sigue pasando.
-2. **Variables de entorno.** Añadir `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_ANON_KEY` vacías a `.env.example`. El usuario copia la URL y la clave `anon` de su proyecto (panel de Supabase → Project Settings → API) a su `.env`. El agente no escribe claves reales en ningún archivo.
+2. **Variables de entorno.** Añadir `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` vacías a `.env.example`. El usuario copia la URL y la clave `anon` de su proyecto (panel de Supabase → Project Settings → API) a su `.env`. El agente no escribe claves reales en ningún archivo.
 3. **Cliente de navegador.** Crear `lib/supabase/client.ts` con `createBrowserClient` y el error claro si falta una variable. Pasa `npx tsc --noEmit` y `npm run lint`.
 4. **Cliente de servidor.** Crear `lib/supabase/server.ts` con `createServerClient`, `await cookies()` y los métodos `getAll` / `setAll` de las cookies (con `try/catch` en `setAll`, porque en un Server Component no se pueden escribir cookies) y el mismo error claro. Pasa `npx tsc --noEmit`, `npm run lint` y `npm run build`.
 5. **Verificación y documentación.**
@@ -90,7 +90,7 @@ Convenciones:
 ## Criterios de aceptación
 
 - [ ] `package.json` contiene `@supabase/supabase-js` y `@supabase/ssr` en `dependencies`, y `package-lock.json` está actualizado.
-- [ ] `.env.example` contiene `NEXT_PUBLIC_SUPABASE_URL=` y `NEXT_PUBLIC_SUPABASE_ANON_KEY=` con valor vacío, y `git ls-files .env` no devuelve nada (el `.env` real sigue sin versionarse).
+- [ ] `.env.example` contiene `NEXT_PUBLIC_SUPABASE_URL=` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=` con valor vacío, y `git ls-files .env` no devuelve nada (el `.env` real sigue sin versionarse).
 - [ ] Existen `lib/supabase/client.ts` y `lib/supabase/server.ts`, cada uno exportando `createClient`.
 - [ ] `lib/supabase/client.ts` usa `createBrowserClient` y `lib/supabase/server.ts` usa `createServerClient` con `cookies()` de `next/headers`.
 - [ ] Ningún archivo del repositorio contiene una clave real de Supabase (la URL y la clave solo aparecen en `.env`).
@@ -110,10 +110,10 @@ Convenciones:
 - **No:** un único cliente compartido. Obligaría a refactorizar cuando llegue la autenticación con cookies.
 - **Sí:** `@supabase/supabase-js` **y** `@supabase/ssr`. El segundo es el paquete oficial para Next.js App Router y deja resuelto el manejo de cookies y sesión para el spec de autenticación. (Respuesta del curso: "ambos".)
 - **No:** solo `@supabase/supabase-js`. Sirve para conectar, pero no gestiona cookies de sesión en servidor.
-- **Sí:** solo las dos variables públicas (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`). Basta para conectar y la `anon` es pública por diseño; lo que protege los datos es RLS, que llegará con las tablas. (Respuesta del curso.)
+- **Sí:** solo las dos variables públicas (`NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`). Basta para conectar y la `anon` es pública por diseño; lo que protege los datos es RLS, que llegará con las tablas. (Respuesta del curso.)
 - **No:** `SUPABASE_SERVICE_ROLE_KEY`, ni siquiera como placeholder. El curso la proponía vacía para no editar la plantilla en specs futuros; aquí se descarta porque salta RLS y ninguna spec próxima la necesita todavía. Si un spec la necesita, la añade él.
 - **Sí:** el archivo de plantilla es `.env.example`, no `.env.template` (nombre que usa el curso), para seguir la convención ya establecida en el spec 03 y en `.gitignore`.
-- **Sí:** el nombre `ANON_KEY` del curso. Supabase ahora llama también "publishable key" a la clave pública nueva; ambas funcionan en estos clientes, y el usuario pone en `NEXT_PUBLIC_SUPABASE_ANON_KEY` la que muestre su panel. Renombrar la variable no aporta nada hoy.
+- **Sí:** el nombre `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, no el `ANON_KEY` del curso. _(Cambio posterior a la aprobación, pedido por el usuario al implementar: su `.env` ya define esa variable, y Supabase llama "publishable key" a la clave pública nueva.)_ Ambas claves (`anon` heredada y `publishable`) funcionan en estos clientes, y el usuario pone en la variable la que muestre su panel.
 - **Sí:** error claro al llamar, no al importar. Así el build no depende de variables secretas, igual que con Resend.
 - **Sí:** verificación puntual con código temporal que se borra. Comprueba la conexión real sin añadir superficie pública ni ampliar el alcance. *(Decisión tomada al escribir el spec: la pregunta de verificación quedó sin responder. Si prefieres una ruta de salud permanente, es un cambio de esta sección.)*
 - **No:** ruta permanente `/api/supabase`. Sería un endpoint más que mantener y que cualquiera podría llamar.
