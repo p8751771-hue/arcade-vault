@@ -8,7 +8,34 @@ const FLAME = "#2f3b34"; // crt-line: llama del propulsor
 const SCREEN = "#6e8677"; // crt-well: igual que la pantalla de la cabina
 
 // Un lienzo no lee variables CSS, por eso van aquí como constantes.
-const STROKE = { ship: 2, flame: 2, large: 3, medium: 2, small: 1.5 } as const;
+const STROKE = {
+  ship: 2,
+  flame: 2,
+  large: 3,
+  medium: 2,
+  small: 1.5,
+  lifeIcon: 1.5,
+} as const;
+
+// HUD del propio juego, dentro del canvas. Convive con el HUD de React.
+const HUD = {
+  margin: 12,
+  textY: 22,
+  fontPx: 12,
+  iconY: 44,
+  iconStep: 18,
+  iconScale: 0.6,
+};
+
+// Contorno de la nave apuntando a +x, escalado por `k` (así el trazo no cambia).
+function traceShip(ctx: CanvasRenderingContext2D, k = 1) {
+  ctx.beginPath();
+  ctx.moveTo(14 * k, 0);
+  ctx.lineTo(-10 * k, -9 * k);
+  ctx.lineTo(-6 * k, 0);
+  ctx.lineTo(-10 * k, 9 * k);
+  ctx.closePath();
+}
 
 const TAU = 6.2832;
 const LARGE_R = 40;
@@ -199,12 +226,7 @@ export const asteroides: GameFactory = (g) => {
         ctx.rotate(ship.a);
         ctx.lineWidth = STROKE.ship;
         ctx.strokeStyle = INK;
-        ctx.beginPath();
-        ctx.moveTo(14, 0);
-        ctx.lineTo(-10, -9);
-        ctx.lineTo(-6, 0);
-        ctx.lineTo(-10, 9);
-        ctx.closePath();
+        traceShip(ctx);
         ctx.stroke();
         if (g.keys.ArrowUp) {
           ctx.lineWidth = STROKE.flame;
@@ -220,6 +242,25 @@ export const asteroides: GameFactory = (g) => {
 
       ctx.fillStyle = INK;
       for (const b of bullets) ctx.fillRect(b.x - 2, b.y - 2, 4, 4);
+
+      // HUD del juego: puntuación y nivel arriba, una nave por vida restante.
+      ctx.fillStyle = INK;
+      ctx.font = `${HUD.fontPx}px ${g.font}`;
+      ctx.textBaseline = "alphabetic";
+      ctx.textAlign = "left";
+      ctx.fillText(score.toLocaleString("de-DE"), HUD.margin, HUD.textY);
+      ctx.textAlign = "right";
+      ctx.fillText(`NIVEL ${level}`, W - HUD.margin, HUD.textY);
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = STROKE.lifeIcon;
+      for (let i = 0; i < lives; i++) {
+        ctx.save();
+        ctx.translate(HUD.margin + 8 + i * HUD.iconStep, HUD.iconY);
+        ctx.rotate(-Math.PI / 2); // la nave mira hacia arriba
+        traceShip(ctx, HUD.iconScale);
+        ctx.stroke();
+        ctx.restore();
+      }
     },
   };
 };
