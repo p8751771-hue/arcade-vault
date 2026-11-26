@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "@/components/session-provider";
+import { useFullscreen } from "@/components/use-fullscreen";
 import { ARCADE_GAMES } from "@/lib/arcade";
 import { startGame, type RunningGame } from "@/lib/arcade/engine";
 import { submitScore } from "@/lib/api";
@@ -83,6 +84,22 @@ export function PlayScreen({ game }: { game: Game }) {
   const { user } = useSession();
   const player = user?.name ?? "INVITADO";
 
+  // Spec 08: el elemento en pantalla completa es todo el <main> (así el modal de
+  // fin se sigue viendo), pero dentro solo se muestra el canvas: sin marco, sin
+  // HUD de React, sin botones ni botonera. Queda el HUD que dibuja el propio juego.
+  const {
+    ref: mainRef,
+    supported: canFullscreen,
+    active: fullscreen,
+    toggle: toggleFullscreen,
+  } = useFullscreen<HTMLElement>();
+
+  // En ventana: ancho común del HUD, la cabina y la botonera (spec 07). 170 px =
+  // HUD + márgenes + pie de la cabina, para que no haya scroll vertical.
+  const columnWidth = "w-[min(100%,860px,calc(100svh_-_170px))]";
+  // En pantalla completa: el cuadrado más grande que quepa (no se deforma).
+  const fullscreenSide = "w-[min(100vw,100svh)]";
+
   const [phase, setPhase] = useState<PlayPhase>("loading");
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [typed, setTyped] = useState("");
@@ -146,13 +163,13 @@ export function PlayScreen({ game }: { game: Game }) {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.code !== "KeyP" || e.repeat || e.ctrlKey || e.metaKey || e.altKey)
-        return;
-      togglePause();
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.code === "KeyP") togglePause();
+      else if (e.code === "KeyF") toggleFullscreen();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [togglePause]);
+  }, [togglePause, toggleFullscreen]);
 
   // Solo para los placeholders: un juego real termina por sí mismo.
   const simulateEnd = () => {
@@ -189,64 +206,101 @@ export function PlayScreen({ game }: { game: Game }) {
   };
 
   return (
-    <main className="animate-fade-slide relative z-[1] flex min-h-screen flex-col items-center gap-4 px-3.5 pt-3.5 pb-7">
-      {/* HUD */}
-      <div className="flex w-[min(100%,860px,calc(100svh_-_170px))] flex-wrap items-stretch justify-between gap-2.5">
-        <div className="flex min-w-0 flex-1 flex-wrap gap-2.5">
-          <HudBox
-            label="PUNTUACIÓN"
-            value={formatScore(hud.score)}
-            className="flex-[2_1_120px]"
-          />
-          <HudBox
-            label="VIDAS"
-            value={String(hud.lives)}
-            className="flex-[1_1_60px]"
-          />
-          <HudBox
-            label="NIVEL"
-            value={String(hud.level)}
-            className="flex-[1_1_60px]"
-          />
-          <div className="min-w-0 flex-[2_1_110px] border-2 border-crt-line bg-crt-surface px-3 py-[9px]">
-            <div className="mb-2 font-pixel text-[7px] text-crt-ink-2">
-              JUGADOR
-            </div>
-            <div className="truncate text-base font-bold text-crt-ink">
-              {player}
+    <main
+      ref={mainRef}
+      className={`animate-fade-slide relative z-[1] flex flex-col items-center ${
+        // Fuera de pantalla completa el fondo lo pone la página; dentro, el
+        // navegador solo dibuja este elemento y sería negro.
+        fullscreen
+          ? "h-screen justify-center bg-crt-bg"
+          : "min-h-screen gap-4 px-3.5 pt-3.5 pb-7"
+      }`}
+    >
+      {/* HUD de React: no se muestra en pantalla completa */}
+      {!fullscreen && (
+        <div
+          className={`flex ${columnWidth} flex-wrap items-stretch justify-between gap-2.5`}
+        >
+          <div className="flex min-w-0 flex-1 flex-wrap gap-2.5">
+            <HudBox
+              label="PUNTUACIÓN"
+              value={formatScore(hud.score)}
+              className="flex-[2_1_120px]"
+            />
+            <HudBox
+              label="VIDAS"
+              value={String(hud.lives)}
+              className="flex-[1_1_60px]"
+            />
+            <HudBox
+              label="NIVEL"
+              value={String(hud.level)}
+              className="flex-[1_1_60px]"
+            />
+            <div className="min-w-0 flex-[2_1_110px] border-2 border-crt-line bg-crt-surface px-3 py-[9px]">
+              <div className="mb-2 font-pixel text-[7px] text-crt-ink-2">
+                JUGADOR
+              </div>
+              <div className="truncate text-base font-bold text-crt-ink">
+                {player}
+              </div>
             </div>
           </div>
+          <div className="flex flex-wrap gap-2.5">
+            {canFullscreen && (
+              <button
+                type="button"
+                onClick={toggleFullscreen}
+                aria-keyshortcuts="F"
+                className="cursor-pointer border-2 border-crt-ink bg-transparent px-3.5 py-2.5 font-pixel text-[10px] text-crt-ink hover:bg-crt-ink hover:text-crt-invert active:scale-[0.92]"
+              >
+                PANTALLA COMPLETA
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={togglePause}
+              className="cursor-pointer border-2 border-crt-ink bg-transparent px-3.5 font-pixel text-[10px] text-crt-ink hover:bg-crt-ink hover:text-crt-invert active:scale-[0.92]"
+            >
+              {phase === "paused" ? "REANUDAR" : "PAUSA"}
+            </button>
+            <Link
+              href={`/juegos/${game.id}`}
+              className="flex cursor-pointer items-center border-2 border-crt-ink bg-transparent px-3.5 font-pixel text-[10px] text-crt-ink no-underline hover:bg-crt-ink hover:text-crt-invert active:scale-[0.92]"
+            >
+              SALIR
+            </Link>
+          </div>
         </div>
-        <div className="flex gap-2.5">
-          <button
-            type="button"
-            onClick={togglePause}
-            className="cursor-pointer border-2 border-crt-ink bg-transparent px-3.5 font-pixel text-[10px] text-crt-ink hover:bg-crt-ink hover:text-crt-invert active:scale-[0.92]"
-          >
-            {phase === "paused" ? "REANUDAR" : "PAUSA"}
-          </button>
-          <Link
-            href={`/juegos/${game.id}`}
-            className="flex cursor-pointer items-center border-2 border-crt-ink bg-transparent px-3.5 font-pixel text-[10px] text-crt-ink no-underline hover:bg-crt-ink hover:text-crt-invert active:scale-[0.92]"
-          >
-            SALIR
-          </Link>
-        </div>
-      </div>
+      )}
 
-      {/* Marco de la máquina */}
+      {/* Marco de la máquina (en pantalla completa: solo el canvas, sin marco) */}
       <div
-        className="w-[min(100%,860px,calc(100svh_-_170px))] rounded-[38px] p-[clamp(10px,3.2vw,24px)]"
-        style={{
-          // Spec 04: marco del televisor en la paleta; solo sombras negras.
-          background: "var(--color-crt-surface)",
-          boxShadow:
-            "0 0 0 2px rgb(0 0 0 / 0.65), 0 30px 60px rgb(0 0 0 / 0.35), inset 0 -6px 14px rgb(0 0 0 / 0.2)",
-        }}
+        className={
+          fullscreen
+            ? fullscreenSide
+            : `${columnWidth} rounded-[38px] p-[clamp(10px,3.2vw,24px)]`
+        }
+        style={
+          fullscreen
+            ? undefined
+            : {
+                // Spec 04: marco del televisor en la paleta; solo sombras negras.
+                background: "var(--color-crt-surface)",
+                boxShadow:
+                  "0 0 0 2px rgb(0 0 0 / 0.65), 0 30px 60px rgb(0 0 0 / 0.35), inset 0 -6px 14px rgb(0 0 0 / 0.2)",
+              }
+        }
       >
         <div
-          className="relative aspect-square overflow-hidden rounded-[26px/22px] bg-crt-well"
-          style={{ boxShadow: "inset 0 0 0 3px rgb(0 0 0 / 0.65)" }}
+          className={`relative aspect-square overflow-hidden bg-crt-well ${
+            fullscreen ? "" : "rounded-[26px/22px]"
+          }`}
+          style={
+            fullscreen
+              ? undefined
+              : { boxShadow: "inset 0 0 0 3px rgb(0 0 0 / 0.65)" }
+          }
         >
           {factory ? (
             // Juego real: 480×480 lógicos, el CSS lo escala a la pantalla.
@@ -268,24 +322,28 @@ export function PlayScreen({ game }: { game: Game }) {
               </div>
             </div>
           )}
-          {/* Viñeta y scanlines de la pantalla */}
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "radial-gradient(ellipse at 50% 50%, transparent 55%, rgb(0 0 0 / 0.25) 100%)",
-              boxShadow: "inset 0 0 60px rgb(0 0 0 / 0.3)",
-            }}
-          />
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0"
-            style={{
-              background:
-                "repeating-linear-gradient(to bottom, rgb(0 0 0 / 0) 0, rgb(0 0 0 / 0) 2px, rgb(0 0 0 / 0.08) 3px)",
-            }}
-          />
+          {/* Viñeta y scanlines de la pantalla (no en pantalla completa) */}
+          {!fullscreen && (
+            <>
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "radial-gradient(ellipse at 50% 50%, transparent 55%, rgb(0 0 0 / 0.25) 100%)",
+                  boxShadow: "inset 0 0 60px rgb(0 0 0 / 0.3)",
+                }}
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background:
+                    "repeating-linear-gradient(to bottom, rgb(0 0 0 / 0) 0, rgb(0 0 0 / 0) 2px, rgb(0 0 0 / 0.08) 3px)",
+                }}
+              />
+            </>
+          )}
           {phase === "loading" && (
             <div
               role="status"
@@ -312,22 +370,53 @@ export function PlayScreen({ game }: { game: Game }) {
             >
               <div className="font-pixel text-[26px] text-crt-ink">PAUSA</div>
               <div className="text-[15px] text-crt-ink-2">
-                Pulsa REANUDAR o la tecla P
+                {/* En pantalla completa no se ve el botón REANUDAR */}
+                {fullscreen
+                  ? "Pulsa P para reanudar"
+                  : "Pulsa REANUDAR o la tecla P"}
               </div>
             </div>
           )}
+          {fullscreen && (
+            // Salir de pantalla completa. Abajo a la derecha: arriba el canvas
+            // dibuja "NIVEL n". Semitransparente para no tapar el juego.
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              aria-label="Salir de pantalla completa"
+              className="absolute right-3 bottom-3 z-10 cursor-pointer border-2 border-crt-ink bg-crt-surface/70 px-3 py-2 font-pixel text-[10px] text-crt-ink opacity-70 hover:bg-crt-ink hover:text-crt-invert hover:opacity-100 focus-visible:opacity-100"
+            >
+              VENTANA
+            </button>
+          )}
         </div>
-        <div className="flex items-center justify-between px-2.5 pt-3">
-          <span className="font-pixel text-[8px] tracking-[2px] text-crt-ink-2">
-            ARCADE VAULT
-          </span>
-          <span className="h-2.5 w-2.5 rounded-full bg-crt-ink" />
-        </div>
+        {!fullscreen && (
+          <div className="flex items-center justify-between gap-2 px-2.5 pt-3">
+            <span className="font-pixel text-[8px] tracking-[2px] text-crt-ink-2">
+              ARCADE VAULT
+            </span>
+            <span className="flex items-center gap-3">
+              {canFullscreen && (
+                <button
+                  type="button"
+                  onClick={toggleFullscreen}
+                  aria-keyshortcuts="F"
+                  className="cursor-pointer border-2 border-crt-ink bg-transparent px-2.5 py-1.5 font-pixel text-[8px] text-crt-ink hover:bg-crt-ink hover:text-crt-invert active:scale-[0.92]"
+                >
+                  PANTALLA COMPLETA
+                </button>
+              )}
+              <span className="h-2.5 w-2.5 rounded-full bg-crt-ink" />
+            </span>
+          </div>
+        )}
       </div>
 
       {/* Botonera táctil: solo en móvil y oculta con el modal abierto */}
-      {phase !== "over" && (
-        <div className="flex w-[min(100%,860px,calc(100svh_-_170px))] touch-none gap-2 select-none min-[760px]:hidden">
+      {phase !== "over" && !fullscreen && (
+        <div
+          className={`flex ${columnWidth} touch-none gap-2 select-none min-[760px]:hidden`}
+        >
           {PAD_BUTTONS.map(({ label, flex }) => (
             <button
               key={label}
@@ -341,7 +430,7 @@ export function PlayScreen({ game }: { game: Game }) {
         </div>
       )}
 
-      {SHOW_SIMULATE_END && !factory && phase !== "over" && (
+      {SHOW_SIMULATE_END && !factory && !fullscreen && phase !== "over" && (
         <button
           type="button"
           onClick={simulateEnd}
