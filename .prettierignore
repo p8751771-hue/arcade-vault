@@ -1,0 +1,28 @@
+# Prettier ya ignora node_modules y lo que lista .gitignore (.next/, .env*,
+# next-env.d.ts, .mcp-evidencias/, .playwright-mcp/…). Aquí va solo lo que
+# está en git y no se formatea.
+
+# Referencias de diseño: fuente de verdad, se dejan tal cual
+references/
+
+# Skills instaladas (deben coincidir con los hashes de skills-lock.json);
+# .claude/skills/ son enlaces a ellas
+.agents/
+.claude/skills/
+
+# Archivos generados por herramientas
+package-lock.json
+skills-lock.json
+
+# Recursos estáticos
+public/
+
+# Specs aprobados: los escribe /spec y no se reformatean
+specs/
+ 
+# env
+.env
+.env.example
+
+# git
+.gitignore
