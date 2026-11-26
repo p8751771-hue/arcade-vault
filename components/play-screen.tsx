@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "@/components/session-provider";
+import { ARCADE_GAMES } from "@/lib/arcade";
+import { startGame, type RunningGame } from "@/lib/arcade/engine";
 import { submitScore } from "@/lib/api";
 import type { Game } from "@/lib/games";
 import { formatScore } from "@/lib/scores";
@@ -10,10 +12,9 @@ import { formatScore } from "@/lib/scores";
 type PlayPhase = "loading" | "running" | "paused" | "over";
 type SaveState = "idle" | "saving" | "typing" | "done";
 
-// Valores simulados de la cabina (sin juego real).
-const SCORE = 0;
-const LIVES = 3;
-const LEVEL = 1;
+// Marcadores al empezar una partida. Con un juego real los actualiza el propio
+// juego (Canvas → React); con un placeholder se quedan así.
+const INITIAL_HUD = { score: 0, lives: 3, level: 1 };
 
 const LOADING_MS = 1100;
 const SAVING_MS = 900;
@@ -23,6 +24,7 @@ const SAVED_MESSAGE = "PUNTUACIÓN GUARDADA";
 // El botón de depuración no debe llegar al usuario final.
 const SHOW_SIMULATE_END = process.env.NODE_ENV !== "production";
 
+// Botonera táctil: aún sin conectar a ningún juego (spec 07 la deja fuera).
 const PAD_BUTTONS = [
   { label: "<", flex: 1 },
   { label: "^", flex: 1 },
@@ -31,7 +33,13 @@ const PAD_BUTTONS = [
   { label: "ACCIÓN", flex: 2.4 },
 ] as const;
 
-function PixelSpinner({ rgb, className = "" }: { rgb: string; className?: string }) {
+function PixelSpinner({
+  rgb,
+  className = "",
+}: {
+  rgb: string;
+  className?: string;
+}) {
   const color = `rgb(${rgb})`;
   const tone = (a: number) => `rgb(${rgb} / ${a})`;
   return (
@@ -62,10 +70,10 @@ function HudBox({
   className?: string;
 }) {
   return (
-    <div className={`min-w-0 border-2 border-crt-ink bg-crt-surface px-3 py-[9px] ${className}`}>
-      <div className="mb-2 font-pixel text-[7px] text-crt-ink-2">
-        {label}
-      </div>
+    <div
+      className={`min-w-0 border-2 border-crt-ink bg-crt-surface px-3 py-[9px] ${className}`}
+    >
+      <div className="mb-2 font-pixel text-[7px] text-crt-ink-2">{label}</div>
       <div className="font-pixel text-sm text-crt-ink">{value}</div>
     </div>
   );
@@ -80,7 +88,12 @@ export function PlayScreen({ game }: { game: Game }) {
   const [typed, setTyped] = useState("");
   const saveTimers = useRef<{ save?: number; type?: number }>({});
 
-  const finalScore = game.baseScore / 2;
+  // Juego real (canvas) o placeholder: lo decide el registro, no este componente.
+  const factory = ARCADE_GAMES[game.id];
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const runningRef = useRef<RunningGame | null>(null);
+  const [hud, setHud] = useState(INITIAL_HUD);
+  const [finalScore, setFinalScore] = useState(0);
 
   const clearSaveTimers = useCallback(() => {
     window.clearTimeout(saveTimers.current.save);
@@ -97,22 +110,54 @@ export function PlayScreen({ game }: { game: Game }) {
 
   useEffect(() => clearSaveTimers, [clearSaveTimers]);
 
+  // Canvas → React: el juego vive dentro del canvas y avisa de sus cambios. Se
+  // arranca al terminar la carga y se destruye al reiniciar o al salir.
+  const loaded = phase !== "loading";
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!loaded || !factory || !canvas) return;
+    const running = startGame(factory, canvas, {
+      score: (value) => setHud((h) => ({ ...h, score: value })),
+      lives: (value) => setHud((h) => ({ ...h, lives: value })),
+      level: (value) => setHud((h) => ({ ...h, level: value })),
+      over: (value) => {
+        setFinalScore(value);
+        setPhase("over");
+      },
+    });
+    runningRef.current = running;
+    return () => {
+      running.destroy();
+      runningRef.current = null;
+    };
+  }, [loaded, factory]);
+
+  // React → Canvas: la pausa es de la aplicación; el juego no tiene control propio.
+  useEffect(() => {
+    runningRef.current?.setPaused(phase === "paused");
+  }, [phase]);
+
   // Pausa solo desde "running" / "paused": ignora la carga y el modal de fin.
   const togglePause = useCallback(() => {
-    setPhase((p) => (p === "running" ? "paused" : p === "paused" ? "running" : p));
+    setPhase((p) =>
+      p === "running" ? "paused" : p === "paused" ? "running" : p,
+    );
   }, []);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.code !== "KeyP" || e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.code !== "KeyP" || e.repeat || e.ctrlKey || e.metaKey || e.altKey)
+        return;
       togglePause();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [togglePause]);
 
+  // Solo para los placeholders: un juego real termina por sí mismo.
   const simulateEnd = () => {
     if (phase !== "running" && phase !== "paused") return;
+    setFinalScore(game.baseScore / 2);
     setPhase("over");
   };
 
@@ -120,6 +165,7 @@ export function PlayScreen({ game }: { game: Game }) {
     clearSaveTimers();
     setSaveState("idle");
     setTyped("");
+    setHud(INITIAL_HUD);
     setPhase("loading");
   };
 
@@ -147,12 +193,28 @@ export function PlayScreen({ game }: { game: Game }) {
       {/* HUD */}
       <div className="flex w-[min(100%,640px)] flex-wrap items-stretch justify-between gap-2.5">
         <div className="flex min-w-0 flex-1 flex-wrap gap-2.5">
-          <HudBox label="PUNTUACIÓN" value={String(SCORE)} className="flex-[2_1_120px]" />
-          <HudBox label="VIDAS" value={String(LIVES)} className="flex-[1_1_60px]" />
-          <HudBox label="NIVEL" value={String(LEVEL)} className="flex-[1_1_60px]" />
+          <HudBox
+            label="PUNTUACIÓN"
+            value={formatScore(hud.score)}
+            className="flex-[2_1_120px]"
+          />
+          <HudBox
+            label="VIDAS"
+            value={String(hud.lives)}
+            className="flex-[1_1_60px]"
+          />
+          <HudBox
+            label="NIVEL"
+            value={String(hud.level)}
+            className="flex-[1_1_60px]"
+          />
           <div className="min-w-0 flex-[2_1_110px] border-2 border-crt-line bg-crt-surface px-3 py-[9px]">
-            <div className="mb-2 font-pixel text-[7px] text-crt-ink-2">JUGADOR</div>
-            <div className="truncate text-base font-bold text-crt-ink">{player}</div>
+            <div className="mb-2 font-pixel text-[7px] text-crt-ink-2">
+              JUGADOR
+            </div>
+            <div className="truncate text-base font-bold text-crt-ink">
+              {player}
+            </div>
           </div>
         </div>
         <div className="flex gap-2.5">
@@ -186,15 +248,26 @@ export function PlayScreen({ game }: { game: Game }) {
           className="relative aspect-square overflow-hidden rounded-[26px/22px] bg-crt-well"
           style={{ boxShadow: "inset 0 0 0 3px rgb(0 0 0 / 0.65)" }}
         >
-          {/* Pantalla placeholder: aún no hay juego */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-crt-well px-6 text-center">
-            <div className="font-pixel text-[clamp(14px,4vw,24px)] leading-[1.4] text-crt-ink">
-              {game.title}
+          {factory ? (
+            // Juego real: 480×480 lógicos, el CSS lo escala a la pantalla.
+            <canvas
+              ref={canvasRef}
+              width={480}
+              height={480}
+              aria-label={`Pantalla de ${game.title}`}
+              className="absolute inset-0 block h-full w-full touch-none"
+            />
+          ) : (
+            // Pantalla placeholder: aún no hay juego
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-crt-well px-6 text-center">
+              <div className="font-pixel text-[clamp(14px,4vw,24px)] leading-[1.4] text-crt-ink">
+                {game.title}
+              </div>
+              <div className="font-pixel text-[10px] leading-[1.8] text-crt-ink-2">
+                EL JUEGO AÚN NO ESTÁ DISPONIBLE
+              </div>
             </div>
-            <div className="font-pixel text-[10px] leading-[1.8] text-crt-ink-2">
-              EL JUEGO AÚN NO ESTÁ DISPONIBLE
-            </div>
-          </div>
+          )}
           {/* Viñeta y scanlines de la pantalla */}
           <div
             aria-hidden="true"
@@ -237,10 +310,10 @@ export function PlayScreen({ game }: { game: Game }) {
               role="status"
               className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-crt-well/90"
             >
-              <div className="font-pixel text-[26px] text-crt-ink">
-                PAUSA
+              <div className="font-pixel text-[26px] text-crt-ink">PAUSA</div>
+              <div className="text-[15px] text-crt-ink-2">
+                Pulsa REANUDAR o la tecla P
               </div>
-              <div className="text-[15px] text-crt-ink-2">Pulsa REANUDAR o la tecla P</div>
             </div>
           )}
         </div>
@@ -268,7 +341,7 @@ export function PlayScreen({ game }: { game: Game }) {
         </div>
       )}
 
-      {SHOW_SIMULATE_END && phase !== "over" && (
+      {SHOW_SIMULATE_END && !factory && phase !== "over" && (
         <button
           type="button"
           onClick={simulateEnd}
@@ -292,7 +365,9 @@ export function PlayScreen({ game }: { game: Game }) {
             >
               FIN DEL JUEGO
             </div>
-            <div className="font-pixel text-[9px] text-crt-ink-2">PUNTUACIÓN FINAL</div>
+            <div className="font-pixel text-[9px] text-crt-ink-2">
+              PUNTUACIÓN FINAL
+            </div>
             <div className="font-pixel text-[clamp(24px,7vw,36px)] text-crt-ink">
               {formatScore(finalScore)}
             </div>
@@ -317,7 +392,9 @@ export function PlayScreen({ game }: { game: Game }) {
             {saveState === "saving" && (
               <div role="status" className="flex h-[52px] items-center gap-3.5">
                 <PixelSpinner rgb="0 0 0" className="scale-[0.7]" />
-                <span className="font-pixel text-[10px] text-crt-ink">GUARDANDO...</span>
+                <span className="font-pixel text-[10px] text-crt-ink">
+                  GUARDANDO...
+                </span>
               </div>
             )}
             {(saveState === "typing" || saveState === "done") && (

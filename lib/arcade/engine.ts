@@ -6,8 +6,8 @@
 // Dos canales, siempre en el mismo sentido:
 //  - Canvas → React: el juego avisa con `GameHandlers` (puntuación, vidas, nivel
 //    y fin de partida). Se llaman solo cuando el valor cambia.
-//  - React → Canvas: la aplicación manda con `RunningGame` (pausa, botonera
-//    táctil y destrucción).
+//  - React → Canvas: la aplicación manda con `RunningGame` (pausa y
+//    destrucción).
 
 export type KeyCode =
   "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown" | "Space";
@@ -25,6 +25,8 @@ export interface GameContext {
   ctx: CanvasRenderingContext2D;
   W: number;
   H: number;
+  /** Familia tipográfica del sitio (Press Start 2P) para el HUD del canvas. */
+  font: string;
   /** Teclas mantenidas ahora mismo. */
   keys: Partial<Record<KeyCode, boolean>>;
   /** ¿Se pulsó `code` en este cuadro? (sin repetición al mantenerla) */
@@ -46,8 +48,6 @@ export type GameFactory = (g: GameContext) => ArcadeGame;
 // React → Canvas: lo que el componente recibe al arrancar y con lo que manda.
 export interface RunningGame {
   setPaused(paused: boolean): void;
-  /** Botonera táctil: equivale a pulsar / soltar la tecla. */
-  setKey(code: KeyCode, down: boolean): void;
   destroy(): void;
 }
 
@@ -151,6 +151,10 @@ export function startGame(
     ctx,
     W: canvas.width,
     H: canvas.height,
+    // next/font define la variable CSS en <html>; un canvas no la resuelve solo.
+    font:
+      getComputedStyle(canvas).getPropertyValue("--font-press-start").trim() ||
+      "monospace",
     keys,
     hit: (code) => pressed.includes(code),
     handlers: onChangeOnly(handlers),
@@ -175,10 +179,6 @@ export function startGame(
   return {
     setPaused(value) {
       paused = value;
-    },
-    setKey(code, down) {
-      if (down) press(code);
-      else release(code);
     },
     destroy() {
       dead = true;
