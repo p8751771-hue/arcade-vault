@@ -1,6 +1,6 @@
 # SPEC 06 — Conexión del proyecto a Supabase
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 03
 > **Fecha:** 2026-11-26
 > **Objetivo:** Conectar la aplicación Next.js a un proyecto de Supabase ya existente instalando `@supabase/supabase-js` y `@supabase/ssr`, definiendo las variables de entorno públicas y creando un cliente para el navegador (`lib/supabase/client.ts`) y otro para el servidor (`lib/supabase/server.ts`), sin cambiar nada visible.
@@ -89,17 +89,17 @@ Convenciones:
 
 ## Criterios de aceptación
 
-- [ ] `package.json` contiene `@supabase/supabase-js` y `@supabase/ssr` en `dependencies`, y `package-lock.json` está actualizado.
-- [ ] `.env.example` contiene `NEXT_PUBLIC_SUPABASE_URL=` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=` con valor vacío, y `git ls-files .env` no devuelve nada (el `.env` real sigue sin versionarse).
-- [ ] Existen `lib/supabase/client.ts` y `lib/supabase/server.ts`, cada uno exportando `createClient`.
-- [ ] `lib/supabase/client.ts` usa `createBrowserClient` y `lib/supabase/server.ts` usa `createServerClient` con `cookies()` de `next/headers`.
-- [ ] Ningún archivo del repositorio contiene una clave real de Supabase (la URL y la clave solo aparecen en `.env`).
-- [ ] Con las variables rellenas, un Route Handler temporal que llama a `createClient()` de `server.ts` y a `supabase.auth.getSession()` responde sin error, y el cliente de navegador hace lo mismo sin error en la consola.
-- [ ] Con las variables vacías, `createClient()` lanza un `Error` que nombra la variable que falta, y `npm run build` termina sin errores.
-- [ ] Los códigos temporales de verificación están borrados: `git status` solo muestra los archivos de este spec (`package.json`, `package-lock.json`, `.env.example`, `lib/supabase/client.ts`, `lib/supabase/server.ts`, `CLAUDE.md`).
-- [ ] `npx tsc --noEmit`, `npm run lint` y `npm run build` terminan sin errores.
-- [ ] Ninguna pantalla cambia: `/`, `/biblioteca`, `/acceso`, `/acerca-de` y `/historia` se ven y se comportan como antes, y `POST /api/contact` sigue respondiendo igual.
-- [ ] `CLAUDE.md` describe `lib/supabase/`, las dos variables y la nueva numeración de specs.
+- [x] `package.json` contiene `@supabase/supabase-js` y `@supabase/ssr` en `dependencies`, y `package-lock.json` está actualizado.
+- [x] `.env.example` contiene `NEXT_PUBLIC_SUPABASE_URL=` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=` con valor vacío, y `git ls-files .env` no devuelve nada (el `.env` real sigue sin versionarse).
+- [x] Existen `lib/supabase/client.ts` y `lib/supabase/server.ts`, cada uno exportando `createClient`.
+- [x] `lib/supabase/client.ts` usa `createBrowserClient` y `lib/supabase/server.ts` usa `createServerClient` con `cookies()` de `next/headers`.
+- [x] Ningún archivo del repositorio contiene una clave real de Supabase (la URL y la clave solo aparecen en `.env`).
+- [x] Con las variables rellenas, un Route Handler temporal que llama a `createClient()` de `server.ts` y a `supabase.auth.getSession()` responde sin error, y el cliente de navegador hace lo mismo sin error en la consola.
+- [x] Con las variables vacías, `createClient()` lanza un `Error` que nombra la variable que falta, y `npm run build` termina sin errores.
+- [x] Los códigos temporales de verificación están borrados: `git status` solo muestra los archivos de este spec (`package.json`, `package-lock.json`, `.env.example`, `lib/supabase/client.ts`, `lib/supabase/server.ts`, `CLAUDE.md`).
+- [x] `npx tsc --noEmit`, `npm run lint` y `npm run build` terminan sin errores.
+- [x] Ninguna pantalla cambia: `/`, `/biblioteca`, `/acceso`, `/acerca-de` y `/historia` se ven y se comportan como antes, y `POST /api/contact` sigue respondiendo igual.
+- [x] `CLAUDE.md` describe `lib/supabase/`, las dos variables y la nueva numeración de specs.
 
 ---
 
