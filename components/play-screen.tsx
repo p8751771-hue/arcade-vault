@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "@/components/session-provider";
+import { useFullscreen } from "@/components/use-fullscreen";
 import { ARCADE_GAMES } from "@/lib/arcade";
 import { startGame, type RunningGame } from "@/lib/arcade/engine";
 import { submitScore } from "@/lib/api";
@@ -83,6 +84,15 @@ export function PlayScreen({ game }: { game: Game }) {
   const { user } = useSession();
   const player = user?.name ?? "INVITADO";
 
+  // Spec 08: se pone en pantalla completa todo el <main> (HUD, cabina, botones
+  // y modal de fin), no solo el canvas.
+  const {
+    ref: mainRef,
+    supported: canFullscreen,
+    active: fullscreen,
+    toggle: toggleFullscreen,
+  } = useFullscreen<HTMLElement>();
+
   const [phase, setPhase] = useState<PlayPhase>("loading");
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [typed, setTyped] = useState("");
@@ -146,13 +156,13 @@ export function PlayScreen({ game }: { game: Game }) {
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      if (e.code !== "KeyP" || e.repeat || e.ctrlKey || e.metaKey || e.altKey)
-        return;
-      togglePause();
+      if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      if (e.code === "KeyP") togglePause();
+      else if (e.code === "KeyF") toggleFullscreen();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [togglePause]);
+  }, [togglePause, toggleFullscreen]);
 
   // Solo para los placeholders: un juego real termina por sí mismo.
   const simulateEnd = () => {
@@ -189,7 +199,10 @@ export function PlayScreen({ game }: { game: Game }) {
   };
 
   return (
-    <main className="animate-fade-slide relative z-[1] flex min-h-screen flex-col items-center gap-4 px-3.5 pt-3.5 pb-7">
+    <main
+      ref={mainRef}
+      className="animate-fade-slide relative z-[1] flex min-h-screen flex-col items-center gap-4 px-3.5 pt-3.5 pb-7"
+    >
       {/* HUD */}
       <div className="flex w-[min(100%,860px,calc(100svh_-_170px))] flex-wrap items-stretch justify-between gap-2.5">
         <div className="flex min-w-0 flex-1 flex-wrap gap-2.5">
@@ -217,7 +230,17 @@ export function PlayScreen({ game }: { game: Game }) {
             </div>
           </div>
         </div>
-        <div className="flex gap-2.5">
+        <div className="flex flex-wrap gap-2.5">
+          {canFullscreen && (
+            <button
+              type="button"
+              onClick={toggleFullscreen}
+              aria-keyshortcuts="F"
+              className="cursor-pointer border-2 border-crt-ink bg-transparent px-3.5 py-2.5 font-pixel text-[10px] text-crt-ink hover:bg-crt-ink hover:text-crt-invert active:scale-[0.92]"
+            >
+              {fullscreen ? "VENTANA" : "PANTALLA COMPLETA"}
+            </button>
+          )}
           <button
             type="button"
             onClick={togglePause}
