@@ -1,10 +1,5 @@
 export type GameId =
-  | "arkanoid"
-  | "tetris"
-  | "snake"
-  | "pacman"
-  | "invaders"
-  | "asteroids";
+  "arkanoid" | "tetris" | "snake" | "pacman" | "invaders" | "asteroides";
 
 export type Category = "ARCADE" | "PUZLE" | "DISPAROS" | "LABERINTO";
 
@@ -28,7 +23,8 @@ export const GAMES: readonly Game[] = [
     color: "#00f5ff",
     rgb: "0,245,255",
     baseScore: 12000,
-    description: "Rompe todos los ladrillos con tu pala sin dejar caer la bola.",
+    description:
+      "Rompe todos los ladrillos con tu pala sin dejar caer la bola.",
     longDescription:
       "Controla la pala y haz rebotar la bola de energía para destruir el muro de ladrillos neón. Cada nivel acelera la bola un poco más. Apunta con el borde de la pala para cambiar el ángulo de rebote.",
     controls:
@@ -44,7 +40,8 @@ export const GAMES: readonly Game[] = [
     description: "Encaja las piezas y completa líneas antes de llegar arriba.",
     longDescription:
       "Las piezas caen sin parar: gíralas, muévelas y encájalas para completar líneas. Cuantas más líneas elimines a la vez, más puntos consigues. Cada diez líneas la caída se acelera.",
-    controls: "← →: mover · ↑: girar · ↓: bajar rápido · ESPACIO: caída instantánea",
+    controls:
+      "← →: mover · ↑: girar · ↓: bajar rápido · ESPACIO: caída instantánea",
   },
   {
     id: "snake",
@@ -83,8 +80,8 @@ export const GAMES: readonly Game[] = [
     controls: "← → o A D: mover · ESPACIO: disparar",
   },
   {
-    id: "asteroids",
-    title: "ASTEROIDS",
+    id: "asteroides",
+    title: "ASTEROIDES",
     category: "DISPAROS",
     color: "#00f5ff",
     rgb: "0,245,255",
