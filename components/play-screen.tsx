@@ -16,10 +16,16 @@ import {
 import { submitScore } from "@/lib/api";
 import type { Game } from "@/lib/games";
 import type { MagnetState } from "@/lib/magnet";
+import {
+  PLAYER_NAME_MAX,
+  normalizePlayerName,
+  readPlayerName,
+  savePlayerName,
+} from "@/lib/player-name";
 import { formatScore } from "@/lib/scores";
 
 type PlayPhase = "loading" | "running" | "paused" | "over";
-type SaveState = "idle" | "saving" | "typing" | "done";
+type SaveState = "idle" | "saving" | "typing" | "done" | "error";
 
 // Marcadores al empezar una partida. Con un juego real los actualiza el propio
 // juego (Canvas → React); con un placeholder se quedan así.
@@ -38,7 +44,6 @@ function currentAspect(): number {
 }
 
 const LOADING_MS = 1100;
-const SAVING_MS = 900;
 const TYPING_MS = 70;
 const SAVED_MESSAGE = "PUNTUACIÓN GUARDADA";
 
@@ -131,7 +136,14 @@ export function PlayScreen({ game }: { game: Game }) {
   const [phase, setPhase] = useState<PlayPhase>("loading");
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [typed, setTyped] = useState("");
-  const saveTimers = useRef<{ save?: number; type?: number }>({});
+  const saveTimers = useRef<{ type?: number }>({});
+  // Spec 11: el nombre que se escribe en el modal (`null` = aún no tocado, se
+  // rellena con el recordado), y dos guardas contra guardar dos veces: `saving`
+  // (un guardado en curso) y `saveRun` (descarta la respuesta de uno anterior si
+  // se reinició la partida mientras tanto).
+  const [nameInput, setNameInput] = useState<string | null>(null);
+  const saving = useRef(false);
+  const saveRun = useRef(0);
 
   // Juego real (canvas) o placeholder: lo decide el registro, no este componente.
   const factory = ARCADE_GAMES[game.id];
@@ -149,7 +161,6 @@ export function PlayScreen({ game }: { game: Game }) {
   const closeMagnet = useCallback(() => setMagnet("idle"), []);
 
   const clearSaveTimers = useCallback(() => {
-    window.clearTimeout(saveTimers.current.save);
     window.clearInterval(saveTimers.current.type);
     saveTimers.current = {};
   }, []);
@@ -219,6 +230,15 @@ export function PlayScreen({ game }: { game: Game }) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
+      // Spec 11: escribir el nombre en el modal no debe pausar ni cambiar de pantalla.
+      const target = e.target;
+      if (
+        target instanceof HTMLElement &&
+        (target.isContentEditable ||
+          target.tagName === "INPUT" ||
+          target.tagName === "TEXTAREA")
+      )
+        return;
       // Con el diálogo del imán abierto la tecla P no cambia el estado de pausa.
       if (e.code === "KeyP") {
         if (magnet !== "dialog") togglePause();
@@ -237,30 +257,55 @@ export function PlayScreen({ game }: { game: Game }) {
 
   const restart = () => {
     clearSaveTimers();
+    saveRun.current += 1; // descarta un guardado en curso
+    saving.current = false;
     setSaveState("idle");
+    setNameInput(null); // la próxima vez vuelve a rellenarse con el nombre recordado
     setTyped("");
     setHud(INITIAL_HUD);
     setMagnet("idle");
     setPhase("loading");
   };
 
-  const save = () => {
-    if (saveState !== "idle") return;
+  // Nombre del modal: lo escrito, o el último recordado, o el de la sesión simulada.
+  // Solo se lee mientras el modal está abierto (nunca en el servidor).
+  const playerName =
+    nameInput ??
+    (phase === "over" ? (readPlayerName() ?? user?.name ?? "") : "");
+
+  const save = async () => {
+    const name = playerName.trim();
+    if (!name || saving.current) return;
+    if (saveState !== "idle" && saveState !== "error") return;
+    saving.current = true;
+    const run = ++saveRun.current;
     setSaveState("saving");
-    saveTimers.current.save = window.setTimeout(async () => {
-      await submitScore(game.id, player, finalScore);
-      setTyped("");
-      setSaveState("typing");
-      let n = 0;
-      saveTimers.current.type = window.setInterval(() => {
-        n += 1;
-        setTyped(SAVED_MESSAGE.slice(0, n));
-        if (n >= SAVED_MESSAGE.length) {
-          window.clearInterval(saveTimers.current.type);
-          setSaveState("done");
-        }
-      }, TYPING_MS);
-    }, SAVING_MS);
+    try {
+      // Solo un juego con motor guarda en la base: el fin simulado de un
+      // placeholder no escribe nada en `scores`.
+      if (factory) await submitScore(game.id, name, finalScore);
+    } catch (error) {
+      console.error("[jugar] no se pudo guardar la puntuación", error);
+      if (run === saveRun.current) {
+        saving.current = false;
+        setSaveState("error");
+      }
+      return;
+    }
+    if (run !== saveRun.current) return; // se reinició la partida mientras guardaba
+    saving.current = false;
+    savePlayerName(name);
+    setTyped("");
+    setSaveState("typing");
+    let n = 0;
+    saveTimers.current.type = window.setInterval(() => {
+      n += 1;
+      setTyped(SAVED_MESSAGE.slice(0, n));
+      if (n >= SAVED_MESSAGE.length) {
+        window.clearInterval(saveTimers.current.type);
+        setSaveState("done");
+      }
+    }, TYPING_MS);
   };
 
   return (
@@ -531,22 +576,52 @@ export function PlayScreen({ game }: { game: Game }) {
               {formatScore(finalScore)}
             </div>
 
-            {saveState === "idle" && (
-              <div className="flex w-full flex-col gap-2.5">
+            {(saveState === "idle" || saveState === "error") && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  void save();
+                }}
+                className="flex w-full flex-col gap-2.5"
+              >
+                <label className="flex flex-col gap-2 text-left">
+                  <span className="font-pixel text-[9px] text-crt-ink-2">
+                    TU NOMBRE
+                  </span>
+                  <input
+                    type="text"
+                    autoFocus
+                    autoComplete="off"
+                    spellCheck={false}
+                    maxLength={PLAYER_NAME_MAX}
+                    value={playerName}
+                    onChange={(e) =>
+                      setNameInput(normalizePlayerName(e.target.value))
+                    }
+                    placeholder="ESCRIBE TU NOMBRE"
+                    className="input-crt w-full uppercase"
+                  />
+                </label>
+                {saveState === "error" && (
+                  <div
+                    role="alert"
+                    className="border-2 border-crt-err bg-crt-surface px-3 py-2.5 text-left text-sm text-crt-ink"
+                  >
+                    No se pudo guardar la puntuación. Revisa tu conexión e
+                    inténtalo de nuevo.
+                  </div>
+                )}
                 <button
-                  type="button"
-                  autoFocus
-                  onClick={save}
-                  className="btn-crt-solid p-[15px] text-[11px]"
+                  type="submit"
+                  disabled={!playerName.trim()}
+                  className="btn-crt-solid p-[15px] text-[11px] disabled:pointer-events-none disabled:opacity-50"
                 >
-                  GUARDAR PUNTUACIÓN
+                  {saveState === "error" ? "REINTENTAR" : "GUARDAR PUNTUACIÓN"}
                 </button>
                 <span className="text-sm text-crt-ink-2">
-                  {user
-                    ? "Se enviará a tu cuenta (conexión con el servidor)."
-                    : "Modo invitado: se guardará solo en este dispositivo."}
+                  Tu nombre aparecerá en el Salón de la Fama.
                 </span>
-              </div>
+              </form>
             )}
             {saveState === "saving" && (
               <div role="status" className="flex h-[52px] items-center gap-3.5">
