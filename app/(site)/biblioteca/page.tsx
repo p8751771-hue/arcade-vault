@@ -1,6 +1,10 @@
-import { GameLibrary } from "@/components/game-library";
-import { GAMES } from "@/lib/games";
-import { formatScore, getLeaderboard } from "@/lib/scores";
+import { unstable_rethrow } from "next/navigation";
+import { Suspense } from "react";
+import { Loading, LoadError } from "@/components/data-states";
+import { GameLibrary, type LibraryEntry } from "@/components/game-library";
+import { getGames } from "@/lib/games-data";
+import { formatScore } from "@/lib/scores";
+import { getBestScore } from "@/lib/scores-data";
 
 export default function LibraryPage() {
   return (
@@ -18,12 +22,29 @@ export default function LibraryPage() {
         </div>
       </div>
 
-      <GameLibrary
-        entries={GAMES.map((game) => ({
-          game,
-          best: formatScore(getLeaderboard(game.id)[0].score),
-        }))}
-      />
+      {/* Spec 11: los juegos y sus mejores puntuaciones salen de Supabase. */}
+      <Suspense fallback={<Loading />}>
+        <Library />
+      </Suspense>
     </main>
   );
+}
+
+async function Library() {
+  let entries: LibraryEntry[];
+  try {
+    const games = await getGames();
+    entries = await Promise.all(
+      games.map(async (game) => {
+        const best = await getBestScore(game.id);
+        return { game, best: best === null ? "—" : formatScore(best) };
+      }),
+    );
+  } catch (error) {
+    unstable_rethrow(error); // errores internos de Next (prerender): no son un fallo de datos
+    console.error("[biblioteca] no se pudieron leer los juegos", error);
+    return <LoadError what="los juegos" />;
+  }
+
+  return <GameLibrary entries={entries} />;
 }
