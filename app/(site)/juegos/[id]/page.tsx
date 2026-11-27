@@ -108,9 +108,9 @@ async function Ranking({ gameId }: { gameId: string }) {
   } catch (error) {
     unstable_rethrow(error);
     console.error("[juegos/[id]] no se pudo leer el ranking", error);
-    return <LoadError what="el ranking" className="border-0 px-0" />;
+    return <LoadError what="el ranking" bare />;
   }
-  if (rows.length === 0) return <EmptyRanking className="border-0 px-0" />;
+  if (rows.length === 0) return <EmptyRanking bare />;
 
   return (
     <ol className="m-0 flex list-none flex-col gap-1.5 p-0">

@@ -18,14 +18,18 @@ export function Loading({ className = "" }: { className?: string }) {
 export function LoadError({
   what,
   className = "",
+  bare = false,
 }: {
   what: string; // "los juegos", "el ranking"…
   className?: string;
+  bare?: boolean; // sin marco propio: dentro de otro panel
 }) {
   return (
     <div
       role="alert"
-      className={`flex flex-col items-center gap-2.5 border-2 border-crt-line bg-crt-surface px-5 py-8 text-center ${className}`}
+      className={`flex flex-col items-center gap-2.5 px-5 py-8 text-center ${
+        bare ? "" : "border-2 border-crt-line bg-crt-surface"
+      } ${className}`}
     >
       <span className="font-pixel text-[11px] leading-[1.6] text-crt-ink">
         NO SE PUDO CARGAR
@@ -38,11 +42,19 @@ export function LoadError({
 }
 
 /** Ranking sin ninguna puntuación todavía. */
-export function EmptyRanking({ className = "" }: { className?: string }) {
+export function EmptyRanking({
+  className = "",
+  bare = false,
+}: {
+  className?: string;
+  bare?: boolean; // sin marco propio: dentro de otro panel
+}) {
   return (
     <div
       role="status"
-      className={`flex flex-col items-center gap-2.5 border-2 border-crt-line bg-crt-surface px-5 py-8 text-center ${className}`}
+      className={`flex flex-col items-center gap-2.5 px-5 py-8 text-center ${
+        bare ? "" : "border-2 border-crt-line bg-crt-surface"
+      } ${className}`}
     >
       <span className="font-pixel text-[11px] leading-[1.6] text-crt-ink">
         SÉ EL PRIMERO EN ENTRAR AL SALÓN DE LA FAMA
