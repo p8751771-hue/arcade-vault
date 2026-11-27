@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, unstable_rethrow } from "next/navigation";
 import { Suspense } from "react";
+import { EmptyRanking, Loading, LoadError } from "@/components/data-states";
 import { GameCover } from "@/components/game-cover";
+import type { Game } from "@/lib/games";
 import { getGame } from "@/lib/games-data";
-import { MEDALS, formatDate, formatScore } from "@/lib/scores";
+import { MEDALS, formatDate, formatScore, type ScoreEntry } from "@/lib/scores";
 import { getTopScores } from "@/lib/scores-data";
 
 // `params` se lee dentro de <Suspense>: así la navegación al detalle no se bloquea
@@ -29,10 +31,19 @@ async function GameDetail({
   params: PageProps<"/juegos/[id]">["params"];
 }) {
   const { id } = await params;
-  const game = await getGame(id);
+  let game: Game | null;
+  try {
+    game = await getGame(id);
+  } catch (error) {
+    unstable_rethrow(error);
+    console.error("[juegos/[id]] no se pudo leer el juego", error);
+    return (
+      <main className="relative z-[1] mx-auto w-full max-w-[1180px] px-5 pt-9 pb-20">
+        <LoadError what="el juego" />
+      </main>
+    );
+  }
   if (!game) notFound();
-
-  const rows = await getTopScores(game.id);
 
   return (
     <main className="animate-fade-slide relative z-[1] mx-auto w-full max-w-[1180px] px-5 pt-9 pb-20">
@@ -80,37 +91,56 @@ async function GameDetail({
           <h2 className="m-0 mb-4 font-pixel text-xs leading-[1.6] font-normal text-crt-ink">
             MEJORES PUNTUACIONES
           </h2>
-          <ol className="m-0 flex list-none flex-col gap-1.5 p-0">
-            {rows.map((row, i) => {
-              const medal = MEDALS[i];
-              // Spec 05: barra lateral negra en el top 3 y crt-line en el resto; texto negro.
-              const color = medal?.color ?? "var(--color-crt-line)";
-              return (
-                <li
-                  key={row.id}
-                  className="grid grid-cols-[38px_minmax(0,1fr)_auto] items-center gap-2.5 border-l-[3px] px-2.5 py-[9px]"
-                  style={{ borderLeftColor: color }}
-                >
-                  <span className="font-pixel text-[10px] text-crt-ink">
-                    #{i + 1}
-                  </span>
-                  <span className="flex min-w-0 flex-col">
-                    <span className="truncate text-base font-bold text-crt-ink">
-                      {row.name}
-                    </span>
-                    <span className="text-[13px] text-crt-ink-2">
-                      {formatDate(row.date)}
-                    </span>
-                  </span>
-                  <span className="font-pixel text-[11px] text-crt-ink">
-                    {formatScore(row.score)}
-                  </span>
-                </li>
-              );
-            })}
-          </ol>
+          {/* El top 10 llega después de la ficha del juego (otra frontera de Suspense). */}
+          <Suspense fallback={<Loading className="py-8" />}>
+            <Ranking gameId={game.id} />
+          </Suspense>
         </aside>
       </div>
     </main>
+  );
+}
+
+async function Ranking({ gameId }: { gameId: string }) {
+  let rows: ScoreEntry[];
+  try {
+    rows = await getTopScores(gameId);
+  } catch (error) {
+    unstable_rethrow(error);
+    console.error("[juegos/[id]] no se pudo leer el ranking", error);
+    return <LoadError what="el ranking" className="border-0 px-0" />;
+  }
+  if (rows.length === 0) return <EmptyRanking className="border-0 px-0" />;
+
+  return (
+    <ol className="m-0 flex list-none flex-col gap-1.5 p-0">
+      {rows.map((row, i) => {
+        const medal = MEDALS[i];
+        // Spec 05: barra lateral negra en el top 3 y crt-line en el resto; texto negro.
+        const color = medal?.color ?? "var(--color-crt-line)";
+        return (
+          <li
+            key={row.id}
+            className="grid grid-cols-[38px_minmax(0,1fr)_auto] items-center gap-2.5 border-l-[3px] px-2.5 py-[9px]"
+            style={{ borderLeftColor: color }}
+          >
+            <span className="font-pixel text-[10px] text-crt-ink">
+              #{i + 1}
+            </span>
+            <span className="flex min-w-0 flex-col">
+              <span className="truncate text-base font-bold text-crt-ink">
+                {row.name}
+              </span>
+              <span className="text-[13px] text-crt-ink-2">
+                {formatDate(row.date)}
+              </span>
+            </span>
+            <span className="font-pixel text-[11px] text-crt-ink">
+              {formatScore(row.score)}
+            </span>
+          </li>
+        );
+      })}
+    </ol>
   );
 }

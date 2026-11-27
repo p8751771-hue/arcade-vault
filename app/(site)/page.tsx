@@ -1,5 +1,7 @@
 import Link from "next/link";
-import type { CSSProperties } from "react";
+import { unstable_rethrow } from "next/navigation";
+import { Suspense, type CSSProperties } from "react";
+import { Loading, LoadError } from "@/components/data-states";
 import { ActivityTicker } from "@/components/home/activity-ticker";
 import { FeatureCard } from "@/components/home/feature-card";
 import { FloatingSilhouettes } from "@/components/home/floating-silhouettes";
@@ -9,6 +11,7 @@ import { PlanCta } from "@/components/home/plan-cta";
 import { Reveal } from "@/components/home/reveal";
 import { SectionHead } from "@/components/home/section-head";
 import { TopPlayers } from "@/components/home/top-players";
+import type { Game } from "@/lib/games";
 import { getGames } from "@/lib/games-data";
 import { FAQS, FEATURES, PLAN, STATS } from "@/lib/home";
 
@@ -21,9 +24,7 @@ const FAQ_BORDER = ["border-l-crt-ink", "border-l-crt-ink", "border-l-crt-ink"];
 
 // Landing "Inicio". Referencia: references/home-about/home.jsx + styles.css (.home-*).
 // `leading-[1.5]`: el body de esa referencia usa line-height 1.5 (el resto de la app, `normal`).
-export default async function HomePage() {
-  const games = await getGames();
-
+export default function HomePage() {
   return (
     <main className="animate-fade-up relative z-[1] leading-[1.5]">
       {/* HERO */}
@@ -82,9 +83,10 @@ export default async function HomePage() {
           title="JUEGOS DISPONIBLES AHORA"
         />
         <div className="grid grid-cols-[repeat(6,minmax(0,1fr))] gap-4 max-[1101px]:grid-cols-[repeat(3,1fr)] max-[601px]:grid-cols-[repeat(2,1fr)]">
-          {games.map((game) => (
-            <MiniCard key={game.id} game={game} />
-          ))}
+          {/* Spec 11: los juegos salen de Supabase; el resto de la landing sigue estático. */}
+          <Suspense fallback={<Loading className="col-span-full" />}>
+            <GamesRail />
+          </Suspense>
         </div>
         <div className="mt-6 text-center">
           <Link href="/biblioteca" className="btn-cut btn-cut-lg">
@@ -225,4 +227,18 @@ export default async function HomePage() {
       </Reveal>
     </main>
   );
+}
+
+// "JUEGOS DISPONIBLES AHORA": una mini-tarjeta por fila de `games`.
+async function GamesRail() {
+  let games: Game[];
+  try {
+    games = await getGames();
+  } catch (error) {
+    unstable_rethrow(error);
+    console.error("[inicio] no se pudieron leer los juegos", error);
+    return <LoadError what="los juegos" className="col-span-full" />;
+  }
+
+  return games.map((game) => <MiniCard key={game.id} game={game} />);
 }
