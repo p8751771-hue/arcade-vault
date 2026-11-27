@@ -46,7 +46,8 @@ export const HISTORY_SOURCES: readonly HistorySource[] = [
     id: "norman-computer-space",
     authors: ["Norman, J. M."],
     year: null,
-    title: "“Computer Space,” the first commercially sold coin-operated video game",
+    title:
+      "“Computer Space,” the first commercially sold coin-operated video game",
     container: "History of Information",
     url: "https://www.historyofinformation.com/detail.php?id=2325",
   },
@@ -94,7 +95,8 @@ export const HISTORY_SOURCES: readonly HistorySource[] = [
     id: "franklin-gun-fight",
     authors: ["The Franklin Institute"],
     year: 2018,
-    title: "From transistors to microprocessors: This classic arcade game was the first and last of a generation",
+    title:
+      "From transistors to microprocessors: This classic arcade game was the first and last of a generation",
     container: null,
     url: "https://fi.edu/en/blog/transistors-microprocessors-classic-arcade-game-was-first-and-last-generation",
   },
@@ -195,7 +197,11 @@ export const MILESTONES: readonly Milestone[] = [
     maker: "Nutting Associates",
     creators: ["Nolan Bushnell", "Ted Dabney"],
     text: "Dos ingenieros sacaron de los ordenadores universitarios la idea de Spacewar!, un duelo de naves, y la metieron en una máquina de monedas. Nutting Associates la fabricó en un mueble de fibra de vidrio con aire de ciencia ficción: fue la primera recreativa de vídeo que se puso a la venta. Vendió poco, pero demostró que la gente pagaría por jugar.",
-    sources: ["strong-computer-space", "chm-computer-space", "norman-computer-space"],
+    sources: [
+      "strong-computer-space",
+      "chm-computer-space",
+      "norman-computer-space",
+    ],
   },
   {
     year: 1972,
@@ -219,7 +225,11 @@ export const MILESTONES: readonly Milestone[] = [
     maker: "Taito",
     creators: ["Tomohiro Nishikado"],
     text: "Un cañón láser defiende la Tierra de filas de alienígenas que bajan sin descanso. Nishikado se encargó él solo del juego y de su placa, y tardó cerca de año y medio. La puntuación más alta quedaba a la vista en lo alto de la pantalla, y superarla pasó a ser el reto de todos los salones.",
-    sources: ["strong-space-invaders", "gamesbeat-nishikado", "smith-space-invaders"],
+    sources: [
+      "strong-space-invaders",
+      "gamesbeat-nishikado",
+      "smith-space-invaders",
+    ],
   },
   {
     year: 1979,
@@ -262,21 +272,35 @@ export const STYLE_NOTE: readonly string[] = [
   "El primer diseño del sitio era neón sobre negro, inspirado en los rótulos de los salones. En noviembre de 2026 lo cambiamos para que la página se pareciera más a las máquinas que recuerda. Estas dos capturas comparan los dos estilos.",
 ];
 
-const ORDER = (s: HistorySource) => s.authors[0].replace(/^The /, "").toLowerCase();
+const ORDER = (s: HistorySource) =>
+  s.authors[0].replace(/^The /, "").toLowerCase();
 
 /** Fuentes en orden alfabético por primer autor (sin "The") y, a igualdad, por título. */
-export const SORTED_SOURCES: readonly HistorySource[] = [...HISTORY_SOURCES].sort(
-  (a, b) => ORDER(a).localeCompare(ORDER(b), "es") || a.title.localeCompare(b.title, "es"),
+export const SORTED_SOURCES: readonly HistorySource[] = [
+  ...HISTORY_SOURCES,
+].sort(
+  (a, b) =>
+    ORDER(a).localeCompare(ORDER(b), "es") ||
+    a.title.localeCompare(b.title, "es"),
 );
 
 /** "2021a", "s.f.-b"…: APA añade una letra cuando un autor tiene varias obras del mismo año. */
-function apaYear(source: HistorySource): string {
+// `pool` es la lista entre la que se decide el sufijo; por defecto, la de Historia.
+// El imán (spec 10) pasa la suya para que sus citas no dependan de estas.
+function apaYear(
+  source: HistorySource,
+  pool: readonly HistorySource[] = SORTED_SOURCES,
+): string {
   const base = source.year === null ? "s.f." : String(source.year);
-  const same = SORTED_SOURCES.filter(
-    (s) => s.authors.join("|") === source.authors.join("|") && s.year === source.year,
+  const same = pool.filter(
+    (s) =>
+      s.authors.join("|") === source.authors.join("|") &&
+      s.year === source.year,
   );
   if (same.length < 2) return base;
-  const letter = String.fromCharCode(97 + same.findIndex((s) => s.id === source.id));
+  const letter = String.fromCharCode(
+    97 + same.findIndex((s) => s.id === source.id),
+  );
   return source.year === null ? `${base}-${letter}` : `${base}${letter}`;
 }
 
@@ -286,11 +310,18 @@ function citeName(author: string): string {
 }
 
 /** "(Smith, 2013)": cita en el texto, sin paréntesis (los pone quien agrupa). */
-export function formatApaCitation(source: HistorySource): string {
+export function formatApaCitation(
+  source: HistorySource,
+  pool: readonly HistorySource[] = SORTED_SOURCES,
+): string {
   const names = source.authors.map(citeName);
   const who =
-    names.length === 1 ? names[0] : names.length === 2 ? `${names[0]} y ${names[1]}` : `${names[0]} et al.`;
-  return `${who}, ${apaYear(source)}`;
+    names.length === 1
+      ? names[0]
+      : names.length === 2
+        ? `${names[0]} y ${names[1]}`
+        : `${names[0]} et al.`;
+  return `${who}, ${apaYear(source, pool)}`;
 }
 
 export interface ApaReferenceParts {
@@ -302,14 +333,17 @@ export interface ApaReferenceParts {
 }
 
 /** Partes de la referencia APA; el título va en cursiva al renderizar. */
-export function formatApaReference(source: HistorySource): ApaReferenceParts {
+export function formatApaReference(
+  source: HistorySource,
+  pool: readonly HistorySource[] = SORTED_SOURCES,
+): ApaReferenceParts {
   const authors =
     source.authors.length === 1
       ? source.authors[0]
       : `${source.authors.slice(0, -1).join(", ")} y ${source.authors.at(-1)}`;
   return {
     authors: authors.endsWith(".") ? authors : `${authors}.`,
-    year: `(${apaYear(source)}).`,
+    year: `(${apaYear(source, pool)}).`,
     // APA: el título termina en punto salvo que ya acabe en "?" o "!".
     title: /[?!.]$/.test(source.title) ? source.title : `${source.title}.`,
     container: source.container ? `${source.container}.` : null,
