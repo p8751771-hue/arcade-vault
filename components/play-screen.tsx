@@ -5,7 +5,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useSession } from "@/components/session-provider";
 import { useFullscreen } from "@/components/use-fullscreen";
 import { ARCADE_GAMES } from "@/lib/arcade";
-import { startGame, type RunningGame } from "@/lib/arcade/engine";
+import {
+  FIELD_HEIGHT,
+  FIELD_MIN_WIDTH,
+  startGame,
+  type RunningGame,
+} from "@/lib/arcade/engine";
 import { submitScore } from "@/lib/api";
 import type { Game } from "@/lib/games";
 import { formatScore } from "@/lib/scores";
@@ -16,6 +21,14 @@ type SaveState = "idle" | "saving" | "typing" | "done";
 // Marcadores al empezar una partida. Con un juego real los actualiza el propio
 // juego (Canvas → React); con un placeholder se quedan así.
 const INITIAL_HUD = { score: 0, lives: 3, level: 1 };
+
+// Proporción ancho / alto de la pantalla para el campo del juego (spec 09): solo
+// en pantalla completa; en ventana el campo es el cuadrado de siempre.
+function currentAspect(): number {
+  return document.fullscreenElement
+    ? window.innerWidth / window.innerHeight
+    : 1;
+}
 
 const LOADING_MS = 1100;
 const SAVING_MS = 900;
@@ -97,8 +110,16 @@ export function PlayScreen({ game }: { game: Game }) {
   // En ventana: ancho común del HUD, la cabina y la botonera (spec 07). 170 px =
   // HUD + márgenes + pie de la cabina, para que no haya scroll vertical.
   const columnWidth = "w-[min(100%,860px,calc(100svh_-_170px))]";
-  // En pantalla completa: el cuadrado más grande que quepa (no se deforma).
-  const fullscreenSide = "w-[min(100vw,100svh)]";
+
+  // Spec 09: tamaño lógico del campo, que avisa el motor (480×480 en ventana; en
+  // pantalla completa el ancho sigue la proporción de la pantalla, hasta 853).
+  const [field, setField] = useState({
+    w: FIELD_MIN_WIDTH,
+    h: FIELD_HEIGHT,
+  });
+  // En pantalla completa el contenedor tiene la proporción del campo y es el
+  // más grande que quepa en la pantalla, así que no se deforma.
+  const fullscreenWidth = `min(100vw, calc(100svh * ${field.w} / ${field.h}))`;
 
   const [phase, setPhase] = useState<PlayPhase>("loading");
   const [saveState, setSaveState] = useState<SaveState>("idle");
@@ -141,9 +162,10 @@ export function PlayScreen({ game }: { game: Game }) {
         setFinalScore(value);
         setPhase("over");
       },
-      // Spec 09, paso 3: aquí se guardará el tamaño del campo.
-      field: () => {},
+      field: (w, h) => setField({ w, h }),
     });
+    // Una partida nueva en pantalla completa debe empezar ya con el campo ancho.
+    running.setScreenAspect(currentAspect());
     runningRef.current = running;
     return () => {
       running.destroy();
@@ -155,6 +177,18 @@ export function PlayScreen({ game }: { game: Game }) {
   useEffect(() => {
     runningRef.current?.setPaused(phase === "paused");
   }, [phase]);
+
+  // React → Canvas: la proporción de la pantalla. Se recalcula al entrar y salir
+  // de pantalla completa y mientras se redimensiona la ventana: al entrar, el
+  // navegador aún no ha cambiado el tamaño de la ventana, así que el aviso
+  // definitivo llega con el evento `resize`.
+  useEffect(() => {
+    const apply = () => runningRef.current?.setScreenAspect(currentAspect());
+    apply();
+    if (!fullscreen) return;
+    window.addEventListener("resize", apply);
+    return () => window.removeEventListener("resize", apply);
+  }, [fullscreen]);
 
   // Pausa solo desde "running" / "paused": ignora la carga y el modal de fin.
   const togglePause = useCallback(() => {
@@ -280,12 +314,12 @@ export function PlayScreen({ game }: { game: Game }) {
       <div
         className={
           fullscreen
-            ? fullscreenSide
+            ? ""
             : `${columnWidth} rounded-[38px] p-[clamp(10px,3.2vw,24px)]`
         }
         style={
           fullscreen
-            ? undefined
+            ? { width: fullscreenWidth }
             : {
                 // Spec 04: marco del televisor en la paleta; solo sombras negras.
                 background: "var(--color-crt-surface)",
@@ -295,12 +329,12 @@ export function PlayScreen({ game }: { game: Game }) {
         }
       >
         <div
-          className={`relative aspect-square overflow-hidden bg-crt-well ${
-            fullscreen ? "" : "rounded-[26px/22px]"
+          className={`relative overflow-hidden bg-crt-well ${
+            fullscreen ? "" : "aspect-square rounded-[26px/22px]"
           }`}
           style={
             fullscreen
-              ? undefined
+              ? { aspectRatio: `${field.w} / ${field.h}` }
               : { boxShadow: "inset 0 0 0 3px rgb(0 0 0 / 0.65)" }
           }
         >
