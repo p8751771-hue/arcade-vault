@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { MagnetDialog } from "@/components/magnet/magnet-dialog";
+import { MagnetLayer } from "@/components/magnet/magnet-layer";
 import { useSession } from "@/components/session-provider";
 import { useFullscreen } from "@/components/use-fullscreen";
 import { ARCADE_GAMES } from "@/lib/arcade";
@@ -13,6 +15,7 @@ import {
 } from "@/lib/arcade/engine";
 import { submitScore } from "@/lib/api";
 import type { Game } from "@/lib/games";
+import type { MagnetState } from "@/lib/magnet";
 import { formatScore } from "@/lib/scores";
 
 type PlayPhase = "loading" | "running" | "paused" | "over";
@@ -133,6 +136,14 @@ export function PlayScreen({ game }: { game: Game }) {
   const [hud, setHud] = useState(INITIAL_HUD);
   const [finalScore, setFinalScore] = useState(0);
 
+  // Spec 10: el imán. El estado vive aquí porque el diálogo pausa el juego y se
+  // pinta dentro del <main>; la capa de la pantalla gestiona el puntero y el
+  // temporizador de 10 s. El motor y los juegos no saben nada de esto.
+  const [magnet, setMagnet] = useState<MagnetState>("idle");
+  const startMagnet = useCallback(() => setMagnet("active"), []);
+  const finishMagnet = useCallback(() => setMagnet("dialog"), []);
+  const closeMagnet = useCallback(() => setMagnet("idle"), []);
+
   const clearSaveTimers = useCallback(() => {
     window.clearTimeout(saveTimers.current.save);
     window.clearInterval(saveTimers.current.type);
@@ -161,6 +172,8 @@ export function PlayScreen({ game }: { game: Game }) {
       over: (value) => {
         setFinalScore(value);
         setPhase("over");
+        // Un fin de partida durante el efecto lo cancela y omite el diálogo.
+        setMagnet("idle");
       },
       field: (w, h) => setField({ w, h }),
     });
@@ -174,9 +187,11 @@ export function PlayScreen({ game }: { game: Game }) {
   }, [loaded, factory]);
 
   // React → Canvas: la pausa es de la aplicación; el juego no tiene control propio.
+  // También se pausa mientras el diálogo del imán está abierto; al cerrarlo el
+  // juego vuelve al estado que tenía (si ya estaba en pausa, sigue en pausa).
   useEffect(() => {
-    runningRef.current?.setPaused(phase === "paused");
-  }, [phase]);
+    runningRef.current?.setPaused(phase === "paused" || magnet === "dialog");
+  }, [phase, magnet]);
 
   // React → Canvas: la proporción de la pantalla. Se recalcula al entrar y salir
   // de pantalla completa y mientras se redimensiona la ventana: al entrar, el
@@ -200,12 +215,14 @@ export function PlayScreen({ game }: { game: Game }) {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.repeat || e.ctrlKey || e.metaKey || e.altKey) return;
-      if (e.code === "KeyP") togglePause();
-      else if (e.code === "KeyF") toggleFullscreen();
+      // Con el diálogo del imán abierto la tecla P no cambia el estado de pausa.
+      if (e.code === "KeyP") {
+        if (magnet !== "dialog") togglePause();
+      } else if (e.code === "KeyF") toggleFullscreen();
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [togglePause, toggleFullscreen]);
+  }, [togglePause, toggleFullscreen, magnet]);
 
   // Solo para los placeholders: un juego real termina por sí mismo.
   const simulateEnd = () => {
@@ -219,6 +236,7 @@ export function PlayScreen({ game }: { game: Game }) {
     setSaveState("idle");
     setTyped("");
     setHud(INITIAL_HUD);
+    setMagnet("idle");
     setPhase("loading");
   };
 
@@ -340,13 +358,22 @@ export function PlayScreen({ game }: { game: Game }) {
         >
           {factory ? (
             // Juego real: 480×480 lógicos, el CSS lo escala a la pantalla.
-            <canvas
-              ref={canvasRef}
-              width={480}
-              height={480}
-              aria-label={`Pantalla de ${game.title}`}
-              className="absolute inset-0 block h-full w-full touch-none"
-            />
+            <>
+              <canvas
+                ref={canvasRef}
+                width={480}
+                height={480}
+                aria-label={`Pantalla de ${game.title}`}
+                className="absolute inset-0 block h-full w-full touch-none"
+              />
+              {/* Spec 10: puntero de imán, cartel y disparo del efecto */}
+              <MagnetLayer
+                enabled={phase === "running" || phase === "paused"}
+                state={magnet}
+                onTrigger={startMagnet}
+                onFinish={finishMagnet}
+              />
+            </>
           ) : (
             // Pantalla placeholder: aún no hay juego
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 bg-crt-well px-6 text-center">
@@ -475,6 +502,8 @@ export function PlayScreen({ game }: { game: Game }) {
           SIMULAR FIN DE PARTIDA
         </button>
       )}
+
+      {magnet === "dialog" && <MagnetDialog onClose={closeMagnet} />}
 
       {phase === "over" && (
         <div className="fixed inset-0 z-[150] flex items-center justify-center bg-black/60 p-4">

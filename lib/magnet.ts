@@ -37,7 +37,8 @@ export const MAGNET_SOURCES: readonly HistorySource[] = [
   },
   {
     id: "ucsb-crt-magnet",
-    authors: ["Department of Physics, University of California, Santa Barbara"],
+    // Sin comas: `formatApaCitation` las toma por "Apellido, N." y cortaría el nombre.
+    authors: ["UC Santa Barbara Department of Physics"],
     year: null,
     title: "68.33 Cathode ray tube, magnet",
     container: "Physics Lecture Demonstrations",
