@@ -9,18 +9,21 @@ import { PlanCta } from "@/components/home/plan-cta";
 import { Reveal } from "@/components/home/reveal";
 import { SectionHead } from "@/components/home/section-head";
 import { TopPlayers } from "@/components/home/top-players";
-import { GAMES } from "@/lib/games";
+import { getGames } from "@/lib/games-data";
 import { FAQS, FEATURES, PLAN, STATS } from "@/lib/home";
 
 const SECTION = "mx-auto my-20 max-w-[1320px] px-8";
 // Cortes: la referencia usa `max-width: Npx` (incluye N) y `max-[Npx]:` de Tailwind v4
 // es `width < Npx`. Por eso se escribe N+1 (`max-[981px]:` ≡ max-width: 980px).
-const delay = (ms: number) => ({ "--reveal-delay": `${ms}ms` }) as CSSProperties;
+const delay = (ms: number) =>
+  ({ "--reveal-delay": `${ms}ms` }) as CSSProperties;
 const FAQ_BORDER = ["border-l-crt-ink", "border-l-crt-ink", "border-l-crt-ink"];
 
 // Landing "Inicio". Referencia: references/home-about/home.jsx + styles.css (.home-*).
 // `leading-[1.5]`: el body de esa referencia usa line-height 1.5 (el resto de la app, `normal`).
-export default function HomePage() {
+export default async function HomePage() {
+  const games = await getGames();
+
   return (
     <main className="animate-fade-up relative z-[1] leading-[1.5]">
       {/* HERO */}
@@ -32,15 +35,9 @@ export default function HomePage() {
           </div>
 
           <h1 className="m-0 flex flex-col gap-2 font-pixel text-[clamp(32px,7vw,88px)] leading-[1.05] font-normal tracking-[0.04em]">
-            <span className="text-crt-ink">
-              EL ARCADE
-            </span>
-            <span className="text-crt-ink">
-              CLÁSICO ESTÁ
-            </span>
-            <span className="text-crt-ink">
-              DE VUELTA
-            </span>
+            <span className="text-crt-ink">EL ARCADE</span>
+            <span className="text-crt-ink">CLÁSICO ESTÁ</span>
+            <span className="text-crt-ink">DE VUELTA</span>
           </h1>
 
           <p className="mx-auto mt-7 mb-9 max-w-[640px] text-[15px] leading-[1.7] tracking-[0.04em] text-crt-ink-2">
@@ -63,7 +60,11 @@ export default function HomePage() {
 
       {/* // 01 — POR QUÉ */}
       <Reveal className={SECTION}>
-        <SectionHead kicker="// 01" accent="magenta" title="¿POR QUÉ ARCADE VAULT?" />
+        <SectionHead
+          kicker="// 01"
+          accent="magenta"
+          title="¿POR QUÉ ARCADE VAULT?"
+        />
         <div className="grid grid-cols-[repeat(4,1fr)] gap-[18px] max-[981px]:grid-cols-[repeat(2,1fr)] max-[521px]:grid-cols-[1fr]">
           {FEATURES.map((feature, i) => (
             <div key={feature.title} data-reveal-item style={delay(i * 80)}>
@@ -75,9 +76,13 @@ export default function HomePage() {
 
       {/* // 02 — JUEGOS */}
       <Reveal className={SECTION}>
-        <SectionHead kicker="// 02" accent="cyan" title="JUEGOS DISPONIBLES AHORA" />
+        <SectionHead
+          kicker="// 02"
+          accent="cyan"
+          title="JUEGOS DISPONIBLES AHORA"
+        />
         <div className="grid grid-cols-[repeat(6,minmax(0,1fr))] gap-4 max-[1101px]:grid-cols-[repeat(3,1fr)] max-[601px]:grid-cols-[repeat(2,1fr)]">
-          {GAMES.map((game) => (
+          {games.map((game) => (
             <MiniCard key={game.id} game={game} />
           ))}
         </div>
@@ -197,7 +202,9 @@ export default function HomePage() {
                 <div className="mb-2 font-pixel text-[10px] leading-[1.25] tracking-[0.12em] text-crt-ink uppercase">
                   {faq.question}
                 </div>
-                <div className="text-[13px] leading-[1.6] text-crt-ink-2">{faq.answer}</div>
+                <div className="text-[13px] leading-[1.6] text-crt-ink-2">
+                  {faq.answer}
+                </div>
               </div>
             ))}
           </div>
@@ -209,10 +216,7 @@ export default function HomePage() {
         <h2 className="m-0 mb-9 font-pixel text-[clamp(22px,4vw,40px)] leading-[1.25] font-normal tracking-[0.08em] text-crt-ink uppercase">
           ¿LISTO PARA JUGAR?
         </h2>
-        <Link
-          href="/biblioteca"
-          className="btn-cut btn-cut-xl btn-cut-pulse"
-        >
+        <Link href="/biblioteca" className="btn-cut btn-cut-xl btn-cut-pulse">
           INSERTAR MONEDA →
         </Link>
         <div className="mt-7 text-[13px] tracking-[0.06em] text-crt-ink-2">

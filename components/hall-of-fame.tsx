@@ -2,16 +2,21 @@
 
 import { useState } from "react";
 import { useSession } from "@/components/session-provider";
-import { GAMES, type GameId } from "@/lib/games";
-import { MEDALS, formatDate, formatScore, getLeaderboard } from "@/lib/scores";
+import type { Game, GameId } from "@/lib/games";
+import { MEDALS, formatDate, formatScore, type ScoreEntry } from "@/lib/scores";
 
 const COLUMNS =
   "grid-cols-[48px_minmax(0,1fr)_auto] min-[760px]:grid-cols-[90px_minmax(0,1fr)_170px_130px]";
 
-export function HallOfFame() {
+interface HallOfFameProps {
+  games: Game[];
+  scoresByGame: Record<GameId, ScoreEntry[]>;
+}
+
+export function HallOfFame({ games, scoresByGame }: HallOfFameProps) {
   const { user } = useSession();
-  const [gameId, setGameId] = useState<GameId>(GAMES[0].id);
-  const rows = getLeaderboard(gameId);
+  const [gameId, setGameId] = useState<GameId>(games[0]?.id ?? "");
+  const rows = scoresByGame[gameId] ?? [];
 
   return (
     <>
@@ -20,7 +25,7 @@ export function HallOfFame() {
         aria-label="Juegos"
         className="mb-7 flex flex-wrap justify-center gap-2.5"
       >
-        {GAMES.map((game) => (
+        {games.map((game) => (
           <button
             key={game.id}
             type="button"
@@ -69,11 +74,13 @@ export function HallOfFame() {
 
             return (
               <li
-                key={row.name}
+                key={row.id}
                 // Spec 05: top 3 con borde negro de 3 px (el relleno baja 1 px por lado para
                 // que la fila mida lo mismo); el resto, borde crt-line de 2 px.
                 className={`animate-row-in grid ${COLUMNS} items-center gap-3 bg-crt-surface ${
-                  medal ? "border-[3px] px-[15px] py-[13px]" : "border-2 border-crt-line px-4 py-3.5"
+                  medal
+                    ? "border-[3px] px-[15px] py-[13px]"
+                    : "border-2 border-crt-line px-4 py-3.5"
                 }`}
                 style={{
                   borderColor: medal?.color,

@@ -1,8 +1,17 @@
 import { GameLibrary } from "@/components/game-library";
-import { GAMES } from "@/lib/games";
-import { formatScore, getLeaderboard } from "@/lib/scores";
+import { getGames } from "@/lib/games-data";
+import { formatScore } from "@/lib/scores";
+import { getBestScore } from "@/lib/scores-data";
 
-export default function LibraryPage() {
+export default async function LibraryPage() {
+  const games = await getGames();
+  const entries = await Promise.all(
+    games.map(async (game) => {
+      const best = await getBestScore(game.id);
+      return { game, best: best === null ? "—" : formatScore(best) };
+    }),
+  );
+
   return (
     <main className="animate-fade-slide relative z-[1] mx-auto w-full max-w-[1240px] px-5 pt-11 pb-20">
       <div className="mb-11 flex flex-col items-center gap-5 text-center">
@@ -18,12 +27,7 @@ export default function LibraryPage() {
         </div>
       </div>
 
-      <GameLibrary
-        entries={GAMES.map((game) => ({
-          game,
-          best: formatScore(getLeaderboard(game.id)[0].score),
-        }))}
-      />
+      <GameLibrary entries={entries} />
     </main>
   );
 }

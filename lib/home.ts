@@ -1,8 +1,8 @@
-import type { GameId } from "@/lib/games";
-
 // Datos de la landing (`/`). Textos, jugadores, puntuaciones y tiempos copiados
-// de `references/home-about/home.jsx`. Son datos fijos de ejemplo: no leen
-// `getLeaderboard` ni `Date.now()` (ver spec 02, "Decisiones").
+// de `references/home-about/home.jsx`. Son datos fijos de ejemplo: no leen la base
+// de datos ni `Date.now()` (spec 02, "Decisiones"). Desde el spec 11 no dependen
+// del catálogo: cada fila lleva el título del juego escrito (los juegos reales
+// vienen de Supabase; estas filas siguen siendo de ejemplo).
 
 export type HomeAccent = "cyan" | "yellow" | "magenta" | "green";
 
@@ -21,7 +21,7 @@ export interface HomeStat {
 
 export interface ActivityEntry {
   player: string; // "NEONFOX"
-  gameId: GameId; // el título se lee de GAMES
+  game: string; // título del juego, "TETRIS"
   score: number; // 184220
   ago: string; // "hace 2 min"
   accent: HomeAccent;
@@ -96,49 +96,49 @@ export const STATS: readonly HomeStat[] = [
 export const ACTIVITY: readonly ActivityEntry[] = [
   {
     player: "NEONFOX",
-    gameId: "tetris",
+    game: "TETRIS",
     score: 184220,
     ago: "hace 2 min",
     accent: "magenta",
   },
   {
     player: "PX_KAI",
-    gameId: "pacman",
+    game: "PAC-MAN",
     score: 96400,
     ago: "hace 5 min",
     accent: "yellow",
   },
   {
     player: "Z3R0COOL",
-    gameId: "invaders",
+    game: "SPACE INVADERS",
     score: 54190,
     ago: "hace 8 min",
     accent: "green",
   },
   {
     player: "VAULT_07",
-    gameId: "asteroides",
+    game: "ASTEROIDES",
     score: 41200,
     ago: "hace 12 min",
     accent: "cyan",
   },
   {
     player: "GLITCHA",
-    gameId: "arkanoid",
+    game: "ARKANOID",
     score: 28450,
     ago: "hace 18 min",
     accent: "cyan",
   },
   {
     player: "ARKADYA",
-    gameId: "snake",
+    game: "SNAKE",
     score: 7820,
     ago: "hace 24 min",
     accent: "green",
   },
   {
     player: "CYBER_LU",
-    gameId: "arkanoid",
+    game: "ARKANOID",
     score: 18900,
     ago: "hace 31 min",
     accent: "yellow",

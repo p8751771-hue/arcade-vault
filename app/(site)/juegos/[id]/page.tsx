@@ -2,12 +2,9 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { GameCover } from "@/components/game-cover";
-import { GAMES } from "@/lib/games";
-import { MEDALS, formatDate, formatScore, getLeaderboard } from "@/lib/scores";
-
-export function generateStaticParams() {
-  return GAMES.map((game) => ({ id: game.id }));
-}
+import { getGame } from "@/lib/games-data";
+import { MEDALS, formatDate, formatScore } from "@/lib/scores";
+import { getTopScores } from "@/lib/scores-data";
 
 // `params` se lee dentro de <Suspense>: así la navegación al detalle no se bloquea
 // (validación "instant" de cacheComponents). El 404 real lo da `proxy.ts`.
@@ -26,12 +23,16 @@ export default function GameDetailPage({ params }: PageProps<"/juegos/[id]">) {
   );
 }
 
-async function GameDetail({ params }: { params: PageProps<"/juegos/[id]">["params"] }) {
+async function GameDetail({
+  params,
+}: {
+  params: PageProps<"/juegos/[id]">["params"];
+}) {
   const { id } = await params;
-  const game = GAMES.find((g) => g.id === id);
+  const game = await getGame(id);
   if (!game) notFound();
 
-  const rows = getLeaderboard(game.id);
+  const rows = await getTopScores(game.id);
 
   return (
     <main className="animate-fade-slide relative z-[1] mx-auto w-full max-w-[1180px] px-5 pt-9 pb-20">
@@ -45,17 +46,19 @@ async function GameDetail({ params }: { params: PageProps<"/juegos/[id]">["param
           <div className="font-pixel text-[11px] text-crt-ink-2">
             {game.category}
           </div>
-          <h1
-            className="m-0 font-pixel text-[clamp(24px,5.4vw,50px)] leading-[1.3] font-normal [overflow-wrap:anywhere] text-crt-ink"
-          >
+          <h1 className="m-0 font-pixel text-[clamp(24px,5.4vw,50px)] leading-[1.3] font-normal [overflow-wrap:anywhere] text-crt-ink">
             {game.title}
           </h1>
           <p className="m-0 max-w-[60ch] text-[19px] leading-[1.6] text-crt-ink-2 [text-wrap:pretty]">
             {game.longDescription}
           </p>
           <div className="flex flex-col gap-2 border border-crt-line bg-crt-surface px-[18px] py-4">
-            <span className="font-pixel text-[10px] text-crt-ink">CONTROLES</span>
-            <span className="text-[17px] leading-normal text-crt-ink">{game.controls}</span>
+            <span className="font-pixel text-[10px] text-crt-ink">
+              CONTROLES
+            </span>
+            <span className="text-[17px] leading-normal text-crt-ink">
+              {game.controls}
+            </span>
           </div>
           <div className="flex flex-wrap items-center gap-[18px] pt-1.5">
             <Link
@@ -84,7 +87,7 @@ async function GameDetail({ params }: { params: PageProps<"/juegos/[id]">["param
               const color = medal?.color ?? "var(--color-crt-line)";
               return (
                 <li
-                  key={row.name}
+                  key={row.id}
                   className="grid grid-cols-[38px_minmax(0,1fr)_auto] items-center gap-2.5 border-l-[3px] px-2.5 py-[9px]"
                   style={{ borderLeftColor: color }}
                 >

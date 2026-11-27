@@ -25,6 +25,10 @@ type SaveState = "idle" | "saving" | "typing" | "done";
 // juego (Canvas → React); con un placeholder se quedan así.
 const INITIAL_HUD = { score: 0, lives: 3, level: 1 };
 
+// Puntuación del "SIMULAR FIN DE PARTIDA" (solo juegos sin motor). Desde el
+// spec 11 el catálogo ya no trae `baseScore`.
+const SIMULATED_SCORE = 2500;
+
 // Proporción ancho / alto de la pantalla para el campo del juego (spec 09): solo
 // en pantalla completa; en ventana el campo es el cuadrado de siempre.
 function currentAspect(): number {
@@ -227,7 +231,7 @@ export function PlayScreen({ game }: { game: Game }) {
   // Solo para los placeholders: un juego real termina por sí mismo.
   const simulateEnd = () => {
     if (phase !== "running" && phase !== "paused") return;
-    setFinalScore(game.baseScore / 2);
+    setFinalScore(SIMULATED_SCORE);
     setPhase("over");
   };
 
@@ -244,7 +248,7 @@ export function PlayScreen({ game }: { game: Game }) {
     if (saveState !== "idle") return;
     setSaveState("saving");
     saveTimers.current.save = window.setTimeout(async () => {
-      await submitScore(game.id, player, finalScore, !!user);
+      await submitScore(game.id, player, finalScore);
       setTyped("");
       setSaveState("typing");
       let n = 0;
