@@ -66,8 +66,17 @@ interface Bullet {
 const rnd = (a: number, b: number) => a + Math.random() * (b - a);
 const ri = (a: number, b: number) => Math.floor(rnd(a, b));
 
+// Ancho del campo cuadrado: base de la densidad de rocas (spec 09).
+const BASE_WIDTH = 480;
+
 export const asteroides: GameFactory = (g) => {
-  const { ctx, W, H, handlers } = g;
+  // `g.W` y `g.H` cambian cuando el motor ensancha el campo (spec 09): se leen
+  // siempre de `g`, nunca se copian.
+  const { ctx, handlers } = g;
+  // Ancho al que corresponden las posiciones actuales, para reubicarlas en `resize`.
+  let fieldW = g.W;
+  let fresh = true; // hasta el primer `update`
+
   let ship: Ship;
   let rocks: Rock[] = [];
   let bullets: Bullet[] = [];
@@ -92,26 +101,28 @@ export const asteroides: GameFactory = (g) => {
 
   const wave = () => {
     rocks = [];
-    for (let i = 0; i < 2 + level; i++) {
+    // Más superficie, más rocas: la densidad de peligro es la del campo cuadrado.
+    const count = Math.round(((2 + level) * g.W) / BASE_WIDTH);
+    for (let i = 0; i < count; i++) {
       let x: number;
       let y: number;
       do {
-        x = rnd(0, W);
-        y = rnd(0, H);
-      } while (Math.hypot(x - W / 2, y - H / 2) < 130);
+        x = rnd(0, g.W);
+        y = rnd(0, g.H);
+      } while (Math.hypot(x - g.W / 2, y - g.H / 2) < 130);
       rocks.push(makeRock(x, y, LARGE_R));
     }
   };
 
   const respawn = () => {
-    ship = { x: W / 2, y: H / 2, a: -Math.PI / 2, vx: 0, vy: 0 };
+    ship = { x: g.W / 2, y: g.H / 2, a: -Math.PI / 2, vx: 0, vy: 0 };
     invulnerable = 2.2;
   };
 
   // Los bordes envuelven: lo que sale por un lado entra por el opuesto.
   const wrap = (o: { x: number; y: number }) => {
-    o.x = (o.x + W) % W;
-    o.y = (o.y + H) % H;
+    o.x = (o.x + g.W) % g.W;
+    o.y = (o.y + g.H) % g.H;
   };
 
   wave();
@@ -121,7 +132,27 @@ export const asteroides: GameFactory = (g) => {
   handlers.level(1);
 
   return {
+    // El motor ensancha o estrecha el campo (pantalla completa o ventana). Las
+    // posiciones se reubican en proporción, la partida sigue y la nave es
+    // invulnerable un momento: al estrechar, las rocas se acercan.
+    resize(width) {
+      const k = width / fieldW;
+      fieldW = width;
+      // Partida recién creada (React aún no había dicho la proporción de la
+      // pantalla): se genera la primera oleada de nuevo con el ancho correcto.
+      if (fresh) {
+        wave();
+        respawn();
+        return;
+      }
+      ship.x *= k;
+      for (const r of rocks) r.x *= k;
+      for (const b of bullets) b.x *= k;
+      invulnerable = Math.max(invulnerable, 1.5);
+    },
+
     update(dt) {
+      fresh = false;
       const k = g.keys;
       if (k.ArrowLeft) ship.a -= 4.2 * dt;
       if (k.ArrowRight) ship.a += 4.2 * dt;
@@ -204,7 +235,7 @@ export const asteroides: GameFactory = (g) => {
 
     draw() {
       ctx.fillStyle = SCREEN;
-      ctx.fillRect(0, 0, W, H);
+      ctx.fillRect(0, 0, g.W, g.H);
 
       ctx.strokeStyle = INK;
       for (const r of rocks) {
@@ -250,7 +281,7 @@ export const asteroides: GameFactory = (g) => {
       ctx.textAlign = "left";
       ctx.fillText(score.toLocaleString("de-DE"), HUD.margin, HUD.textY);
       ctx.textAlign = "right";
-      ctx.fillText(`NIVEL ${level}`, W - HUD.margin, HUD.textY);
+      ctx.fillText(`NIVEL ${level}`, g.W - HUD.margin, HUD.textY);
       ctx.strokeStyle = INK;
       ctx.lineWidth = STROKE.lifeIcon;
       for (let i = 0; i < lives; i++) {
