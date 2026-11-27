@@ -5,9 +5,20 @@
 //
 // Dos canales, siempre en el mismo sentido:
 //  - Canvas → React: el juego avisa con `GameHandlers` (puntuación, vidas, nivel
-//    y fin de partida). Se llaman solo cuando el valor cambia.
-//  - React → Canvas: la aplicación manda con `RunningGame` (pausa y
-//    destrucción).
+//    y fin de partida) y el motor avisa del tamaño del campo. Se llaman solo
+//    cuando el valor cambia.
+//  - React → Canvas: la aplicación manda con `RunningGame` (pausa, proporción de
+//    la pantalla y destrucción).
+//
+// Spec 09: el campo lógico mide siempre 480 de alto; su ancho (480 a 853) sigue
+// la proporción de la pantalla, pero solo en los juegos que implementan `resize`.
+
+/** Altura lógica del campo; no cambia nunca. */
+export const FIELD_HEIGHT = 480;
+/** Ancho lógico mínimo: el cuadrado de la ventana. */
+export const FIELD_MIN_WIDTH = 480;
+/** Ancho lógico máximo: 16:9 sobre 480 de alto. */
+export const FIELD_MAX_WIDTH = 853;
 
 export type KeyCode =
   "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown" | "Space";
@@ -18,12 +29,17 @@ export interface GameHandlers {
   lives(value: number): void;
   level(value: number): void;
   over(finalScore: number): void;
+  /** Tamaño lógico del campo. Lo llama el motor, no el juego. */
+  field(width: number, height: number): void;
 }
 
-// Contexto que recibe cada juego.
+// Contexto que recibe cada juego. `W` y `H` son propiedades de este mismo
+// objeto y el motor las actualiza: el juego debe leerlas siempre de aquí.
 export interface GameContext {
   ctx: CanvasRenderingContext2D;
+  /** Ancho lógico del campo; cambia si el juego implementa `resize`. */
   W: number;
+  /** Alto lógico del campo; siempre `FIELD_HEIGHT`. */
   H: number;
   /** Familia tipográfica del sitio (Press Start 2P) para el HUD del canvas. */
   font: string;
@@ -41,6 +57,12 @@ export interface ArcadeGame {
   /** `dt` en segundos (acotado a 0,05). */
   update(dt: number): void;
   draw(): void;
+  /**
+   * Opcional. Si existe, el motor ensancha el campo a la proporción de la
+   * pantalla y la llama con el tamaño nuevo, antes de dibujar el cuadro
+   * siguiente. Sin ella el campo se queda cuadrado.
+   */
+  resize?(width: number, height: number): void;
 }
 
 export type GameFactory = (g: GameContext) => ArcadeGame;
@@ -48,6 +70,8 @@ export type GameFactory = (g: GameContext) => ArcadeGame;
 // React → Canvas: lo que el componente recibe al arrancar y con lo que manda.
 export interface RunningGame {
   setPaused(paused: boolean): void;
+  /** Proporción ancho / alto de la pantalla en pantalla completa; 1 en ventana. */
+  setScreenAspect(aspect: number): void;
   destroy(): void;
 }
 
@@ -75,13 +99,29 @@ function toKeyCode(code: string): KeyCode | null {
   return GAME_KEYS.has(mapped) ? (mapped as KeyCode) : null;
 }
 
+// Ancho lógico del campo para una proporción de pantalla: la altura es fija y el
+// ancho se limita a [480, 853], así que una pantalla más ancha que 16:9 deja
+// franjas y una más alta que ancha da el cuadrado.
+function fieldWidthFor(aspect: number): number {
+  const width = Math.round(FIELD_HEIGHT * aspect);
+  return Math.min(FIELD_MAX_WIDTH, Math.max(FIELD_MIN_WIDTH, width));
+}
+
 // Los avisos a React solo salen cuando el valor cambia, para que el juego pueda
 // llamarlos sin cuidado y el componente no se renderice a 60 cuadros por segundo.
 function onChangeOnly(handlers: GameHandlers): GameHandlers {
   let score: number | undefined;
   let lives: number | undefined;
   let level: number | undefined;
+  let fieldWidth: number | undefined;
+  let fieldHeight: number | undefined;
   return {
+    field(width, height) {
+      if (width === fieldWidth && height === fieldHeight) return;
+      fieldWidth = width;
+      fieldHeight = height;
+      handlers.field(width, height);
+    },
     score(value) {
       if (value === score) return;
       score = value;
@@ -147,28 +187,48 @@ export function startGame(
   window.addEventListener("keyup", onKeyUp);
   window.addEventListener("blur", onBlur);
 
-  const game = factory({
+  const notify = onChangeOnly(handlers);
+  // Un solo objeto: el motor cambia `W` aquí y el juego lo ve en su siguiente uso.
+  const context: GameContext = {
     ctx,
     W: canvas.width,
-    H: canvas.height,
+    H: FIELD_HEIGHT,
     // next/font define la variable CSS en <html>; un canvas no la resuelve solo.
     font:
       getComputedStyle(canvas).getPropertyValue("--font-press-start").trim() ||
       "monospace",
     keys,
     hit: (code) => pressed.includes(code),
-    handlers: onChangeOnly(handlers),
+    handlers: notify,
     end(finalScore) {
       if (over) return;
       over = true;
       handlers.over(finalScore);
     },
-  });
+  };
+  const game = factory(context);
+  notify.field(context.W, context.H);
+
+  // Proporción pedida por React; se aplica al inicio del siguiente cuadro.
+  let pendingAspect: number | null = null;
+  const applyAspect = () => {
+    if (pendingAspect === null) return;
+    const width = fieldWidthFor(pendingAspect);
+    pendingAspect = null;
+    // Solo los juegos que implementan `resize` admiten un campo ancho.
+    if (!game.resize || width === context.W) return;
+    // Cambiar `canvas.width` borra el lienzo; el cuadro siguiente lo redibuja.
+    canvas.width = width;
+    context.W = width;
+    game.resize(width, context.H);
+    notify.field(width, context.H);
+  };
 
   const tick = (t: number) => {
     if (dead) return;
     const dt = Math.min(MAX_DT, (t - last) / 1000);
     last = t;
+    applyAspect();
     if (!paused && !over) game.update(dt);
     pressed = [];
     game.draw();
@@ -179,6 +239,9 @@ export function startGame(
   return {
     setPaused(value) {
       paused = value;
+    },
+    setScreenAspect(aspect) {
+      if (Number.isFinite(aspect) && aspect > 0) pendingAspect = aspect;
     },
     destroy() {
       dead = true;

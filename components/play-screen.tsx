@@ -141,6 +141,8 @@ export function PlayScreen({ game }: { game: Game }) {
         setFinalScore(value);
         setPhase("over");
       },
+      // Spec 09, paso 3: aquí se guardará el tamaño del campo.
+      field: () => {},
     });
     runningRef.current = running;
     return () => {
