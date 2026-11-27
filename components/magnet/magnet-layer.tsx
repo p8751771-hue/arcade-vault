@@ -6,7 +6,9 @@ import {
   useRef,
   useState,
   useSyncExternalStore,
+  type RefObject,
 } from "react";
+import { MagnetHalo, type MagnetPointer } from "./magnet-halo";
 import {
   MAGNET_DURATION_MS,
   MAGNET_LABEL,
@@ -33,12 +35,15 @@ const LABEL_WIDTH_GUESS = 250;
 
 export function MagnetLayer({
   enabled,
+  gameCanvas,
   state,
   onTrigger,
   onFinish,
 }: {
   /** La pantalla tiene un juego real y la partida está en marcha o en pausa. */
   enabled: boolean;
+  /** Canvas del juego: el efecto lo copia, no lo modifica. */
+  gameCanvas: RefObject<HTMLCanvasElement | null>;
   state: MagnetState;
   /** Clic izquierdo con el ratón en estado "idle". */
   onTrigger: () => void;
@@ -70,6 +75,10 @@ export function MagnetLayer({
   }, []);
   useEffect(() => () => window.clearTimeout(hideTimer.current), []);
 
+  // Dónde está el puntero, para que el halo lo siga. Es una referencia y no un
+  // estado: el halo lo lee en su propio bucle y no hace falta renderizar.
+  const pointer = useRef<MagnetPointer>({ x: 0, y: 0, inside: false });
+
   if (!active) return null;
   const showLabel = state === "idle" && label !== null;
 
@@ -80,9 +89,11 @@ export function MagnetLayer({
       // Si la imagen del cursor no carga, `crosshair`.
       style={{ cursor: "url(/cursors/iman.svg) 16 16, crosshair" }}
       onPointerMove={(e) => {
-        if (e.pointerType !== "mouse" || state !== "idle") return;
+        if (e.pointerType !== "mouse") return;
         const rect = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - rect.left;
+        pointer.current = { x, y: e.clientY - rect.top, inside: true };
+        if (state !== "idle") return;
         setLabel({
           x,
           y: e.clientY - rect.top,
@@ -94,16 +105,28 @@ export function MagnetLayer({
           MAGNET_LABEL_MS,
         );
       }}
-      onPointerLeave={hideLabel}
+      onPointerLeave={() => {
+        pointer.current = { ...pointer.current, inside: false };
+        hideLabel();
+      }}
       onPointerDown={(e) => {
         // Solo el botón izquierdo del ratón: el táctil, el lápiz y los demás
         // botones no hacen nada.
         if (e.button !== 0 || e.pointerType !== "mouse" || state !== "idle")
           return;
+        const rect = e.currentTarget.getBoundingClientRect();
+        pointer.current = {
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top,
+          inside: true,
+        };
         hideLabel();
         onTrigger();
       }}
     >
+      {state === "active" && (
+        <MagnetHalo gameCanvas={gameCanvas} pointer={pointer} />
+      )}
       {showLabel && (
         <div
           aria-hidden="true"

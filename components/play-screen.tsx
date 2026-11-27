@@ -369,6 +369,7 @@ export function PlayScreen({ game }: { game: Game }) {
               {/* Spec 10: puntero de imán, cartel y disparo del efecto */}
               <MagnetLayer
                 enabled={phase === "running" || phase === "paused"}
+                gameCanvas={canvasRef}
                 state={magnet}
                 onTrigger={startMagnet}
                 onFinish={finishMagnet}
