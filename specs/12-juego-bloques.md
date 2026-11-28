@@ -1,6 +1,6 @@
 # SPEC 12 — Juego jugable: Bloques
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** SPEC 07, SPEC 08, SPEC 09, SPEC 11
 > **Fecha:** 2026-11-28
 > **Objetivo:** Añadir el juego `bloques` (BLOQUES) a Arcade Vault, portado de `tetris(G)` en `references/games.js`, jugable en `/juegos/bloques/jugar` con el aspecto de la pantalla de Asteroides, con su fila en la tabla `games` y su puntuación guardada en `scores` y visible en los rankings.
@@ -204,58 +204,60 @@ Sin `shadowBlur`, sin `shadowColor`, sin `globalAlpha` y sin los colores neón p
 
 ## Criterios de aceptación
 
+Verificados el 2026-11-28 con un script de Node sobre `lib/arcade/bloques.ts` (reglas y repetición), Playwright MCP (1280×900, 1280×720 y 390×844) y `supabase-js` desde Node para la inserción real. Evidencias en `.mcp-evidencias/2026-11-28_03-55-30/` (no versionadas). Salir de pantalla completa con `Esc` no se pudo pulsar en el navegador sin ventana: usa el mismo evento `fullscreenchange` que F y VENTANA, que sí se probaron.
+
 **Integración**
 
-- [ ] Existe `lib/arcade/bloques.ts` y `ARCADE_GAMES` contiene `asteroides` y `bloques`.
-- [ ] Aislamiento: `git grep -n "bloques" -- lib/arcade/engine.ts components/play-screen.tsx` no devuelve nada, y `lib/arcade/bloques.ts` solo importa tipos de `./engine`.
-- [ ] `games` tiene una fila con `id = 'bloques'`, `title = 'BLOQUES'`, `category = 'PUZLE'` y los tres textos de este spec, y existe `supabase/migrations/20261128000000_juego_bloques.sql`.
-- [ ] `/juegos/bloques` y `/juegos/bloques/jugar` responden 200.
-- [ ] `/biblioteca` muestra la tarjeta BLOQUES con su portada, la categoría PUZLE y "—" como mejor puntuación si no hay filas en `scores` para el juego. El filtro PUZLE la muestra.
+- [x] Existe `lib/arcade/bloques.ts` y `ARCADE_GAMES` contiene `asteroides` y `bloques`.
+- [x] Aislamiento: `git grep -n "bloques" -- lib/arcade/engine.ts components/play-screen.tsx` no devuelve nada, y `lib/arcade/bloques.ts` solo importa tipos de `./engine`.
+- [x] `games` tiene una fila con `id = 'bloques'`, `title = 'BLOQUES'`, `category = 'PUZLE'` y los tres textos de este spec, y existe `supabase/migrations/20261128000000_juego_bloques.sql`.
+- [x] `/juegos/bloques` y `/juegos/bloques/jugar` responden 200.
+- [x] `/biblioteca` muestra la tarjeta BLOQUES con su portada, la categoría PUZLE y "—" como mejor puntuación si no hay filas en `scores` para el juego. El filtro PUZLE la muestra.
 
 **Juego**
 
-- [ ] Tras "CARGANDO...", se ven el tablero vacío con su borde y su rejilla de puntos, una pieza en la fila superior y la pieza siguiente bajo "SIGUIENTE".
-- [ ] El HUD de React empieza en PUNTUACIÓN 0, VIDAS 1 y NIVEL 1, y el del canvas muestra VIDAS con una celda.
-- [ ] `←` / `→` mueven la pieza una columna por pulsación y la repiten al mantenerlas; la pieza no sale de las columnas 0–9.
-- [ ] `↑` y `D` giran en sentido horario y `A` en sentido antihorario. Junto a una pared, el giro se aplica desplazado si hay hueco.
-- [ ] `W` y `S` no hacen nada en BLOQUES.
-- [ ] `↓` mantenida acelera la caída sin sumar puntos.
-- [ ] `Espacio` deja caer la pieza al fondo, suma 2 puntos por fila bajada y la fija.
-- [ ] Borrar 1, 2, 3 o 4 líneas a la vez en nivel 1 suma 100, 300, 500 u 800 puntos.
-- [ ] A las 10 líneas el nivel pasa a 2 y la caída automática se acelera (0,73 s por fila).
-- [ ] Cuando una pieza nueva no cabe al aparecer, VIDAS pasa a 0, el juego avisa (`over`) y el modal "FIN DEL JUEGO" muestra la puntuación del HUD.
-- [ ] Dentro del canvas se ve el HUD del juego y fuera el de React, y los dos muestran la misma puntuación, las mismas vidas y el mismo nivel en todo momento.
-- [ ] "JUGAR DE NUEVO" empieza con el tablero vacío, 0 puntos, 0 líneas, 1 vida y nivel 1, sin duplicar el bucle (la velocidad de caída no cambia tras reiniciar).
-- [ ] PAUSA y la tecla P congelan el juego y REANUDAR continúa desde el mismo punto. En pausa, las teclas del juego no actúan.
-- [ ] Con el modal de fin abierto, `Enter` y `Espacio` activan el botón enfocado.
-- [ ] "SALIR" y "VOLVER AL VAULT" dejan la ruta sin errores en la consola y sin listeners colgados: al volver a entrar, una pulsación mueve la pieza una sola columna.
+- [x] Tras "CARGANDO...", se ven el tablero vacío con su borde y su rejilla de puntos, una pieza en la fila superior y la pieza siguiente bajo "SIGUIENTE".
+- [x] El HUD de React empieza en PUNTUACIÓN 0, VIDAS 1 y NIVEL 1, y el del canvas muestra VIDAS con una celda.
+- [x] `←` / `→` mueven la pieza una columna por pulsación y la repiten al mantenerlas; la pieza no sale de las columnas 0–9.
+- [x] `↑` y `D` giran en sentido horario y `A` en sentido antihorario. Junto a una pared, el giro se aplica desplazado si hay hueco.
+- [x] `W` y `S` no hacen nada en BLOQUES.
+- [x] `↓` mantenida acelera la caída sin sumar puntos.
+- [x] `Espacio` deja caer la pieza al fondo, suma 2 puntos por fila bajada y la fija.
+- [x] Borrar 1, 2, 3 o 4 líneas a la vez en nivel 1 suma 100, 300, 500 u 800 puntos.
+- [x] A las 10 líneas el nivel pasa a 2 y la caída automática se acelera (0,73 s por fila).
+- [x] Cuando una pieza nueva no cabe al aparecer, VIDAS pasa a 0, el juego avisa (`over`) y el modal "FIN DEL JUEGO" muestra la puntuación del HUD.
+- [x] Dentro del canvas se ve el HUD del juego y fuera el de React, y los dos muestran la misma puntuación, las mismas vidas y el mismo nivel en todo momento.
+- [x] "JUGAR DE NUEVO" empieza con el tablero vacío, 0 puntos, 0 líneas, 1 vida y nivel 1, sin duplicar el bucle (la velocidad de caída no cambia tras reiniciar).
+- [x] PAUSA y la tecla P congelan el juego y REANUDAR continúa desde el mismo punto. En pausa, las teclas del juego no actúan.
+- [x] Con el modal de fin abierto, `Enter` y `Espacio` activan el botón enfocado.
+- [x] "SALIR" y "VOLVER AL VAULT" dejan la ruta sin errores en la consola y sin listeners colgados: al volver a entrar, una pulsación mueve la pieza una sola columna.
 
 **Pantalla completa**
 
-- [ ] En pantalla completa 16:9 el campo mide 853×480: el tablero está centrado, PUNTUACIÓN, NIVEL y VIDAS a la izquierda, SIGUIENTE y LÍNEAS a la derecha, y nada tapa el botón "VENTANA".
-- [ ] Al entrar en pantalla completa con la partida en marcha, el juego se pausa y la tarjeta dice "Pulsa P para reanudar". Al salir (VENTANA, F o Esc), también se pausa.
-- [ ] Tras cambiar de modo, el tablero, la pieza que cae, la puntuación, las líneas y el nivel son los mismos que antes del cambio.
-- [ ] En ventana, la disposición es la de 480: tablero en x 40 y todo el HUD en el panel derecho.
+- [x] En pantalla completa 16:9 el campo mide 853×480: el tablero está centrado, PUNTUACIÓN, NIVEL y VIDAS a la izquierda, SIGUIENTE y LÍNEAS a la derecha, y nada tapa el botón "VENTANA".
+- [x] Al entrar en pantalla completa con la partida en marcha, el juego se pausa y la tarjeta dice "Pulsa P para reanudar". Al salir (VENTANA, F o Esc), también se pausa.
+- [x] Tras cambiar de modo, el tablero, la pieza que cae, la puntuación, las líneas y el nivel son los mismos que antes del cambio.
+- [x] En ventana, la disposición es la de 480: tablero en x 40 y todo el HUD en el panel derecho.
 
 **Aspecto**
 
-- [ ] En el lienzo solo se usan `#6e8677`, `#000000` y `#2f3b34`, y `git grep -nE "shadowBlur|shadowColor|globalAlpha|#00f5ff|#ff006e|#f5ff00|#39ff88|#00ff88" -- lib/arcade/` no devuelve nada.
-- [ ] Las 7 piezas se dibujan con la misma celda (relleno negro con filete `#2f3b34`) y solo se distinguen por su forma.
-- [ ] La portada de BLOQUES solo usa los cuatro tonos de `game-cover.tsx` y muestra la pila con huecos y la T cayendo.
-- [ ] La cabina, el HUD de React, el modal y las páginas se ven igual que antes de este spec.
+- [x] En el lienzo solo se usan `#6e8677`, `#000000` y `#2f3b34`, y `git grep -nE "shadowBlur|shadowColor|globalAlpha|#00f5ff|#ff006e|#f5ff00|#39ff88|#00ff88" -- lib/arcade/` no devuelve nada.
+- [x] Las 7 piezas se dibujan con la misma celda (relleno negro con filete `#2f3b34`) y solo se distinguen por su forma.
+- [x] La portada de BLOQUES solo usa los cuatro tonos de `game-cover.tsx` y muestra la pila con huecos y la T cayendo.
+- [x] La cabina, el HUD de React, el modal y las páginas se ven igual que antes de este spec.
 
 **Leaderboard**
 
-- [ ] El Salón de la Fama tiene las pestañas GLOBAL, ASTEROIDES y BLOQUES. La nueva muestra "SÉ EL PRIMERO EN ENTRAR AL SALÓN DE LA FAMA" mientras no tiene filas.
-- [ ] Al guardar con el nombre "Usuario-test", se crea en `scores` una fila con `game_id = 'bloques'`, `player_name = 'USUARIO-TEST'`, la puntuación exacta del modal y `user_id` nulo.
-- [ ] Esa fila aparece al recargar en el top 10 de `/juegos/bloques`, en GLOBAL y en la pestaña BLOQUES, y como mejor puntuación de la tarjeta.
+- [x] El Salón de la Fama tiene las pestañas GLOBAL, ASTEROIDES y BLOQUES. La nueva muestra "SÉ EL PRIMERO EN ENTRAR AL SALÓN DE LA FAMA" mientras no tiene filas.
+- [x] Al guardar con el nombre "Usuario-test", se crea en `scores` una fila con `game_id = 'bloques'`, `player_name = 'USUARIO-TEST'`, la puntuación exacta del modal y `user_id` nulo.
+- [x] Esa fila aparece al recargar en el top 10 de `/juegos/bloques`, en GLOBAL y en la pestaña BLOQUES, y como mejor puntuación de la tarjeta.
 
 **Calidad**
 
-- [ ] Asteroides funciona igual: HUD 0 / 3 / 1, A y D giran la nave, W propulsa, no se pausa al entrar o salir de pantalla completa, y la pausa, el fin y el guardado siguen igual.
-- [ ] En `scores` solo quedan filas de prueba con `player_name = 'USUARIO-TEST'`.
-- [ ] `npx tsc --noEmit`, `npm run lint` y `npm run build` terminan sin errores.
-- [ ] `CLAUDE.md` y `guia-integracion.md` describen BLOQUES, las dos extensiones del motor y el número de spec.
+- [x] Asteroides funciona igual: HUD 0 / 3 / 1, A y D giran la nave, W propulsa, no se pausa al entrar o salir de pantalla completa, y la pausa, el fin y el guardado siguen igual.
+- [x] En `scores` solo quedan filas de prueba con `player_name = 'USUARIO-TEST'`.
+- [x] `npx tsc --noEmit`, `npm run lint` y `npm run build` terminan sin errores.
+- [x] `CLAUDE.md` y `guia-integracion.md` describen BLOQUES, las dos extensiones del motor y el número de spec.
 
 ---
 
