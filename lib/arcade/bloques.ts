@@ -4,12 +4,49 @@
 import type { GameFactory, KeyCode } from "./engine";
 
 const INK = "#000000"; // celdas, borde del tablero y texto del HUD
+const LINE = "#2f3b34"; // crt-line: filete de las celdas y rejilla de puntos
 const SCREEN = "#6e8677"; // crt-well: igual que la pantalla de la cabina
 
 // Tablero de la referencia: 10 × 20 celdas de 24 px (240 × 480).
 const COLS = 10;
 const ROWS = 20;
 const CELL = 24;
+const BOARD_W = COLS * CELL;
+
+// Celdas más pequeñas: la pieza siguiente y el icono de cada vida.
+const NEXT_CELL = 18;
+const LIFE_CELL = 12;
+const LIFE_STEP = 18;
+
+// Campo (spec 09): por debajo de este ancho se usa la disposición de la
+// referencia (tablero a la izquierda, todo el HUD a la derecha); desde aquí, el
+// tablero se centra con un panel a cada lado de al menos 180 px.
+const SQUARE_W = 480;
+const WIDE_MIN_W = 600;
+const SQUARE_BOARD_X = 40;
+const SQUARE_PANEL_X = 370; // centro del panel derecho en 480
+
+// HUD dentro del canvas: etiquetas a 10 px y valores a 14 px, centrados en su
+// panel. `y` es la línea base de cada texto.
+const HUD = { labelPx: 10, valuePx: 14 };
+const SQUARE_HUD = {
+  next: 40,
+  nextPiece: 60,
+  lines: 150,
+  score: 216,
+  level: 282,
+  lives: 348,
+};
+const WIDE_HUD = {
+  score: 40,
+  level: 120,
+  lives: 200,
+  next: 40,
+  nextPiece: 60,
+  lines: 170,
+};
+const VALUE_GAP = 26; // de la etiqueta a su valor
+const LIFE_GAP = 10; // de la etiqueta VIDAS a sus iconos
 
 // Las 7 piezas de la referencia (1 = celda ocupada). Sin colores: se distinguen
 // por la forma, así que el tablero solo guarda ocupado / vacío.
@@ -162,12 +199,110 @@ export const bloques: GameFactory = (g) => {
     }
   };
 
+  // Dónde van el tablero y los paneles para el ancho actual. Solo cambia con
+  // `resize`: el tablero, la pieza y los puntos no se tocan.
+  const layout = { boardX: 0, left: 0, right: 0, wide: false };
+  const place = (width: number) => {
+    layout.wide = width >= WIDE_MIN_W;
+    if (layout.wide) {
+      layout.boardX = Math.round((width - BOARD_W) / 2);
+      layout.left = layout.boardX / 2;
+      const rightStart = layout.boardX + BOARD_W;
+      layout.right = rightStart + (width - rightStart) / 2;
+    } else {
+      const offset = (width - SQUARE_W) / 2;
+      layout.boardX = SQUARE_BOARD_X + offset;
+      layout.left = SQUARE_PANEL_X + offset;
+      layout.right = SQUARE_PANEL_X + offset;
+    }
+  };
+  place(g.W);
+
+  // Una celda: relleno negro con margen de 1 px y un filete interior. El filete
+  // está a 5 px del borde en la celda de 24 y se escala en las pequeñas.
+  const cell = (x: number, y: number, size: number) => {
+    ctx.fillStyle = INK;
+    ctx.fillRect(x + 1, y + 1, size - 2, size - 2);
+    const inset = Math.round((size * 5) / CELL);
+    ctx.strokeStyle = LINE;
+    ctx.lineWidth = 1;
+    ctx.strokeRect(
+      x + inset + 0.5,
+      y + inset + 0.5,
+      size - 2 * inset - 1,
+      size - 2 * inset - 1,
+    );
+  };
+
+  const matrix = (m: Matrix, x: number, y: number, size: number) => {
+    for (let j = 0; j < m.length; j++)
+      for (let i = 0; i < m[j].length; i++)
+        if (m[j][i]) cell(x + i * size, y + j * size, size);
+  };
+
+  const label = (text: string, x: number, y: number) => {
+    ctx.fillStyle = INK;
+    ctx.font = `${HUD.labelPx}px ${g.font}`;
+    ctx.fillText(text, x, y);
+  };
+  const value = (text: string, x: number, y: number) => {
+    ctx.fillStyle = INK;
+    ctx.font = `${HUD.valuePx}px ${g.font}`;
+    ctx.fillText(text, x, y + VALUE_GAP);
+  };
+
+  const drawBoard = () => {
+    const bx = layout.boardX;
+    // Rejilla: un punto de 2×2 en cada cruce interior de celdas.
+    ctx.fillStyle = LINE;
+    for (let j = 1; j < ROWS; j++)
+      for (let i = 1; i < COLS; i++)
+        ctx.fillRect(bx + i * CELL - 1, j * CELL - 1, 2, 2);
+    for (let j = 0; j < ROWS; j++)
+      for (let i = 0; i < COLS; i++)
+        if (board[j][i]) cell(bx + i * CELL, j * CELL, CELL);
+    matrix(piece.m, bx + piece.x * CELL, piece.y * CELL, CELL);
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(bx, 0, BOARD_W, ROWS * CELL);
+  };
+
+  const drawHud = () => {
+    const pos = layout.wide ? WIDE_HUD : SQUARE_HUD;
+    const { left, right } = layout;
+    ctx.textAlign = "center";
+
+    label("SIGUIENTE", right, pos.next);
+    if (next) {
+      const w = next.m[0].length * NEXT_CELL;
+      matrix(next.m, right - w / 2, pos.nextPiece, NEXT_CELL);
+    }
+    label("LÍNEAS", right, pos.lines);
+    value(String(lines), right, pos.lines);
+
+    label("PUNTUACIÓN", left, pos.score);
+    value(score.toLocaleString("de-DE"), left, pos.score);
+    label("NIVEL", left, pos.level);
+    value(String(level), left, pos.level);
+
+    label("VIDAS", left, pos.lives);
+    const iconsW = lives > 0 ? (lives - 1) * LIFE_STEP + LIFE_CELL : 0;
+    for (let n = 0; n < lives; n++)
+      cell(left - iconsW / 2 + n * LIFE_STEP, pos.lives + LIFE_GAP, LIFE_CELL);
+  };
+
   spawn();
   handlers.score(score);
   handlers.lives(lives);
   handlers.level(level);
 
   return {
+    // El motor ensancha o estrecha el campo (pantalla completa o ventana): solo
+    // se recolocan el tablero y los paneles; la partida sigue igual.
+    resize(width) {
+      place(width);
+    },
+
     wasdAsArrows: false, // A y D giran; W y S no hacen nada
     pauseOnScreenChange: true,
 
@@ -214,31 +349,11 @@ export const bloques: GameFactory = (g) => {
       }
     },
 
-    // Dibujo mínimo; el aspecto completo, el HUD y el campo ancho van en el paso 4.
     draw() {
       ctx.fillStyle = SCREEN;
       ctx.fillRect(0, 0, g.W, g.H);
-      const ox = 40 + (g.W - 480) / 2;
-      ctx.fillStyle = INK;
-      board.forEach((r, j) =>
-        r.forEach((v, i) => {
-          if (v) ctx.fillRect(ox + i * CELL + 1, j * CELL + 1, 22, 22);
-        }),
-      );
-      piece.m.forEach((r, j) =>
-        r.forEach((v, i) => {
-          if (v)
-            ctx.fillRect(
-              ox + (piece.x + i) * CELL + 1,
-              (piece.y + j) * CELL + 1,
-              22,
-              22,
-            );
-        }),
-      );
-      ctx.strokeStyle = INK;
-      ctx.lineWidth = 2;
-      ctx.strokeRect(ox, 0, COLS * CELL, ROWS * CELL);
+      drawBoard();
+      drawHud();
     },
   };
 };
