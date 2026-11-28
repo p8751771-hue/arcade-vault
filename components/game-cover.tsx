@@ -92,6 +92,31 @@ function drawCover(x: CanvasRenderingContext2D, id: GameId) {
     R(54, 31, 2, 2, LIGHT);
     R(60, 29, 2, 2, LIGHT);
   }
+
+  // Spec 12: la pila con huecos de la portada de la referencia y una T cayendo.
+  // Las piezas C, M e Y de la referencia van en LIGHT y las G y O en MID.
+  if (id === "bloques") {
+    const tone: Partial<Record<string, string>> = {
+      C: LIGHT,
+      M: LIGHT,
+      Y: LIGHT,
+      G: MID,
+      O: MID,
+    };
+    ["..O....G..", "C.OMM.GGY.", "CCOMMYGYY.", "CCOMMYYGYC"].forEach((row, j) =>
+      [...row].forEach((ch, i) => {
+        const c = tone[ch];
+        if (c) R(18 + i * 6, 32 + j * 6, 5, 5, c);
+      }),
+    );
+    for (const [a, b] of [
+      [36, 6],
+      [42, 6],
+      [48, 6],
+      [42, 12],
+    ])
+      R(a, b, 5, 5, LIGHT);
+  }
 }
 
 interface GameCoverProps {

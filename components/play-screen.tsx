@@ -220,6 +220,19 @@ export function PlayScreen({ game }: { game: Game }) {
     return () => window.removeEventListener("resize", apply);
   }, [fullscreen]);
 
+  // Spec 12: un juego puede pedir que entrar o salir de pantalla completa pause
+  // la partida en marcha (`pauseOnScreenChange`). Se escucha el mismo evento del
+  // que sale `fullscreen`, así cubre el botón, la tecla F y Esc. Solo desde
+  // "running": la carga, la pausa y el modal de fin no cambian.
+  useEffect(() => {
+    const onChange = () => {
+      if (!runningRef.current?.pauseOnScreenChange) return;
+      setPhase((p) => (p === "running" ? "paused" : p));
+    };
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
   // Pausa solo desde "running" / "paused": ignora la carga y el modal de fin.
   const togglePause = useCallback(() => {
     setPhase((p) =>

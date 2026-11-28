@@ -20,8 +20,16 @@ export const FIELD_MIN_WIDTH = 480;
 /** Ancho lógico máximo: 16:9 sobre 480 de alto. */
 export const FIELD_MAX_WIDTH = 853;
 
+// `KeyA` / `KeyD` solo llegan a un juego con `wasdAsArrows === false` (spec 12);
+// con el valor por defecto A y D siguen siendo flechas.
 export type KeyCode =
-  "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown" | "Space";
+  | "ArrowLeft"
+  | "ArrowRight"
+  | "ArrowUp"
+  | "ArrowDown"
+  | "Space"
+  | "KeyA"
+  | "KeyD";
 
 // Canvas → React: el juego notifica; la lógica del juego nunca toca React.
 export interface GameHandlers {
@@ -63,6 +71,16 @@ export interface ArcadeGame {
    * siguiente. Sin ella el campo se queda cuadrado.
    */
   resize?(width: number, height: number): void;
+  /**
+   * Opcional, por defecto true: W A S D se tratan como flechas. Con false,
+   * A y D llegan como "KeyA" / "KeyD" y W y S no hacen nada en ese juego.
+   */
+  wasdAsArrows?: boolean;
+  /**
+   * Opcional, por defecto false: con true, la cabina pausa la partida en
+   * marcha al entrar o salir de pantalla completa (spec 12).
+   */
+  pauseOnScreenChange?: boolean;
 }
 
 export type GameFactory = (g: GameContext) => ArcadeGame;
@@ -73,6 +91,8 @@ export interface RunningGame {
   /** Proporción ancho / alto de la pantalla en pantalla completa; 1 en ventana. */
   setScreenAspect(aspect: number): void;
   destroy(): void;
+  /** Copia de `ArcadeGame.pauseOnScreenChange` (false si el juego no lo define). */
+  readonly pauseOnScreenChange: boolean;
 }
 
 // W A S D se tratan como flechas.
@@ -91,10 +111,19 @@ const GAME_KEYS: ReadonlySet<string> = new Set<KeyCode>([
   "Space",
 ]);
 
+// Teclas que llegan con su propio código a un juego sin alias WASD.
+const RAW_KEYS: ReadonlySet<string> = new Set<KeyCode>(["KeyA", "KeyD"]);
+
 // Con una pestaña en segundo plano un cuadro puede durar segundos: se acota.
 const MAX_DT = 0.05;
 
-function toKeyCode(code: string): KeyCode | null {
+// Con `wasdAsArrows` (por defecto) W A S D se traducen a flechas. Sin alias,
+// A y D llegan con su código y W y S no son teclas del juego.
+function toKeyCode(code: string, wasdAsArrows: boolean): KeyCode | null {
+  if (!wasdAsArrows) {
+    if (RAW_KEYS.has(code)) return code as KeyCode;
+    return GAME_KEYS.has(code) ? (code as KeyCode) : null;
+  }
   const mapped = KEY_ALIASES[code] ?? code;
   return GAME_KEYS.has(mapped) ? (mapped as KeyCode) : null;
 }
@@ -153,6 +182,8 @@ export function startGame(
   let pressed: KeyCode[] = []; // pulsadas desde el cuadro anterior
   let paused = false;
   let over = false;
+  // Lo fija el juego al crearse (`ArcadeGame.wasdAsArrows`), antes de cualquier tecla.
+  let wasdAsArrows = true;
   let dead = false;
   let raf = 0;
   let last = performance.now();
@@ -167,7 +198,7 @@ export function startGame(
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    const code = toKeyCode(e.code);
+    const code = toKeyCode(e.code, wasdAsArrows);
     if (!code) return;
     // Solo se captura el teclado con la partida en marcha: en pausa o con el
     // modal de fin abierto, flechas y Espacio vuelven a funcionar en los botones.
@@ -175,7 +206,7 @@ export function startGame(
     press(code);
   };
   const onKeyUp = (e: KeyboardEvent) => {
-    const code = toKeyCode(e.code);
+    const code = toKeyCode(e.code, wasdAsArrows);
     if (code) release(code);
   };
   // Si la ventana pierde el foco con una tecla pulsada, no llegará su keyup.
@@ -207,6 +238,7 @@ export function startGame(
     },
   };
   const game = factory(context);
+  wasdAsArrows = game.wasdAsArrows ?? true;
   notify.field(context.W, context.H);
 
   // Proporción pedida por React; se aplica al inicio del siguiente cuadro.
@@ -237,6 +269,7 @@ export function startGame(
   raf = requestAnimationFrame(tick);
 
   return {
+    pauseOnScreenChange: game.pauseOnScreenChange ?? false,
     setPaused(value) {
       paused = value;
     },

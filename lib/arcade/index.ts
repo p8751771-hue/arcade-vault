@@ -4,8 +4,10 @@
 // aquí conserva el placeholder de la cabina.
 import type { GameId } from "@/lib/games";
 import { asteroides } from "./asteroides";
+import { bloques } from "./bloques";
 import type { GameFactory } from "./engine";
 
 export const ARCADE_GAMES: Partial<Record<GameId, GameFactory>> = {
   asteroides,
+  bloques,
 };
