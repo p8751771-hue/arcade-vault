@@ -44,8 +44,12 @@ interface ArcadeGame {
   update(dt: number): void; // dt en segundos, acotado a 0,05
   draw(): void; // se llama en cada cuadro, también en pausa
   resize?(width: number, height: number): void; // opt-in: campo panorámico
+  wasdAsArrows?: boolean; // por defecto true; false: A / D llegan como KeyA / KeyD y W / S no hacen nada (spec 12)
+  pauseOnScreenChange?: boolean; // por defecto false; true: la cabina pausa al entrar o salir de pantalla completa (spec 12)
 }
-type KeyCode = "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown" | "Space";
+type KeyCode =
+  | "ArrowLeft" | "ArrowRight" | "ArrowUp" | "ArrowDown" | "Space"
+  | "KeyA" | "KeyD"; // solo con wasdAsArrows === false (spec 12)
 ```
 
 Reglas:
@@ -53,8 +57,8 @@ Reglas:
 - **Lee siempre `g.W` y `g.H`**; no los copies a una variable (cambian con `resize`).
 - **Avisa al empezar** con `handlers.score(0)`, `handlers.lives(n)` y `handlers.level(1)`, y otra vez **en cada cambio**. El motor filtra los repetidos, así que se puede llamar sin miedo.
 - **Fin:** `g.end(score)` una vez y `return` del `update`. El motor deja de llamar a `update` y avisa a React.
-- **Pausa:** la gestiona la aplicación con `setPaused`. El juego no lee `P` ni tiene botón de pausa.
-- **Teclado:** `W A S D` ya son alias de las flechas. El motor solo hace `preventDefault` mientras la partida corre.
+- **Pausa:** la gestiona la aplicación con `setPaused`. El juego no lee `P` ni tiene botón de pausa. Con `pauseOnScreenChange: true`, la cabina pausa la partida en marcha al entrar o salir de pantalla completa (botón, `F` o `Esc`); ejemplo: `bloques`.
+- **Teclado:** `W A S D` son alias de las flechas por defecto. Con `wasdAsArrows: false`, `A` y `D` llegan como `"KeyA"` / `"KeyD"` y `W` / `S` se ignoran (ejemplo: `bloques`, que gira con A y D). El motor solo hace `preventDefault` mientras la partida corre.
 - **Sin estado global de módulo:** todo el estado vive dentro del factory, porque "JUGAR DE NUEVO" crea otro.
 - **Sin asignaciones innecesarias por cuadro** (meta futura: Raspberry Pi).
 
@@ -155,7 +159,8 @@ Cada hueco se resuelve en el spec del **primer** juego que lo necesite, como **e
 | Orden de pulsaciones (giros rápidos, laberinto)    | `hit(code)` solo dice si se pulsó en este cuadro; se pierde el orden                                | `GameContext.pressed: readonly KeyCode[]`: las pulsaciones del cuadro, en orden (el motor ya las guarda en `pressed`)                                         |
 | Ratón / puntero sobre el canvas                    | El motor no da coordenadas ni limpia listeners del juego                                            | `ArcadeGame.destroy?()`, llamado por `RunningGame.destroy()`. Las coordenadas se pasan a lógicas con `g.W / rect.width`. Ojo con el imán (spec 10), que captura el clic izquierdo con ratón sobre el canvas |
 | Juego sin vidas                                    | `GameHandlers.lives(value: number)` e `INITIAL_HUD = { lives: 3 }` en `play-screen.tsx`             | `lives(value: number \| null)`: con `null`, el HUD de React muestra "—". El valor inicial lo da el primer aviso del juego                                      |
-| Teclas fuera de flechas / Espacio                  | `KeyCode` solo tiene 5 valores; `P` (pausa) y `F` (pantalla completa) son de la aplicación          | Ampliar `KeyCode` y `GAME_KEYS` con códigos nuevos (nunca `KeyP` ni `KeyF`) y documentarlos en `controls`                                                    |
+| Teclas fuera de flechas / Espacio                  | **Resuelto en parte (spec 12):** `KeyA` / `KeyD` con `wasdAsArrows: false`. `P` y `F` son de la aplicación | Otra tecla: añadirla a `KeyCode` y a `RAW_KEYS` (nunca `KeyP` ni `KeyF`), con la misma regla de opt-in, y documentarla en `controls`                          |
+| Pausa al cambiar de pantalla completa              | **Resuelto (spec 12):** `pauseOnScreenChange` en `ArcadeGame` y `RunningGame`                        | —                                                                                                                                                            |
 | Repetición al mantener (mover piezas)              | Solo `keys` (mantenida) y `hit` (flanco)                                                            | Se hace dentro del juego con un temporizador propio (como `hold` en `tetris` de la referencia); no hace falta tocar el motor                                 |
 | Botonera táctil / móvil                            | Visible pero sin conectar a ningún juego                                                            | Fuera de alcance (spec de controles táctiles)                                                                                                                |
 | Mando (Gamepad)                                    | No existe                                                                                           | Fuera de alcance (spec de mando)                                                                                                                             |
