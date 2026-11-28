@@ -76,6 +76,11 @@ export interface ArcadeGame {
    * A y D llegan como "KeyA" / "KeyD" y W y S no hacen nada en ese juego.
    */
   wasdAsArrows?: boolean;
+  /**
+   * Opcional, por defecto false: con true, la cabina pausa la partida en
+   * marcha al entrar o salir de pantalla completa (spec 12).
+   */
+  pauseOnScreenChange?: boolean;
 }
 
 export type GameFactory = (g: GameContext) => ArcadeGame;
@@ -86,6 +91,8 @@ export interface RunningGame {
   /** Proporción ancho / alto de la pantalla en pantalla completa; 1 en ventana. */
   setScreenAspect(aspect: number): void;
   destroy(): void;
+  /** Copia de `ArcadeGame.pauseOnScreenChange` (false si el juego no lo define). */
+  readonly pauseOnScreenChange: boolean;
 }
 
 // W A S D se tratan como flechas.
@@ -262,6 +269,7 @@ export function startGame(
   raf = requestAnimationFrame(tick);
 
   return {
+    pauseOnScreenChange: game.pauseOnScreenChange ?? false,
     setPaused(value) {
       paused = value;
     },
